@@ -201,3 +201,5 @@ Runtime/songs.db
 Runtime/System/*
 Runtime/DTXFiles/*
 
+# IDE files
+.idea/*
