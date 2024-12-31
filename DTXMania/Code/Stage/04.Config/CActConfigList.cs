@@ -976,8 +976,9 @@ namespace DTXMania
                 "  BD-2 ... LP & LBD | BD\n" +
                 "  BD-3 ... LP & LBD & BD\n",
                 "Foot pedal grouping settings:\n" +
-                "Specifies how the left pedal, left bass drum,\n" +
-                "and right bass drum are grouped.\n" +
+                "Specifies how the left pedal, " +
+                "left bass drum, and right bass " +
+                "drum are grouped.\n" +
                 "  BD-0 ... LP | LBD | BD\n" +
                 "  BD-1 ... LP | LBD & BD\n" +
                 "  BD-2 ... LP & LBD | BD\n" +
