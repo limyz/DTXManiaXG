@@ -975,6 +975,13 @@ namespace DTXMania
                 "  BD-1 ... LP | LBD & BD\n" +
                 "  BD-2 ... LP & LBD | BD\n" +
                 "  BD-3 ... LP & LBD & BD\n",
+                "Foot pedal grouping settings:\n" +
+                "Specifies how the left pedal, left bass drum,\n" +
+                "and right bass drum are grouped.\n" +
+                "  BD-0 ... LP | LBD | BD\n" +
+                "  BD-1 ... LP | LBD & BD\n" +
+                "  BD-2 ... LP & LBD | BD\n" +
+                "  BD-3 ... LP & LBD & BD\n",
                 new string[] { "BD-0", "BD-1", "BD-2", "BD-3" });
             this.listItems.Add(this.iSystemBDGroup);
 
