@@ -57,7 +57,7 @@ namespace DTXMania
 
 		// CItemBase 実装
 
-		public override void tEnter押下()
+		protected override void tEnter押下()
 		{
 			this.b値がフォーカスされている = !this.b値がフォーカスされている;
 		}

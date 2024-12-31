@@ -72,8 +72,19 @@ namespace DTXMania
 
 		
 		// メソッド；子クラスで実装する
+		
+		//This will allow simplifying the code inside CActConfigList.cs
+		public Action action;
 
-		public virtual void tEnter押下()
+		public void RunAction()
+		{
+			tEnter押下();
+
+			action?.Invoke();
+		}
+
+		//existing method which gets inherited by CItemInteger, CItemList, etc
+		protected virtual void tEnter押下()
 		{
 		}
 		public virtual void tMoveItemValueToNext()

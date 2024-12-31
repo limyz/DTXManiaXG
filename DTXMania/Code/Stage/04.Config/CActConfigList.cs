@@ -87,24 +87,127 @@ namespace DTXMania
                 "曲データの一覧情報を\n"+
                 "取得し直します。",
                 "Clear song list cache and fully reload song data from disk.");
+            this.iSystemReloadDTX.action = () =>
+            {
+                if (CDTXMania.EnumSongs.IsEnumerating)
+                {
+                    // Debug.WriteLine( "バックグラウンドでEnumeratingSongs中だったので、一旦中断します。" );
+                    CDTXMania.EnumSongs.Abort();
+                    CDTXMania.actEnumSongs.OnDeactivate();
+                }
+
+                CDTXMania.EnumSongs.StartEnumFromDisk(false);
+                CDTXMania.EnumSongs.ChangeEnumeratePriority(ThreadPriority.Normal);
+                CDTXMania.actEnumSongs.bコマンドでの曲データ取得 = true;
+                CDTXMania.actEnumSongs.OnActivate();
+            };
             this.listItems.Add(this.iSystemReloadDTX);
 
             this.iSystemFastReloadDTX = new CItemBase("Fast Reload", CItemBase.EPanelType.Normal,
                 "曲データの一覧情報を\n" +
                 "取得し直します。",
                 "Detect changes in DTX Data folder from song list cache and load these changes only.\nWARNING: This feature is experimental and may corrupt the song list cache. Select Reload Songs if something goes wrong.");
+            this.iSystemFastReloadDTX.action = () =>
+            {
+                if (CDTXMania.EnumSongs.IsEnumerating)
+                {
+                    // Debug.WriteLine( "バックグラウンドでEnumeratingSongs中だったので、一旦中断します。" );
+                    CDTXMania.EnumSongs.Abort();
+                    CDTXMania.actEnumSongs.OnDeactivate();
+                }
+
+                CDTXMania.EnumSongs.StartEnumFromDisk(true);
+                CDTXMania.EnumSongs.ChangeEnumeratePriority(ThreadPriority.Normal);
+                CDTXMania.actEnumSongs.bコマンドでの曲データ取得 = true;
+                CDTXMania.actEnumSongs.OnActivate();
+            };
             this.listItems.Add(this.iSystemFastReloadDTX);
 
             this.iSystemImportConfig = new CItemBase("Import Config", CItemBase.EPanelType.Normal,
                 "config.iniファイルから設定\n" +
                 "を再読み込みする。",
                 "Import and apply settings from an external config.ini file.\nNOTE: Certain configurations such as Window Size and Position require restart of the application to take effect.");
+            this.iSystemImportConfig.action = () =>
+            {
+                //Import Config                 
+                var fileContent = string.Empty;
+                var filePath = string.Empty;
+
+                using (OpenFileDialog openFileDialog = new OpenFileDialog())
+                {
+                    openFileDialog.InitialDirectory = ".\\";
+                    openFileDialog.FileName = "config.ini";
+                    openFileDialog.Filter = "ini files (*.ini)|*.ini";
+                    openFileDialog.FilterIndex = 2;
+                    openFileDialog.RestoreDirectory = true;
+
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        //Get the path of specified file
+                        filePath = openFileDialog.FileName;
+
+                        Trace.TraceInformation("Selected File to import: " + filePath);
+                        try
+                        {
+                            CConfigIni newConfig = new CConfigIni(filePath);
+                            CDTXMania.ConfigIni = newConfig;
+                            //Update the display values in config page to ensure UI is in-sync
+                            this.tUpdateDisplayValuesFromConfigIni();
+                            //Update Toast Message
+                            string fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+                            this.tUpdateToastMessage(string.Format("Imported {0} successfully.", fileName));
+                            this.ctToastMessageCounter.tStart(0, 1, 10000, CDTXMania.Timer);
+                        }
+                        catch (Exception)
+                        {
+                            Trace.TraceError("Fail to import config file");
+                            this.tUpdateToastMessage("Error importing selected file.");
+                            this.ctToastMessageCounter.tStart(0, 1, 10000, CDTXMania.Timer);
+                        }
+                    }
+                    else
+                    {
+                        Trace.TraceInformation("Cancel import of config");
+                    }
+                }
+            };
             this.listItems.Add(this.iSystemImportConfig);
 
             this.iSystemExportConfig = new CItemBase("Export Config", CItemBase.EPanelType.Normal,
                 "config.iniファイルから設定\n" +
                 "を再読み込みする。",
                 "Export current settings to an external .ini file");
+            this.iSystemExportConfig.action = () =>
+            {
+                //Export Config                    
+                var fileContent = string.Empty;
+                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+                {
+                    saveFileDialog.InitialDirectory = ".\\";
+                    saveFileDialog.FileName = "config.ini";
+                    saveFileDialog.Filter = "ini files (*.ini)|*.ini";
+                    saveFileDialog.FilterIndex = 2;
+                    saveFileDialog.RestoreDirectory = true;
+
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        //Get the path of specified file
+                        string filePath = saveFileDialog.FileName;
+                        Trace.TraceInformation("Selected File to export: " + filePath);
+                        //Ensure changes are recorded to config.ini internally before export
+                        this.tRecordToConfigIni();
+                        CDTXMania.ConfigIni.tWrite(filePath); // CONFIGだけ
+                        //Update Toast Message
+                        string fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+                        this.tUpdateToastMessage(string.Format("Configurations exported to {0}.", fileName));
+                        this.ctToastMessageCounter.tStart(0, 1, 10000, CDTXMania.Timer);
+                    }
+                    else
+                    {
+                        Trace.TraceInformation("Cancel export of config");
+                    }
+                }
+            };
             this.listItems.Add(this.iSystemExportConfig);
 
             int nDGmode = (CDTXMania.ConfigIni.bGuitarEnabled ? 1 : 1) + (CDTXMania.ConfigIni.bDrumsEnabled ? 0 : 1) - 1;
@@ -171,6 +274,7 @@ namespace DTXMania
             this.iSystemFullscreen = new CItemToggle("Fullscreen", CDTXMania.ConfigIni.bFullScreenMode,
                 "画面モード設定：\n ON で全画面モード、\n OFF でウィンドウモードになります。",
                 "Fullscreen mode or window mode.");
+            this.iSystemFullscreen.action = () => CDTXMania.app.b次のタイミングで全画面_ウィンドウ切り替えを行う = true;
             this.listItems.Add(this.iSystemFullscreen);
 
             this.iSystemStageFailed = new CItemToggle("StageFailed", CDTXMania.ConfigIni.bSTAGEFAILEDEnabled,
@@ -205,6 +309,11 @@ namespace DTXMania
                 "ONにすると、ガタつきのない\n" +
                 "滑らかな画面描画が実現されます。",
                 "Turn ON to wait VSync (Vertical Synchronizing signal) at every drawing (so FPS becomes 60)\nIf you have enough CPU/GPU power, the scrolling would become smooth.");
+            this.iSystemVSyncWait.action = () =>
+            {
+                CDTXMania.ConfigIni.bVerticalSyncWait = this.iSystemVSyncWait.bON;
+                CDTXMania.app.b次のタイミングで垂直帰線同期切り替えを行う = true;
+            };
             this.listItems.Add(this.iSystemVSyncWait);
 
             this.iSystemAVI = new CItemToggle("AVI", CDTXMania.ConfigIni.bAVIEnabled,
@@ -502,6 +611,7 @@ namespace DTXMania
                 "\n",
                 "Choose skin",
                 skinNames);
+            this.iSystemSkinSubfolder.action = tGenerateSkinSample;
             this.listItems.Add(this.iSystemSkinSubfolder);
 
             this.iSystemUseBoxDefSkin = new CItemToggle("Skin (Box)", CDTXMania.ConfigIni.bUseBoxDefSkin,
@@ -511,6 +621,7 @@ namespace DTXMania
                 "切り替えるかどうかを設定します。\n",
                 "Box skin:\n" +
                 "Automatically change skin as per box.def file.");
+            this.iSystemUseBoxDefSkin.action = () => CSkin.bUseBoxDefSkin = this.iSystemUseBoxDefSkin.bON;
             this.listItems.Add(this.iSystemUseBoxDefSkin);
 
             this.iInfoType = new CItemList("InfoType", CItemBase.EPanelType.Normal, CDTXMania.ConfigIni.nInfoType,
@@ -536,6 +647,7 @@ namespace DTXMania
             this.iSystemGoToKeyAssign = new CItemBase("System Keys", CItemBase.EPanelType.Normal,
                 "システムのキー入力に関する項目を設定します。",
                 "Settings for the system key/pad inputs.");
+            this.iSystemGoToKeyAssign.action = tSetupItemList_KeyAssignSystem;
             this.listItems.Add(this.iSystemGoToKeyAssign);
 
             this.iSystemMetronome = new CItemToggle("Metronome", CDTXMania.ConfigIni.bMetronome,
@@ -577,6 +689,10 @@ namespace DTXMania
                 "全パッドの自動演奏のON/OFFを\n" +
                 "まとめて切り替えます。",
                 "Activate/deactivate Auto for all drum lanes at once.");
+            this.iDrumsAutoPlayAll.action = () =>
+            {
+                this.tSwitchAutoForAllDrumPads(this.iDrumsAutoPlayAll.e現在の状態 == CItemThreeState.E状態.ON);
+            };
             this.listItems.Add(this.iDrumsAutoPlayAll);
 
             this.iDrumsLeftCymbal = new CItemToggle("    LeftCymbal", CDTXMania.ConfigIni.bAutoPlay.LC,
@@ -675,6 +791,27 @@ namespace DTXMania
                 "HALF: lanes and gauge are hidden.\n"+
                 "FULL: additionaly to HALF, bar/beat lines, hit bar are hidden.",
                 new string[] { "OFF", "HALF", "FULL" });
+            this.iDrumsDark.action = () =>
+            {
+                if (this.iDrumsDark.n現在選択されている項目番号 == (int)EDarkMode.FULL)
+                {
+                    this.iDrumsLaneDisp.n現在選択されている項目番号 = 3;
+                    this.iDrumsJudgeLineDisp.bON = false;
+                    this.iDrumsLaneFlush.bON = false;
+                }
+                else if (this.iDrumsDark.n現在選択されている項目番号 == (int)EDarkMode.HALF)
+                {
+                    this.iDrumsLaneDisp.n現在選択されている項目番号 = 1;
+                    this.iDrumsJudgeLineDisp.bON = true;
+                    this.iDrumsLaneFlush.bON = true;
+                }
+                else
+                {
+                    this.iDrumsLaneDisp.n現在選択されている項目番号 = 0;
+                    this.iDrumsJudgeLineDisp.bON = true;
+                    this.iDrumsLaneFlush.bON = true;
+                }
+            };
             this.listItems.Add(this.iDrumsDark);
 
             this.iDrumsLaneDisp = new CItemList("LaneDisp", CItemBase.EPanelType.Normal, (int)CDTXMania.ConfigIni.nLaneDisp.Drums,
@@ -1103,6 +1240,7 @@ namespace DTXMania
             this.iDrumsGoToKeyAssign = new CItemBase("Drums Keys", CItemBase.EPanelType.Normal,
                 "ドラムのキー入力に関する項目を設定します。",
                 "Settings for the drums key/pad inputs.");
+            this.iDrumsGoToKeyAssign.action = t項目リストの設定_KeyAssignDrums;
             this.listItems.Add(this.iDrumsGoToKeyAssign);
 
             OnListMenuの初期化();
@@ -1132,6 +1270,10 @@ namespace DTXMania
                 "まとめて切り替えます。",
                 "You can change whether Auto or not\n" +
                 " for all guitar neck/pick at once.");
+            this.iGuitarAutoPlayAll.action = () =>
+            {
+                this.tSwitchAutoForAllGuitarPads(this.iGuitarAutoPlayAll.e現在の状態 == CItemThreeState.E状態.ON);
+            };
             this.listItems.Add(this.iGuitarAutoPlayAll);
 
             this.iGuitarR = new CItemToggle("    R", CDTXMania.ConfigIni.bAutoPlay.GtR,
@@ -1195,6 +1337,27 @@ namespace DTXMania
                  "表示されなくなります。",
                  "OFF: all display parts are shown.\nHALF: lanes and gauge are\n disappeared.\nFULL: additionaly to HALF, bar/beat\n lines, hit bar are disappeared.",
                  new string[] { "OFF", "HALF", "FULL" });
+            this.iGuitarDark.action = () =>
+            {
+                if (this.iGuitarDark.n現在選択されている項目番号 == (int)EDarkMode.FULL)
+                {
+                    this.iGuitarLaneDisp.n現在選択されている項目番号 = 3;
+                    this.iGuitarJudgeLineDisp.bON = false;
+                    this.iGuitarLaneFlush.bON = false;
+                }
+                else if (this.iGuitarDark.n現在選択されている項目番号 == (int)EDarkMode.HALF)
+                {
+                    this.iGuitarLaneDisp.n現在選択されている項目番号 = 1;
+                    this.iGuitarJudgeLineDisp.bON = true;
+                    this.iGuitarLaneFlush.bON = true;
+                }
+                else
+                {
+                    this.iGuitarLaneDisp.n現在選択されている項目番号 = 0;
+                    this.iGuitarJudgeLineDisp.bON = true;
+                    this.iGuitarLaneFlush.bON = true;
+                }
+            };
             this.listItems.Add(this.iGuitarDark);
 
             this.iGuitarLaneDisp = new CItemList("LaneDisp", CItemBase.EPanelType.Normal, (int)CDTXMania.ConfigIni.nLaneDisp.Guitar,
@@ -1309,6 +1472,14 @@ namespace DTXMania
                 "この項目を有効にすると、ベースパートのグラフは\n" +
                 "無効になります。",
 				"To draw Graph or not." );
+            this.iGuitarGraph.action = () =>
+            {
+                if (this.iGuitarGraph.bON == true)
+                {
+                    CDTXMania.ConfigIni.bGraph有効.Bass = false;
+                    this.iBassGraph.bON = false;
+                }
+            };
 			this.listItems.Add( this.iGuitarGraph );
 
             // #23580 2011.1.3 yyagi
@@ -1320,6 +1491,7 @@ namespace DTXMania
             this.iGuitarGoToKeyAssign = new CItemBase("Guitar Keys", CItemBase.EPanelType.Normal,
                 "ギターのキー入力に関する項目を設定します。",
                 "Settings for the guitar key/pad inputs.");
+            this.iGuitarGoToKeyAssign.action = t項目リストの設定_KeyAssignGuitar;
             this.listItems.Add(this.iGuitarGoToKeyAssign);
 
             OnListMenuの初期化();
@@ -1349,6 +1521,10 @@ namespace DTXMania
                 "まとめて切り替えます。",
                 "You can change whether Auto or not\n" +
                 " for all bass neck/pick at once.");
+            this.iBassAutoPlayAll.action = () =>
+            {
+                this.tSwitchAutoForAllBassPads(this.iBassAutoPlayAll.e現在の状態 == CItemThreeState.E状態.ON);
+            };
             this.listItems.Add(this.iBassAutoPlayAll);
 
             this.iBassR = new CItemToggle("    R", CDTXMania.ConfigIni.bAutoPlay.BsR,
@@ -1412,6 +1588,27 @@ namespace DTXMania
                  "表示されなくなります。",
                  "OFF: all display parts are shown.\nHALF: lanes and gauge are\n disappeared.\nFULL: additionaly to HALF, bar/beat\n lines, hit bar are disappeared.",
                  new string[] { "OFF", "HALF", "FULL" });
+            this.iBassDark.action = () =>
+            {
+                if (this.iBassDark.n現在選択されている項目番号 == (int)EDarkMode.FULL)
+                {
+                    this.iBassLaneDisp.n現在選択されている項目番号 = 3;
+                    this.iBassJudgeLineDisp.bON = false;
+                    this.iBassLaneFlush.bON = false;
+                }
+                else if (this.iBassDark.n現在選択されている項目番号 == (int)EDarkMode.HALF)
+                {
+                    this.iBassLaneDisp.n現在選択されている項目番号 = 1;
+                    this.iBassJudgeLineDisp.bON = true;
+                    this.iBassLaneFlush.bON = true;
+                }
+                else
+                {
+                    this.iBassLaneDisp.n現在選択されている項目番号 = 0;
+                    this.iBassJudgeLineDisp.bON = true;
+                    this.iBassLaneFlush.bON = true;
+                }
+            };
             this.listItems.Add(this.iBassDark);
 
             this.iBassLaneDisp = new CItemList("LaneDisp", CItemBase.EPanelType.Normal, (int)CDTXMania.ConfigIni.nLaneDisp.Bass,
@@ -1517,7 +1714,15 @@ namespace DTXMania
                 "この項目を有効にすると、ギターパートのグラフは\n" +
                 "無効になります。",
 				"To draw Graph or not." );
-			this.listItems.Add( this.iBassGraph );
+            this.iBassGraph.action = () =>
+            {
+                if (this.iBassGraph.bON == true)
+                {
+                    CDTXMania.ConfigIni.bGraph有効.Guitar = false;
+                    this.iGuitarGraph.bON = false;
+                }
+            };
+            this.listItems.Add( this.iBassGraph );
 
             // #23580 2011.1.3 yyagi
             this.iBassInputAdjustTimeMs = new CItemInteger("InputAdjust", -99, 99, CDTXMania.ConfigIni.nInputAdjustTimeMs.Bass,
@@ -1528,6 +1733,7 @@ namespace DTXMania
             this.iBassGoToKeyAssign = new CItemBase("Bass Keys", CItemBase.EPanelType.Normal,
                 "ベースのキー入力に関する項目を設定します。",
                 "Settings for the bass key/pad inputs.");
+            this.iBassGoToKeyAssign.action = t項目リストの設定_KeyAssignBass;
             this.listItems.Add(this.iBassGoToKeyAssign);
 
             OnListMenuの初期化();
@@ -1562,6 +1768,7 @@ namespace DTXMania
         public void tPressEnter()
         {
             CDTXMania.Skin.soundDecide.tPlay();
+            
             if (this.bFocusIsOnElementValue)
             {
                 this.bFocusIsOnElementValue = false;
@@ -1570,450 +1777,10 @@ namespace DTXMania
             {
                 this.bFocusIsOnElementValue = true;
             }
-            else if (this.b現在選択されている項目はReturnToMenuである)
-            {
-                //this.tRecordToConfigIni();
-                //CONFIG中にスキン変化が発生すると面倒なので、一旦マスクした。
-            }
-            #region [ 個々のキーアサイン ]
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsLC)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.LC);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsHHC)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.HH);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsHHO)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.HHO);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsSD)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.SD);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsBD)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.BD);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsHT)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.HT);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsLT)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.LT);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsFT)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.FT);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsCY)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.CY);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsRD)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.RD);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsLP)			// #27029 2012.1.4 from
-            {																							//
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.LP);	//
-            }																							//
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsLBD)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.LBD);
-            }
-
-
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarR)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.R);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarG)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.G);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarB)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.B);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarY)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Y);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarP)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.P);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarPick)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Pick);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarWail)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Wail);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarDecide)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Decide);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarCancel)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Cancel);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarHelp)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Help);
-            }
-
-
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassR)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.R);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassG)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.G);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassB)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.B);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassY)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.Y);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassP)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.P);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassPick)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.Pick);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassWail)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.Wail);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassDecide)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.Decide);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassCancel)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.Cancel);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassHelp)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.BASS, EKeyConfigPad.Help);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemCapture)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.SYSTEM, EKeyConfigPad.Capture);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemSearch)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.SYSTEM, EKeyConfigPad.Search);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemLoopCreate)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.SYSTEM, EKeyConfigPad.LoopCreate);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemLoopDelete)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.SYSTEM, EKeyConfigPad.LoopDelete);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemSkipForward)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.SYSTEM, EKeyConfigPad.SkipForward);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemSkipBackward)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.SYSTEM, EKeyConfigPad.SkipBackward);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemIncreasePlaySpeed)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.SYSTEM, EKeyConfigPad.IncreasePlaySpeed);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemDecreasePlaySpeed)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.SYSTEM, EKeyConfigPad.DecreasePlaySpeed);
-            }
-            else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemRestart)
-            {
-                CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.SYSTEM, EKeyConfigPad.Restart);
-            }
-            #endregion
             else
             {
-
                 // Enter押下後の後処理
-                this.listItems[this.nCurrentSelection].tEnter押下();
-                if (this.listItems[this.nCurrentSelection] == this.iSystemFullscreen)
-                {
-                    CDTXMania.app.b次のタイミングで全画面_ウィンドウ切り替えを行う = true;
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iSystemVSyncWait)
-                {
-                    CDTXMania.ConfigIni.bVerticalSyncWait = this.iSystemVSyncWait.bON;
-                    CDTXMania.app.b次のタイミングで垂直帰線同期切り替えを行う = true;
-                }
-                #region [ AutoPlay #23886 2012.5.8 yyagi ]
-                else if (this.listItems[this.nCurrentSelection] == this.iDrumsAutoPlayAll)
-                {
-                    this.tSwitchAutoForAllDrumPads(this.iDrumsAutoPlayAll.e現在の状態 == CItemThreeState.E状態.ON);
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iGuitarAutoPlayAll)
-                {
-                    this.tSwitchAutoForAllGuitarPads(this.iGuitarAutoPlayAll.e現在の状態 == CItemThreeState.E状態.ON);
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iBassAutoPlayAll)
-                {
-                    this.tSwitchAutoForAllBassPads(this.iBassAutoPlayAll.e現在の状態 == CItemThreeState.E状態.ON);
-                }
-                #endregion
-                #region [ キーアサインへの遷移と脱出 ]
-                else if (this.listItems[this.nCurrentSelection] == this.iSystemGoToKeyAssign)			// #24609 2011.4.12 yyagi
-                {
-                    tSetupItemList_KeyAssignSystem();
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignSystemReturnToMenu)	// #24609 2011.4.12 yyagi
-                {
-                    tSetupItemList_System();
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iDrumsGoToKeyAssign)				// #24525 2011.3.15 yyagi
-                {
-                    t項目リストの設定_KeyAssignDrums();
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignDrumsReturnToMenu)		// #24525 2011.3.15 yyagi
-                {
-                    tSetupItemList_Drums();
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iGuitarGoToKeyAssign)			// #24525 2011.3.15 yyagi
-                {
-                    t項目リストの設定_KeyAssignGuitar();
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignGuitarReturnToMenu)	// #24525 2011.3.15 yyagi
-                {
-                    tSetupItemList_Guitar();
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iBassGoToKeyAssign)				// #24525 2011.3.15 yyagi
-                {
-                    t項目リストの設定_KeyAssignBass();
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iKeyAssignBassReturnToMenu)		// #24525 2011.3.15 yyagi
-                {
-                    tSetupItemList_Bass();
-                }
-                #endregion
-                #region [ ダーク ]
-                else if (this.listItems[this.nCurrentSelection] == this.iDrumsDark)					// #27029 2012.1.4 from
-                {
-                    if (this.iDrumsDark.n現在選択されている項目番号 == (int)EDarkMode.FULL)
-                    {
-                        this.iDrumsLaneDisp.n現在選択されている項目番号 = 3;
-                        this.iDrumsJudgeLineDisp.bON = false;
-                        this.iDrumsLaneFlush.bON = false;
-                    }
-                    else if (this.iDrumsDark.n現在選択されている項目番号 == (int)EDarkMode.HALF)
-                    {
-                        this.iDrumsLaneDisp.n現在選択されている項目番号 = 1;
-                        this.iDrumsJudgeLineDisp.bON = true;
-                        this.iDrumsLaneFlush.bON = true;
-                    }
-                    else
-                    {
-                        this.iDrumsLaneDisp.n現在選択されている項目番号 = 0;
-                        this.iDrumsJudgeLineDisp.bON = true;
-                        this.iDrumsLaneFlush.bON = true;
-                    }
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iGuitarDark)					// #27029 2012.1.4 from
-                {
-                    if (this.iGuitarDark.n現在選択されている項目番号 == (int)EDarkMode.FULL)
-                    {
-                        this.iGuitarLaneDisp.n現在選択されている項目番号 = 3;
-                        this.iGuitarJudgeLineDisp.bON = false;
-                        this.iGuitarLaneFlush.bON = false;
-                    }
-                    else if (this.iGuitarDark.n現在選択されている項目番号 == (int)EDarkMode.HALF)
-                    {
-                        this.iGuitarLaneDisp.n現在選択されている項目番号 = 1;
-                        this.iGuitarJudgeLineDisp.bON = true;
-                        this.iGuitarLaneFlush.bON = true;
-                    }
-                    else
-                    {
-                        this.iGuitarLaneDisp.n現在選択されている項目番号 = 0;
-                        this.iGuitarJudgeLineDisp.bON = true;
-                        this.iGuitarLaneFlush.bON = true;
-                    }
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iBassDark)					// #27029 2012.1.4 from
-                {
-                    if (this.iBassDark.n現在選択されている項目番号 == (int)EDarkMode.FULL)
-                    {
-                        this.iBassLaneDisp.n現在選択されている項目番号 = 3;
-                        this.iBassJudgeLineDisp.bON = false;
-                        this.iBassLaneFlush.bON = false;
-                    }
-                    else if (this.iBassDark.n現在選択されている項目番号 == (int)EDarkMode.HALF)
-                    {
-                        this.iBassLaneDisp.n現在選択されている項目番号 = 1;
-                        this.iBassJudgeLineDisp.bON = true;
-                        this.iBassLaneFlush.bON = true;
-                    }
-                    else
-                    {
-                        this.iBassLaneDisp.n現在選択されている項目番号 = 0;
-                        this.iBassJudgeLineDisp.bON = true;
-                        this.iBassLaneFlush.bON = true;
-                    }
-                }
-                #endregion
-                #region[ ギター_ベースグラフ ]
-                else if (this.listItems[this.nCurrentSelection] == this.iGuitarGraph)
-                {
-                    if (this.iGuitarGraph.bON == true)
-                    {
-                        CDTXMania.ConfigIni.bGraph有効.Bass = false;
-                        this.iBassGraph.bON = false;
-                    }
-                }
-                else if (this.listItems[this.nCurrentSelection] == this.iBassGraph)
-                {
-                    if (this.iBassGraph.bON == true)
-                    {
-                        CDTXMania.ConfigIni.bGraph有効.Guitar = false;
-                        this.iGuitarGraph.bON = false;
-                    }
-                }
-                #endregion
-                else if (this.listItems[this.nCurrentSelection] == this.iSystemUseBoxDefSkin)			// #28195 2012.5.6 yyagi
-                {
-                    CSkin.bUseBoxDefSkin = this.iSystemUseBoxDefSkin.bON;
-                }
-                #region [ スキン項目でEnterを押下した場合に限り、スキンの縮小サンプルを生成する。]
-                else if (this.listItems[this.nCurrentSelection] == this.iSystemSkinSubfolder)			// #28195 2012.5.2 yyagi
-                {
-                    tGenerateSkinSample();
-                }
-                #endregion
-                #region [ 曲データ一覧の再読み込み ]
-                else if (this.listItems[this.nCurrentSelection] == this.iSystemReloadDTX)				// #32081 2013.10.21 yyagi
-                {
-                    if (CDTXMania.EnumSongs.IsEnumerating)
-                    {
-                        // Debug.WriteLine( "バックグラウンドでEnumeratingSongs中だったので、一旦中断します。" );
-                        CDTXMania.EnumSongs.Abort();
-                        CDTXMania.actEnumSongs.OnDeactivate();
-                    }
-
-                    CDTXMania.EnumSongs.StartEnumFromDisk(false);
-                    CDTXMania.EnumSongs.ChangeEnumeratePriority(ThreadPriority.Normal);
-                    CDTXMania.actEnumSongs.bコマンドでの曲データ取得 = true;
-                    CDTXMania.actEnumSongs.OnActivate();
-                }
-                #endregion
-                #region [Fast Reload Option]
-                else if (this.listItems[this.nCurrentSelection] == this.iSystemFastReloadDTX)				// #32081 2013.10.21 yyagi
-                {
-                    if (CDTXMania.EnumSongs.IsEnumerating)
-                    {
-                        // Debug.WriteLine( "バックグラウンドでEnumeratingSongs中だったので、一旦中断します。" );
-                        CDTXMania.EnumSongs.Abort();
-                        CDTXMania.actEnumSongs.OnDeactivate();
-                    }
-
-                    CDTXMania.EnumSongs.StartEnumFromDisk(true);
-                    CDTXMania.EnumSongs.ChangeEnumeratePriority(ThreadPriority.Normal);
-                    CDTXMania.actEnumSongs.bコマンドでの曲データ取得 = true;
-                    CDTXMania.actEnumSongs.OnActivate();
-                }
-                #endregion
-                #region [Import Config]
-                else if (this.listItems[this.nCurrentSelection] == this.iSystemImportConfig)				// #2022.5.16 fisyher
-                {
-                    //Import Config                 
-                    var fileContent = string.Empty;
-                    var filePath = string.Empty;
-
-                    using (OpenFileDialog openFileDialog = new OpenFileDialog())
-                    {
-                        openFileDialog.InitialDirectory = ".\\";
-                        openFileDialog.FileName = "config.ini";
-                        openFileDialog.Filter = "ini files (*.ini)|*.ini";
-                        openFileDialog.FilterIndex = 2;
-                        openFileDialog.RestoreDirectory = true;
-
-                        if (openFileDialog.ShowDialog() == DialogResult.OK)
-                        {
-                            //Get the path of specified file
-                            filePath = openFileDialog.FileName;
-
-                            Trace.TraceInformation("Selected File to import: " + filePath);
-                            try
-                            {
-                                CConfigIni newConfig = new CConfigIni(filePath);
-                                CDTXMania.ConfigIni = newConfig;
-                                //Update the display values in config page to ensure UI is in-sync
-                                this.tUpdateDisplayValuesFromConfigIni();
-                                //Update Toast Message
-                                string fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
-                                this.tUpdateToastMessage(string.Format("Imported {0} successfully.", fileName));
-                                this.ctToastMessageCounter.tStart(0, 1, 10000, CDTXMania.Timer);
-                            }
-                            catch (Exception)
-                            {
-                                Trace.TraceError("Fail to import config file");
-                                this.tUpdateToastMessage("Error importing selected file.");
-                                this.ctToastMessageCounter.tStart(0, 1, 10000, CDTXMania.Timer);
-                            }
-
-
-                        }
-                        else
-                        {
-                            Trace.TraceInformation("Cancel import of config");
-                        }
-                    }
-                }
-                #endregion
-                #region [Export Config]
-                else if (this.listItems[this.nCurrentSelection] == this.iSystemExportConfig)				//
-                {
-                    //Export Config                    
-                    var fileContent = string.Empty;
-                    using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-                    {
-                        saveFileDialog.InitialDirectory = ".\\";
-                        saveFileDialog.FileName = "config.ini";
-                        saveFileDialog.Filter = "ini files (*.ini)|*.ini";
-                        saveFileDialog.FilterIndex = 2;
-                        saveFileDialog.RestoreDirectory = true;
-
-                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                        {
-                            //Get the path of specified file
-                            string filePath = saveFileDialog.FileName;
-                            Trace.TraceInformation("Selected File to export: " + filePath);
-                            //Ensure changes are recorded to config.ini internally before export
-                            this.tRecordToConfigIni();
-                            CDTXMania.ConfigIni.tWrite(filePath);   // CONFIGだけ
-                            //Update Toast Message
-                            string fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
-                            this.tUpdateToastMessage(string.Format("Configurations exported to {0}.", fileName));
-                            this.ctToastMessageCounter.tStart(0, 1, 10000, CDTXMania.Timer);
-                        }
-                        else
-                        {
-                            Trace.TraceInformation("Cancel export of config");
-                        }
-                    }
-                }
-                #endregion
-                
+                this.listItems[this.nCurrentSelection].RunAction();
             }
         }   
 
@@ -2058,6 +1825,7 @@ namespace DTXMania
             this.iKeyAssignSystemReturnToMenu = new CItemBase("<< ReturnTo Menu", CItemBase.EPanelType.Other,
                 "左側のメニューに戻ります。",
                 "Return to left menu.");
+            this.iKeyAssignSystemReturnToMenu.action = tSetupItemList_System;
             this.listItems.Add(this.iKeyAssignSystemReturnToMenu);
 
             this.iKeyAssignSystemCapture = new CItemBase("Capture",
@@ -2073,6 +1841,7 @@ namespace DTXMania
             this.iKeyAssignGuitarHelp = new CItemBase("Help",
                 "ヘルプボタンのキー設定：\nヘルプボタンへのキーの割り当\nてを設定します。",
                 "Help button key assign:\nTo assign key/pads for Help button.");
+            this.iKeyAssignGuitarHelp.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Help);
             this.listItems.Add(this.iKeyAssignGuitarHelp);
 
             this.iKeyAssignBassHelp = new CItemBase("Pause",
@@ -2129,66 +1898,79 @@ namespace DTXMania
             this.iKeyAssignDrumsReturnToMenu = new CItemBase("<< ReturnTo Menu", CItemBase.EPanelType.Other,
                 "左側のメニューに戻ります。",
                 "Return to left menu.");
+            this.iKeyAssignDrumsReturnToMenu.action = tSetupItemList_Drums;
             this.listItems.Add(this.iKeyAssignDrumsReturnToMenu);
 
             this.iKeyAssignDrumsLC = new CItemBase("LeftCymbal",
                 "ドラムのキー設定：\n左シンバルへのキーの割り当てを設\n定します。",
                 "Drums key assign:\nTo assign key/pads for LeftCymbal\n button.");
+            this.iKeyAssignDrumsLC.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.LC);
             this.listItems.Add(this.iKeyAssignDrumsLC);
 
             this.iKeyAssignDrumsHHC = new CItemBase("HiHat(Close)",
                 "ドラムのキー設定：\nハイハット（クローズ）へのキーの割り\n当てを設定します。",
                 "Drums key assign:\nTo assign key/pads for HiHat(Close)\n button.");
+            this.iKeyAssignDrumsHHC.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.HH);
             this.listItems.Add(this.iKeyAssignDrumsHHC);
 
             this.iKeyAssignDrumsHHO = new CItemBase("HiHat(Open)",
                 "ドラムのキー設定：\nハイハット（オープン）へのキーの割り\n当てを設定します。",
                 "Drums key assign:\nTo assign key/pads for HiHat(Open)\n button.");
+            this.iKeyAssignDrumsHHO.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.HHO);
             this.listItems.Add(this.iKeyAssignDrumsHHO);
 
             this.iKeyAssignDrumsSD = new CItemBase("Snare",
                 "ドラムのキー設定：\nスネアへのキーの割り当てを設定し\nます。",
                 "Drums key assign:\nTo assign key/pads for Snare button.");
+            this.iKeyAssignDrumsSD.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.SD);
             this.listItems.Add(this.iKeyAssignDrumsSD);
 
             this.iKeyAssignDrumsBD = new CItemBase("Bass",
                 "ドラムのキー設定：\nバスドラムへのキーの割り当てを設定\nします。",
                 "Drums key assign:\nTo assign key/pads for Bass button.");
+            this.iKeyAssignDrumsBD.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.BD);
             this.listItems.Add(this.iKeyAssignDrumsBD);
 
             this.iKeyAssignDrumsHT = new CItemBase("HighTom",
                 "ドラムのキー設定：\nハイタムへのキーの割り当てを設定\nします。",
                 "Drums key assign:\nTo assign key/pads for HighTom\n button.");
+            this.iKeyAssignDrumsHT.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.HT);
             this.listItems.Add(this.iKeyAssignDrumsHT);
 
             this.iKeyAssignDrumsLT = new CItemBase("LowTom",
                 "ドラムのキー設定：\nロータムへのキーの割り当てを設定\nします。",
                 "Drums key assign:\nTo assign key/pads for LowTom button.");
+            this.iKeyAssignDrumsLT.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.LT);
             this.listItems.Add(this.iKeyAssignDrumsLT);
 
             this.iKeyAssignDrumsFT = new CItemBase("FloorTom",
                 "ドラムのキー設定：\nフロアタムへのキーの割り当てを設\n定します。",
                 "Drums key assign:\nTo assign key/pads for FloorTom\n button.");
+            this.iKeyAssignDrumsFT.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.FT);
             this.listItems.Add(this.iKeyAssignDrumsFT);
 
             this.iKeyAssignDrumsCY = new CItemBase("RightCymbal",
                 "ドラムのキー設定：\n右シンバルへのキーの割り当てを設\n定します。",
                 "Drums key assign:\nTo assign key/pads for RightCymbal\n button.");
+            this.iKeyAssignDrumsCY.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.CY);
             this.listItems.Add(this.iKeyAssignDrumsCY);
 
             this.iKeyAssignDrumsRD = new CItemBase("RideCymbal",
                 "ドラムのキー設定：\nライドシンバルへのキーの割り当て\nを設定します。",
                 "Drums key assign:\nTo assign key/pads for RideCymbal\n button.");
+            this.iKeyAssignDrumsRD.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.RD);
             this.listItems.Add(this.iKeyAssignDrumsRD);
 
             this.iKeyAssignDrumsLP = new CItemBase("LeftPedal",									// #27029 2012.1.4 from
                 "ドラムのキー設定：\n左ペダルへのキーの\n割り当てを設定します。",
                 "Drums key assign:\nTo assign key/pads for HiHatPedal\n button.");
+            this.iKeyAssignDrumsLP.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.LP);
             this.listItems.Add(this.iKeyAssignDrumsLP);
 
             this.iKeyAssignDrumsLBD = new CItemBase("LeftBassDrum",
                 "ドラムのキー設定：\n左バスドラムへのキーの割り当てを設\n定します。",
                 "Drums key assign:\nTo assign key/pads for RightCymbal\n button.");
+            this.iKeyAssignDrumsLBD.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.DRUMS, EKeyConfigPad.LBD);
             this.listItems.Add(this.iKeyAssignDrumsLBD);
 
             OnListMenuの初期化();
@@ -2205,51 +1987,61 @@ namespace DTXMania
             this.iKeyAssignGuitarReturnToMenu = new CItemBase("<< ReturnTo Menu", CItemBase.EPanelType.Other,
                 "左側のメニューに戻ります。",
                 "Return to left menu.");
+            this.iKeyAssignGuitarReturnToMenu.action = tSetupItemList_Guitar;
             this.listItems.Add(this.iKeyAssignGuitarReturnToMenu);
 
             this.iKeyAssignGuitarR = new CItemBase("R",
                 "ギターのキー設定：\nRボタンへのキーの割り当てを設定し\nます。",
                 "Guitar key assign:\nTo assign key/pads for R button.");
+            this.iKeyAssignGuitarR.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.R);
             this.listItems.Add(this.iKeyAssignGuitarR);
 
             this.iKeyAssignGuitarG = new CItemBase("G",
                 "ギターのキー設定：\nGボタンへのキーの割り当てを設定し\nます。",
                 "Guitar key assign:\nTo assign key/pads for G button.");
+            this.iKeyAssignGuitarG.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.G);
             this.listItems.Add(this.iKeyAssignGuitarG);
 
             this.iKeyAssignGuitarB = new CItemBase("B",
                 "ギターのキー設定：\nBボタンへのキーの割り当てを設定し\nます。",
                 "Guitar key assign:\nTo assign key/pads for B button.");
+            this.iKeyAssignGuitarB.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.B);
             this.listItems.Add(this.iKeyAssignGuitarB);
 
             this.iKeyAssignGuitarY = new CItemBase("Y",
                 "ギターのキー設定：\nYボタンへのキーの割り当てを設定し\nます。",
                 "Guitar key assign:\nTo assign key/pads for Y button.");
+            this.iKeyAssignGuitarY.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Y);
             this.listItems.Add(this.iKeyAssignGuitarY);
 
             this.iKeyAssignGuitarP = new CItemBase("P",
                 "ギターのキー設定：\nPボタンへのキーの割り当てを設定し\nます。",
                 "Guitar key assign:\nTo assign key/pads for P button.");
+            this.iKeyAssignGuitarP.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.P);
             this.listItems.Add(this.iKeyAssignGuitarP);
 
             this.iKeyAssignGuitarPick = new CItemBase("Pick",
                 "ギターのキー設定：\nピックボタンへのキーの割り当てを設\n定します。",
                 "Guitar key assign:\nTo assign key/pads for Pick button.");
+            this.iKeyAssignGuitarPick.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Pick);
             this.listItems.Add(this.iKeyAssignGuitarPick);
 
             this.iKeyAssignGuitarWail = new CItemBase("Wailing",
                 "ギターのキー設定：\nWailingボタンへのキーの割り当てを\n設定します。",
                 "Guitar key assign:\nTo assign key/pads for Wailing button.");
+            this.iKeyAssignGuitarWail.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Wail); 
             this.listItems.Add(this.iKeyAssignGuitarWail);
 
             this.iKeyAssignGuitarDecide = new CItemBase("Decide",
                 "ギターのキー設定：\n決定ボタンへのキーの割り当てを設\n定します。",
                 "Guitar key assign:\nTo assign key/pads for Decide button.");
+            this.iKeyAssignGuitarDecide.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Decide);
             this.listItems.Add(this.iKeyAssignGuitarDecide);
 
             this.iKeyAssignGuitarCancel = new CItemBase("Cancel",
                 "ギターのキー設定：\n取消ボタンへのキーの割り当てを設\n定します。",
                 "Guitar key assign:\nTo assign key/pads for Cancel button.");
+            this.iKeyAssignGuitarCancel.action = () => CDTXMania.stageConfig.tNotifyPadSelection(EKeyConfigPart.GUITAR, EKeyConfigPad.Cancel);
             this.listItems.Add(this.iKeyAssignGuitarCancel);
 
             OnListMenuの初期化();
@@ -2266,6 +2058,7 @@ namespace DTXMania
             this.iKeyAssignBassReturnToMenu = new CItemBase("<< ReturnTo Menu", CItemBase.EPanelType.Other,
                 "左側のメニューに戻ります。",
                 "Return to left menu.");
+            this.iKeyAssignBassReturnToMenu.action = tSetupItemList_Bass;
             this.listItems.Add(this.iKeyAssignBassReturnToMenu);
 
             this.iKeyAssignBassR = new CItemBase("R",
@@ -3109,6 +2902,7 @@ namespace DTXMania
         private CItemList iSystemGRmode;
         private CItemToggle iSystemMusicNameDispDef;
 
+        #region [ Bass ]
         //private CItemToggle iBassAutoPlay;
         private CItemThreeState iBassAutoPlayAll;			// #23886 2012.5.8 yyagi
         private CItemToggle iBassR;							//
@@ -3137,10 +2931,12 @@ namespace DTXMania
         private CItemInteger iBassShutterOutPos;
         private CItemToggle iBassLaneFlush;
         private CItemToggle iBassGraph;
+        #endregion
 
         private CItemInteger iCommonPlaySpeed;
         //		private CItemBase iCommonReturnToMenu;
 
+        #region [ Drums ]
         private CItemThreeState iDrumsAutoPlayAll;
         private CItemToggle iDrumsBass;
         private CItemList iDrumsComboPosition;
@@ -3180,7 +2976,9 @@ namespace DTXMania
         private CItemInteger iDrumsShutterOutPos;
         private CItemToggle iDrumsComboDisp;
         private CItemToggle iDrumsGraph;
+        #endregion
 
+        #region [ Guitar ]
         //private CItemToggle iGuitarAutoPlay;
         private CItemThreeState iGuitarAutoPlayAll;			// #23886 2012.5.8 yyagi
         private CItemToggle iGuitarR;						//
@@ -3209,16 +3007,19 @@ namespace DTXMania
         private CItemInteger iGuitarShutterOutPos;
         private CItemToggle iGuitarLaneFlush;
         private CItemToggle iGuitarGraph;
+        #endregion
 
         private CItemInteger iDrumsInputAdjustTimeMs;		// #23580 2011.1.3 yyagi
         private CItemInteger iGuitarInputAdjustTimeMs;		//
         private CItemInteger iBassInputAdjustTimeMs;		//
+        
         private CItemList iSystemSkinSubfolder;				// #28195 2012.5.2 yyagi
         private CItemToggle iSystemUseBoxDefSkin;			// #28195 2012.5.6 yyagi
         private CItemBase iSystemReloadDTX;					// #32081 2013.10.21 yyagi
         private CItemBase iSystemFastReloadDTX;             // #141 2022.5.15 fisyher
         private CItemBase iSystemImportConfig;              // 2022.5.15 fisyher
         private CItemBase iSystemExportConfig;              // 2022.5.20 fisyher
+
         private int tPreviousItem(int nItem)
         {
             if (--nItem < 0)

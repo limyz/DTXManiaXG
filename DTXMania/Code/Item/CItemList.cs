@@ -50,7 +50,7 @@ namespace DTXMania
 
 		// CItemBase 実装
 
-		public override void tEnter押下()
+		protected override void tEnter押下()
 		{
 			this.tMoveItemValueToNext();
 		}
@@ -144,7 +144,7 @@ namespace DTXMania
 			this.t初期化( str項目名, eパネル種別, n初期インデックス値, str説明文jp, str説明文en, arg項目リスト );
 		}
 
-		public override void tEnter押下()
+		protected override void tEnter押下()
 		{
 			// this.tMoveItemValueToNext();	// DoNothing
 		}
