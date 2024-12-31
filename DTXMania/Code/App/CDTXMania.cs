@@ -61,6 +61,20 @@ namespace DTXMania
         /// The shared Rich Presence integration instance, or <see langword="null"/> if it is disabled.
         /// </summary>
         public static CDiscordRichPresence DiscordRichPresence { get; private set; }
+        
+        //current language
+        public static bool isJapanese
+        {
+            get;
+            private set;
+        }
+        
+        public static void SetLanguage(bool jp)
+        {
+            isJapanese = jp;
+            
+            //todo: implement handling to switch language at runtime
+        }
 
         public static CDTX DTX
         {
@@ -1970,7 +1984,7 @@ for (int i = 0; i < 3; i++) {
                 }
                 catch (System.UnauthorizedAccessException)			// #24481 2011.2.20 yyagi
                 {
-                    int c = (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja") ? 0 : 1;
+                    int c = isJapanese ? 0 : 1;
                     string[] mes_writeErr = {
                         "DTXManiaLog.txtへの書き込みができませんでした。書き込みできるようにしてから、再度起動してください。",
                         "Failed to write DTXManiaLog.txt. Please set it writable and try again."

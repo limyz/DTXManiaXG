@@ -656,7 +656,7 @@ namespace DTXMania
 						break;
 				}
 				
-				int c = (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja") ? 0 : 1;
+				int c = CDTXMania.isJapanese ? 0 : 1;
 				for (int i = 0; i < 2; i++)
 				{
 					graphics.DrawString( str[ c, i ], this.ftFont, Brushes.Black, new PointF( 4f , ( i * 30 ) ) );

@@ -84,7 +84,7 @@ namespace DTXMania
 		public virtual void tInitialize(string str項目名, EPanelType eパネル種別, string str説明文jp, string str説明文en) {
 			this.strItemName = str項目名;
 			this.ePanelType = eパネル種別;
-			this.str説明文 = (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja") ? str説明文jp : str説明文en;
+			this.str説明文 = CDTXMania.isJapanese ? str説明文jp : str説明文en;
 		}
 		public virtual object obj現在値()
 		{

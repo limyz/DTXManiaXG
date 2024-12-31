@@ -17,10 +17,10 @@ namespace DTXMania
 		#region [ 二重機動チェック、DLL存在チェック ]
 		//-----------------------------
 		private static Mutex mutex二重起動防止用;
-
+		
 		private static bool tDLLの存在チェック(string strDll名, string str存在しないときに表示するエラー文字列jp, string str存在しないときに表示するエラー文字列en, bool bLoadDllCheck = false)
 		{
-			string str存在しないときに表示するエラー文字列 = (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja") ?
+			string str存在しないときに表示するエラー文字列 = CDTXMania.isJapanese ?
 				str存在しないときに表示するエラー文字列jp : str存在しないときに表示するエラー文字列en;
 			if (bLoadDllCheck)
 			{
@@ -61,6 +61,8 @@ namespace DTXMania
 		private static void Main()
 		{
 			mutex二重起動防止用 = new Mutex( false, "DTXManiaMutex" );
+			
+			CDTXMania.SetLanguage(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ja");
 
 			if( mutex二重起動防止用.WaitOne( 0, false ) )
 			{
@@ -112,7 +114,7 @@ namespace DTXMania
 				#endregion
 				if (!bDllNotFound)
 				{
-					if (CultureInfo.CurrentCulture.TwoLetterISOLanguageName != "ja")
+					if (!CDTXMania.isJapanese)
 					{
 						Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 					}

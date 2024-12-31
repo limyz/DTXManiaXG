@@ -576,7 +576,7 @@ namespace DTXMania
 
 			
 
-			int c = ( CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja" ) ? 0 : 1;
+			int c = CDTXMania.isJapanese ? 0 : 1;
 			#region [ Songs not found画像 ]
 			try
 			{

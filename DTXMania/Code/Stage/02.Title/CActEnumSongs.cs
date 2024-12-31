@@ -92,7 +92,7 @@ namespace DTXMania
 					"     曲データの一覧を\n       取得しています。\n   しばらくお待ちください。",
 					" Now enumerating songs.\n         Please wait..."
 				};
-                int ci = (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja") ? 0 : 1;
+                int ci = (CDTXMania.isJapanese) ? 0 : 1;
                 if ((strMessage != null) && (strMessage.Length > 0))
                 {
                     Bitmap image = new Bitmap(1, 1);

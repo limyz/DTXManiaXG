@@ -40,7 +40,7 @@ namespace DTXMania
 				   @"Graphics\5_information.png" ,
 				   @"Graphics\5_informatione.png"
 				};
-				int c = ( CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja" ) ? 0 : 1; 
+				int c = CDTXMania.isJapanese ? 0 : 1; 
 				this.txInfo = CDTXMania.tGenerateTexture( CSkin.Path( infofiles[ c ] ), false );
 				base.OnManagedCreateResources();
 			}
