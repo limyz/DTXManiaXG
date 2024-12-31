@@ -1048,7 +1048,7 @@
             // toolStripMenuItemチップパレット
             // 
             this.toolStripMenuItemチップパレット.CheckOnClick = true;
-            this.toolStripMenuItemチップパレット.Image = global::DTXCreator.Properties.Resources.ﾁｯﾌﾟﾊﾟﾚｯﾄ;
+            this.toolStripMenuItemチップパレット.Image = global::DTXCreator.Properties.Resources.チップパレット;
             this.toolStripMenuItemチップパレット.Name = "toolStripMenuItemチップパレット";
             resources.ApplyResources(this.toolStripMenuItemチップパレット, "toolStripMenuItemチップパレット");
             this.toolStripMenuItemチップパレット.Click += new System.EventHandler(this.toolStripMenuItemチップパレット_Click);
@@ -1336,7 +1336,7 @@
             // 
             this.toolStripButtonチップパレット.CheckOnClick = true;
             this.toolStripButtonチップパレット.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonチップパレット.Image = global::DTXCreator.Properties.Resources.ﾁｯﾌﾟﾊﾟﾚｯﾄ;
+            this.toolStripButtonチップパレット.Image = global::DTXCreator.Properties.Resources.チップパレット;
             resources.ApplyResources(this.toolStripButtonチップパレット, "toolStripButtonチップパレット");
             this.toolStripButtonチップパレット.Name = "toolStripButtonチップパレット";
             this.toolStripButtonチップパレット.Click += new System.EventHandler(this.toolStripButtonチップパレット_Click);
