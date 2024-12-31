@@ -6,6 +6,7 @@ namespace DTXMania
 {
 	/// <summary>
 	/// 「トグル」（ON, OFF の2状態）を表すアイテム。
+	///  Toggle (2 states: ON or OFF) item.
 	/// </summary>
 	internal class CItemToggle : CItemBase
 	{
@@ -21,33 +22,10 @@ namespace DTXMania
 			base.eType = CItemBase.EType.ONorOFFToggle;
 			this.bON = false;
 		}
-		public CItemToggle( string str項目名, bool b初期状態 )
-			: this()
-		{
-			this.t初期化( str項目名, b初期状態 );
-		}
-		public CItemToggle(string str項目名, bool b初期状態, string str説明文jp)
-			: this() {
-			this.t初期化(str項目名, b初期状態, str説明文jp);
-		}
 		public CItemToggle(string str項目名, bool b初期状態, string str説明文jp, string str説明文en)
 			: this() {
-			this.t初期化(str項目名, b初期状態, str説明文jp, str説明文en);
+			this.tInitialize(str項目名, b初期状態, str説明文jp, str説明文en);
 		}
-		public CItemToggle(string str項目名, bool b初期状態, CItemBase.EPanelType eパネル種別)
-			: this()
-		{
-			this.t初期化( str項目名, b初期状態, eパネル種別 );
-		}
-		public CItemToggle(string str項目名, bool b初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp)
-			: this() {
-			this.t初期化(str項目名, b初期状態, eパネル種別, str説明文jp);
-		}
-		public CItemToggle(string str項目名, bool b初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp, string str説明文en)
-			: this() {
-			this.t初期化(str項目名, b初期状態, eパネル種別, str説明文jp, str説明文en);
-		}
-
 
 		// CItemBase 実装
 
@@ -63,25 +41,10 @@ namespace DTXMania
 		{
 			this.tMoveItemValueToNext();
 		}
-		public void t初期化( string str項目名, bool b初期状態 )
-		{
-			this.t初期化( str項目名, b初期状態, CItemBase.EPanelType.Normal );
+		public void tInitialize(string str項目名, bool b初期状態, string str説明文jp, string str説明文en) {
+			this.tInitialize(str項目名, b初期状態, CItemBase.EPanelType.Normal, str説明文jp, str説明文en);
 		}
-		public void t初期化(string str項目名, bool b初期状態, string str説明文jp) {
-			this.t初期化(str項目名, b初期状態, CItemBase.EPanelType.Normal, str説明文jp, str説明文jp);
-		}
-		public void t初期化(string str項目名, bool b初期状態, string str説明文jp, string str説明文en) {
-			this.t初期化(str項目名, b初期状態, CItemBase.EPanelType.Normal, str説明文jp, str説明文en);
-		}
-
-		public void t初期化(string str項目名, bool b初期状態, CItemBase.EPanelType eパネル種別)
-		{
-			this.t初期化(str項目名, b初期状態, eパネル種別, "", "");
-		}
-		public void t初期化(string str項目名, bool b初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp) {
-			this.t初期化(str項目名, b初期状態, eパネル種別, str説明文jp, str説明文jp);
-		}
-		public void t初期化(string str項目名, bool b初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp, string str説明文en) {
+		public void tInitialize(string str項目名, bool b初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp, string str説明文en) {
 			base.tInitialize(str項目名, eパネル種別, str説明文jp, str説明文en);
 			this.bON = b初期状態;
 		}

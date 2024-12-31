@@ -6,6 +6,7 @@ namespace DTXMania
 {
 	/// <summary>
 	/// 「スリーステート」（ON, OFF, 不定 の3状態）を表すアイテム。
+	///  Three-state (3 states: ON, OFF, or undefined) item.
 	/// </summary>
 	internal class CItemThreeState : CItemBase
 	{
@@ -27,35 +28,11 @@ namespace DTXMania
 			base.eType = CItemBase.EType.ONorOFForUndefined3State;
 			this.e現在の状態 = E状態.不定;
 		}
-		public CItemThreeState( string str項目名, E状態 e初期状態 )
-			: this()
-		{
-			this.t初期化( str項目名, e初期状態 );
-		}
-		public CItemThreeState(string str項目名, E状態 e初期状態, string str説明文jp)
-			: this() {
-			this.t初期化(str項目名, e初期状態, str説明文jp, str説明文jp);
-		}
 		public CItemThreeState(string str項目名, E状態 e初期状態, string str説明文jp, string str説明文en)
 			: this() {
-			this.t初期化(str項目名, e初期状態, str説明文jp, str説明文en);
+			this.tInitialize(str項目名, e初期状態, str説明文jp, str説明文en);
 		}
-
-		public CItemThreeState( string str項目名, E状態 e初期状態, CItemBase.EPanelType eパネル種別 )
-			: this()
-		{
-			this.t初期化( str項目名, e初期状態, eパネル種別 );
-		}
-		public CItemThreeState(string str項目名, E状態 e初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp)
-			: this() {
-			this.t初期化(str項目名, e初期状態, eパネル種別, str説明文jp, str説明文jp);
-		}
-		public CItemThreeState(string str項目名, E状態 e初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp, string str説明文en)
-			: this() {
-			this.t初期化(str項目名, e初期状態, eパネル種別, str説明文jp, str説明文en);
-		}
-
-
+		
 		// CItemBase 実装
 
 		protected override void tEnter押下()
@@ -96,25 +73,11 @@ namespace DTXMania
 					return;
 			}
 		}
-		public void t初期化( string str項目名, E状態 e初期状態 )
-		{
-			this.t初期化( str項目名, e初期状態, CItemBase.EPanelType.Normal );
+		public void tInitialize(string str項目名, E状態 e初期状態, string str説明文jp, string str説明文en) {
+			this.tInitialize(str項目名, e初期状態, CItemBase.EPanelType.Normal, str説明文jp, str説明文en);
 		}
-		public void t初期化(string str項目名, E状態 e初期状態, string str説明文jp) {
-			this.t初期化(str項目名, e初期状態, CItemBase.EPanelType.Normal, str説明文jp, str説明文jp);
-		}
-		public void t初期化(string str項目名, E状態 e初期状態, string str説明文jp, string str説明文en) {
-			this.t初期化(str項目名, e初期状態, CItemBase.EPanelType.Normal, str説明文jp, str説明文en);
-		}
-
-		public void t初期化( string str項目名, E状態 e初期状態, CItemBase.EPanelType eパネル種別 )
-		{
-			this.t初期化(str項目名, e初期状態, CItemBase.EPanelType.Normal, "", "");
-		}
-		public void t初期化(string str項目名, E状態 e初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp) {
-			this.t初期化(str項目名, e初期状態, CItemBase.EPanelType.Normal, str説明文jp, str説明文jp);
-		}
-		public void t初期化(string str項目名, E状態 e初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp, string str説明文en) {
+		
+		public void tInitialize(string str項目名, E状態 e初期状態, CItemBase.EPanelType eパネル種別, string str説明文jp, string str説明文en) {
 			base.tInitialize(str項目名, eパネル種別, str説明文jp, str説明文en);
 			this.e現在の状態 = e初期状態;
 		}
