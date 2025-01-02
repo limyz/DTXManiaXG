@@ -115,7 +115,7 @@ namespace DTXMania
 
 				#region [ カーソル上移動 ]
 				//---------------------
-				if( this.ct上移動用.b進行中 )
+				if( this.ct上移動用.bInProgress )
 				{
 					this.ct上移動用.tUpdate();
 					if( this.ct上移動用.bReachedEndValue )
@@ -127,7 +127,7 @@ namespace DTXMania
 				#endregion
 				#region [ カーソル下移動 ]
 				//---------------------
-				if( this.ct下移動用.b進行中 )
+				if( this.ct下移動用.bInProgress )
 				{
 					this.ct下移動用.tUpdate();
 					if( this.ct下移動用.bReachedEndValue )
@@ -193,11 +193,11 @@ namespace DTXMania
 				{
 					int x = MENU_X;
 					int y = MENU_Y + ( this.n現在のカーソル行 * MENU_H );
-					if( this.ct上移動用.b進行中 )
+					if( this.ct上移動用.bInProgress )
 					{
 						y += (int) ( (double)MENU_H / 2 * ( Math.Cos( Math.PI * ( ( (double) this.ct上移動用.nCurrentValue ) / 100.0 ) ) + 1.0 ) );
 					}
-					else if( this.ct下移動用.b進行中 )
+					else if( this.ct下移動用.bInProgress )
 					{
 						y -= (int) ( (double)MENU_H / 2 * ( Math.Cos( Math.PI * ( ( (double) this.ct下移動用.nCurrentValue ) / 100.0 ) ) + 1.0 ) );
 					}
@@ -353,7 +353,7 @@ namespace DTXMania
 				CDTXMania.Skin.soundCursorMovement.tPlay();
 				this.n現在のカーソル行++;
 				this.ct下移動用.tStart( 0, 100, 1, CDTXMania.Timer );
-				if( this.ct上移動用.b進行中 )
+				if( this.ct上移動用.bInProgress )
 				{
 					this.ct下移動用.nCurrentValue = 100 - this.ct上移動用.nCurrentValue;
 					this.ct上移動用.tStop();
@@ -367,7 +367,7 @@ namespace DTXMania
 				CDTXMania.Skin.soundCursorMovement.tPlay();
 				this.n現在のカーソル行--;
 				this.ct上移動用.tStart( 0, 100, 1, CDTXMania.Timer );
-				if( this.ct下移動用.b進行中 )
+				if( this.ct下移動用.bInProgress )
 				{
 					this.ct上移動用.nCurrentValue = 100 - this.ct下移動用.nCurrentValue;
 					this.ct下移動用.tStop();
