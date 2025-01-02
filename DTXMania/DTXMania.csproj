@@ -144,6 +144,10 @@
     <Compile Include="Code\Score,Song\CChip.cs" />
     <Compile Include="Code\Score,Song\CProgress.cs" />
     <Compile Include="Code\Score,Song\EChannel.cs" />
+    <Compile Include="Code\Stage\04.Config\CActConfigList.Bass.cs" />
+    <Compile Include="Code\Stage\04.Config\CActConfigList.Drums.cs" />
+    <Compile Include="Code\Stage\04.Config\CActConfigList.Guitar.cs" />
+    <Compile Include="Code\Stage\04.Config\CActConfigList.System.cs" />
     <Compile Include="Code\Stage\05.SongSelection\CActSelectBackgroundAVI.cs" />
     <Compile Include="Code\Stage\05.SongSelection\CActTextBox.cs" />
     <Compile Include="Code\Stage\05.SongSelection\CSongSearch.cs" />
