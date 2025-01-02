@@ -228,11 +228,11 @@ namespace DTXMania
             get;
             private set;
         }
-        public static CStageOption stageOption
-        {
-            get;
-            private set;
-        }
+        // public static CStageOption stageOption
+        // {
+        //     get;
+        //     private set;
+        // }
         public static CStageConfig stageConfig
         {
             get;
@@ -1080,28 +1080,28 @@ namespace DTXMania
                                 #endregion
 
 
-                            case (int)CStageSongSelection.EReturnValue.CallOptions:
-                                #region [ *** ]
-                                //-----------------------------
-
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Option");
-                                stageOption.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageOption;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-
-                                this.tRunGarbageCollector();
-                                break;
-                            //-----------------------------
-                                #endregion
+                            // case (int)CStageSongSelection.EReturnValue.CallOptions:
+                            //     #region [ *** ]
+                            //     //-----------------------------
+                            //
+                            //     rCurrentStage.OnDeactivate();
+                            //     Trace.TraceInformation("----------------------");
+                            //     Trace.TraceInformation("■ Option");
+                            //     stageOption.OnActivate();
+                            //     rPreviousStage = rCurrentStage;
+                            //     rCurrentStage = stageOption;
+                            //
+                            //     foreach (STPlugin pg in this.listPlugins)
+                            //     {
+                            //         Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
+                            //         pg.plugin.OnChangeStage();
+                            //         Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
+                            //     }
+                            //
+                            //     this.tRunGarbageCollector();
+                            //     break;
+                            // //-----------------------------
+                            //     #endregion
 
                             case (int)CStageSongSelection.EReturnValue.CallConfig:
                                 #region [ *** ]
@@ -2610,7 +2610,7 @@ for (int i = 0; i < 3; i++) {
             rPreviousStage = null;
             stageStartup = new CStageStartup();
             stageTitle = new CStageTitle();
-            stageOption = new CStageOption();
+            //stageOption = new CStageOption();
             stageConfig = new CStageConfig();
             stageSongSelection = new CStageSongSelection();
             stageSongLoading = new CStageSongLoading();
@@ -2624,7 +2624,7 @@ for (int i = 0; i < 3; i++) {
             this.listTopLevelActivities.Add(actDisplayString);
             this.listTopLevelActivities.Add(stageStartup);
             this.listTopLevelActivities.Add(stageTitle);
-            this.listTopLevelActivities.Add(stageOption);
+            //this.listTopLevelActivities.Add(stageOption);
             this.listTopLevelActivities.Add(stageConfig);
             this.listTopLevelActivities.Add(stageSongSelection);
             this.listTopLevelActivities.Add(stageSongLoading);
