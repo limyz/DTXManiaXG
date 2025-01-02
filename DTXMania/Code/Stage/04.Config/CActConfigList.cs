@@ -239,7 +239,7 @@ namespace DTXMania
             this.tx三角矢印 = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\4_triangle arrow.png"), false);
             this.tx説明文パネル = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_Description Panel.png" ) );
             this.tx矢印 = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_Arrow.png" ) );
-            this.txカーソル = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_itembox cursor.png" ) );
+            this.txCursor = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_itembox cursor.png" ) );
             this.txSkinSample1 = null;		// スキン選択時に動的に設定するため、ここでは初期化しない
             this.prvFontForToastMessage = new CPrivateFastFont(new FontFamily(CDTXMania.ConfigIni.str選曲リストフォント), 14, FontStyle.Regular);
             base.OnManagedCreateResources();
@@ -255,7 +255,7 @@ namespace DTXMania
             CDTXMania.tReleaseTexture(ref this.tx三角矢印);
             CDTXMania.tReleaseTexture( ref this.tx説明文パネル );
             CDTXMania.tReleaseTexture( ref this.tx矢印 );
-            CDTXMania.tReleaseTexture( ref this.txカーソル );
+            CDTXMania.tReleaseTexture( ref this.txCursor );
             CDTXMania.tReleaseTexture(ref this.txToastMessage);
             CDTXMania.t安全にDisposeする(ref this.prvFontForToastMessage);
             base.OnManagedReleaseResources();
@@ -598,7 +598,7 @@ namespace DTXMania
             #region[ カーソル ]
             if( this.bFocusIsOnItemList )
             {
-                this.txカーソル.tDraw2D( CDTXMania.app.Device, 413, 193 );
+                this.txCursor.tDraw2D( CDTXMania.app.Device, 413, 193 );
             }
             #endregion
 
@@ -696,7 +696,7 @@ namespace DTXMania
         private CTexture tx三角矢印;
         private CTexture tx矢印;
         private CTexture tx通常項目行パネル;
-        private CTexture txカーソル;
+        private CTexture txCursor;
         private CTexture tx説明文パネル;
         private CTexture txToastMessage;
         private CPrivateFastFont prvFontForToastMessage;
@@ -715,23 +715,7 @@ namespace DTXMania
         private stMenuItemRight[] listMenu;
         
         private CItemList iSystemGRmode;
-
         private CItemInteger iCommonPlaySpeed;
-
-        #region [ Drums ]
-        private CItemInteger iDrumsScrollSpeed;
-        private CItemToggle iDrumsGraph;
-        #endregion
-
-        #region [ Guitar ]
-        private CItemInteger iGuitarScrollSpeed;
-        private CItemToggle iGuitarGraph;
-        #endregion
-        
-        #region [ Bass ]
-        private CItemInteger iBassScrollSpeed;
-        private CItemToggle iBassGraph;
-        #endregion
         
         private int tPreviousItem(int nItem)
         {

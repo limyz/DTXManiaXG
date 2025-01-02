@@ -3,6 +3,9 @@
     internal partial class CActConfigList
     {
         #region [ t項目リストの設定_Drums() ]
+        private CItemInteger iDrumsScrollSpeed;
+        private CItemToggle iDrumsGraph;
+        
         public void tSetupItemList_Drums()
         {
             this.tRecordToConfigIni();

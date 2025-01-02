@@ -3,6 +3,9 @@
     internal partial class CActConfigList
     {
         #region [ t項目リストの設定_Guitar() ]
+        private CItemInteger iGuitarScrollSpeed;
+        private CItemToggle iGuitarGraph;
+        
         public void tSetupItemList_Guitar()
         {
             this.tRecordToConfigIni();

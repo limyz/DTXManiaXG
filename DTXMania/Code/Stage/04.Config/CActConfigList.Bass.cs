@@ -3,6 +3,9 @@
     internal partial class CActConfigList
     {
         #region [ t項目リストの設定_Bass() ]
+        private CItemInteger iBassScrollSpeed;
+        private CItemToggle iBassGraph;
+        
         public void tSetupItemList_Bass()
         {
             this.tRecordToConfigIni();
