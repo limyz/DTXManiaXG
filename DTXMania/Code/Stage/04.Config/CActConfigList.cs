@@ -3344,7 +3344,8 @@ namespace DTXMania
             return nItem;
         }
 
-        private void tUpdateDisplayValuesFromConfigIni() {
+        private void tUpdateDisplayValuesFromConfigIni()
+        {
             foreach (var item in listItems)
             {
                 item.ReadFromConfig();
@@ -3353,64 +3354,18 @@ namespace DTXMania
 
         private void tRecordToConfigIni()
         {
-            switch (this.eMenuType)
-            {
-                case EMenuType.System:
-                    this.tRecordToConfigIni_System();
-                    return;
-
-                case EMenuType.Drums:
-                    this.tRecordToConfigIni_Drums();
-                    return;
-
-                case EMenuType.Guitar:
-                    this.tRecordToConfigIni_Guitar();
-                    return;
-
-                case EMenuType.Bass:
-                    this.tRecordToConfigIni_Bass();
-                    return;
-            }
-        }
-        
-        private void tRecordToConfigIni_System()
-        {
-            foreach (var item in this.listItems)
-            {
-                item.WriteToConfig();
-            }
-            
-            CDTXMania.ConfigIni.bGuitarEnabled = (((this.iSystemGRmode.n現在選択されている項目番号 + 1) / 2) == 1);
-            CDTXMania.ConfigIni.bDrumsEnabled = (((this.iSystemGRmode.n現在選択されている項目番号 + 1) % 2) == 1);
-
-            CDTXMania.ConfigIni.strSystemSkinSubfolderFullName = skinSubFolders[nSkinIndex];				// #28195 2012.5.2 yyagi
-            CDTXMania.Skin.SetCurrentSkinSubfolderFullName(CDTXMania.ConfigIni.strSystemSkinSubfolderFullName, true);
-            
-            //Trace.TraceInformation( "saved" );
-            //Trace.TraceInformation( "Skin現在Current : " + CDTXMania.Skin.GetCurrentSkinSubfolderFullName(true) );
-            //Trace.TraceInformation( "Skin現在System  : " + CSkin.strSystemSkinSubfolderFullName );
-            //Trace.TraceInformation( "Skin現在BoxDef  : " + CSkin.strBoxDefSkinSubfolderFullName );
-
-        }
-        private void tRecordToConfigIni_Bass()
-        {
             foreach (var item in listItems)
             {
                 item.WriteToConfig();
             }
-        }
-        private void tRecordToConfigIni_Drums()
-        {
-            foreach (var item in listItems)
+
+            if (eMenuType == EMenuType.System)
             {
-                item.WriteToConfig();
-            }
-        }
-        private void tRecordToConfigIni_Guitar()
-        {
-            foreach (var element in listItems)
-            {
-                element.WriteToConfig();
+                CDTXMania.ConfigIni.bGuitarEnabled = (((this.iSystemGRmode.n現在選択されている項目番号 + 1) / 2) == 1);
+                CDTXMania.ConfigIni.bDrumsEnabled = (((this.iSystemGRmode.n現在選択されている項目番号 + 1) % 2) == 1);
+
+                CDTXMania.ConfigIni.strSystemSkinSubfolderFullName = skinSubFolders[nSkinIndex];				// #28195 2012.5.2 yyagi
+                CDTXMania.Skin.SetCurrentSkinSubfolderFullName(CDTXMania.ConfigIni.strSystemSkinSubfolderFullName, true);
             }
         }
 
