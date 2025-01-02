@@ -97,5 +97,23 @@ namespace DTXMania
 		public virtual void SetIndex( int index )
 		{
 		}
+
+		private Action _readFromConfig;
+		public virtual void ReadFromConfig()
+		{
+			_readFromConfig?.Invoke();
+		}
+
+		private Action _writeToConfig;
+		public virtual void WriteToConfig()
+		{
+			_writeToConfig?.Invoke();
+		}
+		
+		public void BindConfig(Action readFromConfig, Action writeToConfig)
+		{
+			this._readFromConfig = readFromConfig;
+			this._writeToConfig = writeToConfig;
+		}
 	}
 }
