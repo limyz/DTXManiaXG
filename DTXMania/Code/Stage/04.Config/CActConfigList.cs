@@ -2801,9 +2801,6 @@ namespace DTXMania
             this.tx説明文パネル = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_Description Panel.png" ) );
             this.tx矢印 = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_Arrow.png" ) );
             this.txカーソル = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_itembox cursor.png" ) );
-            this.txJudgementLine = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\ScreenPlayDrums hit-bar.png"));
-            this.txLane = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\7_Paret.png"));
-            this.txShutter = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\7_shutter.png"));
             this.txSkinSample1 = null;		// スキン選択時に動的に設定するため、ここでは初期化しない
             this.prvFontForToastMessage = new CPrivateFastFont(new FontFamily(CDTXMania.ConfigIni.str選曲リストフォント), 14, FontStyle.Regular);
             base.OnManagedCreateResources();
@@ -2820,9 +2817,6 @@ namespace DTXMania
             CDTXMania.tReleaseTexture( ref this.tx説明文パネル );
             CDTXMania.tReleaseTexture( ref this.tx矢印 );
             CDTXMania.tReleaseTexture( ref this.txカーソル );
-            CDTXMania.tReleaseTexture(ref this.txLane);
-            CDTXMania.tReleaseTexture(ref this.txJudgementLine);
-            CDTXMania.tReleaseTexture(ref this.txShutter);
             CDTXMania.tReleaseTexture(ref this.txToastMessage);
             CDTXMania.t安全にDisposeする(ref this.prvFontForToastMessage);
             base.OnManagedReleaseResources();
@@ -3302,9 +3296,6 @@ namespace DTXMania
         private int nSkinSampleIndex;				//
         private int nSkinIndex;						//
 
-        private CTexture txLane;
-        private CTexture txJudgementLine;
-        private CTexture txShutter;
         
         private CItemList iSystemGRmode;
 
