@@ -164,7 +164,7 @@ namespace DTXMania
 			{
 				for( int i = 0; i < 11; i++ )
 				{
-					if( !this.ct進行[ i ].b停止中 )
+					if( !this.ct進行[ i ].bStopped )
 					{
 						this.ct進行[ i ].tUpdate();
 						if( this.ct進行[ i ].bReachedEndValue )
@@ -324,7 +324,7 @@ namespace DTXMania
                 {
                     if (CDTXMania.ConfigIni.bLaneFlush.Drums != false)
                     {
-                        if (!this.ct進行[j].b停止中)
+                        if (!this.ct進行[j].bStopped)
                         {
                             int x = this.stレーンサイズ[j].x;
                             int w = this.stレーンサイズ[j].w;

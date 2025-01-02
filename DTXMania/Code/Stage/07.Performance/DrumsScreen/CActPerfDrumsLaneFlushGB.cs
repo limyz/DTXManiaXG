@@ -16,7 +16,7 @@ namespace DTXMania
 			{
 				for( int i = 0; i < 6; i++ )
 				{
-					if( !base.ctUpdate[ i ].b停止中 )
+					if( !base.ctUpdate[ i ].bStopped )
 					{
 						EInstrumentPart e楽器パート = ( i < 3 ) ? EInstrumentPart.GUITAR : EInstrumentPart.BASS;
 						CTexture texture = CDTXMania.ConfigIni.bReverse[ (int) e楽器パート ] ? base.txFlush[ ( i % 3 ) + 3 ] : base.txFlush[ i % 3 ];

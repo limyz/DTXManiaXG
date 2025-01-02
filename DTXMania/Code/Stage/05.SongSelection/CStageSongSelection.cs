@@ -385,7 +385,7 @@ namespace DTXMania
 				this.actStatusPanel.OnUpdateAndDraw();
 				this.actPerHistoryPanel.OnUpdateAndDraw();
 				int y = 0;
-				if( this.ct登場時アニメ用共通.b進行中 )
+				if( this.ct登場時アニメ用共通.bInProgress )
 				{
 					double db登場割合 = ( (double) this.ct登場時アニメ用共通.nCurrentValue ) / 100.0;	// 100が最終値
 					double dbY表示割合 = Math.Sin( Math.PI / 2 * db登場割合 );

@@ -61,7 +61,7 @@ namespace DTXMania
 		{
 			if( !base.bNotActivated )
 			{
-				if( ( this.ctBGMフェードイン用 != null ) && this.ctBGMフェードイン用.b進行中 )
+				if( ( this.ctBGMフェードイン用 != null ) && this.ctBGMフェードイン用.bInProgress )
 				{
 					this.ctBGMフェードイン用.tUpdate();
 					CDTXMania.Skin.bgm選曲画面.n音量_現在のサウンド = this.ctBGMフェードイン用.nCurrentValue;
@@ -70,7 +70,7 @@ namespace DTXMania
 						this.ctBGMフェードイン用.tStop();
 					}
 				}
-				if( ( this.ctBGMフェードアウト用 != null ) && this.ctBGMフェードアウト用.b進行中 )
+				if( ( this.ctBGMフェードアウト用 != null ) && this.ctBGMフェードアウト用.bInProgress )
 				{
 					this.ctBGMフェードアウト用.tUpdate();
 					CDTXMania.Skin.bgm選曲画面.n音量_現在のサウンド = 100 - this.ctBGMフェードアウト用.nCurrentValue;
@@ -141,7 +141,7 @@ namespace DTXMania
 		}
 		private void t進行処理_プレビューサウンド()
 		{
-			if( ( this.ct再生待ちウェイト != null ) && !this.ct再生待ちウェイト.b停止中 )
+			if( ( this.ct再生待ちウェイト != null ) && !this.ct再生待ちウェイト.bStopped )
 			{
 				this.ct再生待ちウェイト.tUpdate();
 				if( !this.ct再生待ちウェイト.b終了値に達してない )

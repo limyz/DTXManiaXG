@@ -11,12 +11,12 @@ namespace FDK
 	{
 		// 値プロパティ
 
-		public int n開始値
+		public int nStartValue //n開始値
 		{
 			get;
 			private set;
 		}
-		public int n終了値
+		public int nEndValue //n終了値
 		{
 			get;
 			private set;
@@ -35,17 +35,17 @@ namespace FDK
 
 		// 状態プロパティ
 
-		public bool b進行中
+		public bool bInProgress //b進行中
 		{
 			get { return (this.nCurrentElapsedTimeMs != -1); }
 		}
-		public bool b停止中
+		public bool bStopped //b停止中
 		{
-			get { return !this.b進行中; }
+			get { return !this.bInProgress; }
 		}
 		public bool bReachedEndValue  // n現在の経過時間ms
 		{
-			get { return (this.nCurrentValue >= this.n終了値); }
+			get { return (this.nCurrentValue >= this.nEndValue); }
 		}
 		public bool b終了値に達してない
 		{
@@ -54,18 +54,21 @@ namespace FDK
 
 
 		// コンストラクタ
-
+		
 		public CCounter()
 		{
 			this.timer = null;
-			this.n開始値 = 0;
-			this.n終了値 = 0;
-			this.n間隔ms = 0;
+			this.nStartValue = 0;
+			this.nEndValue = 0;
+			this.nInterval = 0;
 			this.nCurrentValue = 0;
 			this.nCurrentElapsedTimeMs = CTimer.nUnused;
 		}
 
-		/// <summary>生成と同時に開始する。</summary>
+		/// <summary>
+		/// 生成と同時に開始する。
+		/// Starts the counter immediately upon creation.
+		/// </summary>
 		public CCounter(int n開始値, int n終了値, int n間隔ms, CTimer timer)
 			: this()
 		{
@@ -78,23 +81,25 @@ namespace FDK
 		/// <summary>
 		/// カウントを開始する。
 		/// </summary>
-		/// <param name="n開始値">最初のカウント値。</param>
-		/// <param name="n終了値">最後のカウント値。</param>
-		/// <param name="n間隔ms">カウント値を１増加させるのにかける時間（ミリ秒単位）。</param>
-		/// <param name="timer">カウントに使用するタイマ。</param>
-		public void tStart(int n開始値, int n終了値, int n間隔ms, CTimer timer)  // t開始
+		/// <param name="nStartValue">最初のカウント値。</param>
+		/// <param name="nEndValue">最後のカウント値。</param>
+		/// <param name="nInterval">Time in milliseconds between each timer increment カウント値を１増加させるのにかける時間（ミリ秒単位）。</param>
+		/// <param name="timer">Timer used for counting カウントに使用するタイマ。</param>
+		public void tStart(int nStartValue, int nEndValue, int nInterval, CTimer timer)  // t開始
 		{
-			this.n開始値 = n開始値;
-			this.n終了値 = n終了値;
-			this.n間隔ms = n間隔ms;
+			this.nStartValue = nStartValue;
+			this.nEndValue = nEndValue;
+			this.nInterval = nInterval;
 			this.timer = timer;
 			this.nCurrentElapsedTimeMs = this.timer.nCurrentTime;
-			this.nCurrentValue = n開始値;
+			this.nCurrentValue = nStartValue;
 		}
 
 		/// <summary>
-		/// 前回の t進行() の呼び出しからの経過時間をもとに、必要なだけカウント値を増加させる。
+		/// 前回の tUpdate() の呼び出しからの経過時間をもとに、必要なだけカウント値を増加させる。
 		/// カウント値が終了値に達している場合は、それ以上増加しない（終了値を維持する）。
+		/// Increments the CurrentValue as necessary based on the time elapsed since the last call to tUpdate().
+		/// CurrentValue will be clamped to EndValue once EndValue is reached.
 		/// </summary>
 		public void tUpdate()  // t進行
 		{
@@ -104,19 +109,21 @@ namespace FDK
 				if (num < this.nCurrentElapsedTimeMs)
 					this.nCurrentElapsedTimeMs = num;
 
-				while ((num - this.nCurrentElapsedTimeMs) >= this.n間隔ms)
+				while ((num - this.nCurrentElapsedTimeMs) >= this.nInterval)
 				{
-					if (++this.nCurrentValue > this.n終了値)
-						this.nCurrentValue = this.n終了値;
+					if (++this.nCurrentValue > this.nEndValue)
+						this.nCurrentValue = this.nEndValue;
 
-					this.nCurrentElapsedTimeMs += this.n間隔ms;
+					this.nCurrentElapsedTimeMs += this.nInterval;
 				}
 			}
 		}
 
 		/// <summary>
-		/// 前回の t進行Loop() の呼び出しからの経過時間をもとに、必要なだけカウント値を増加させる。
+		/// 前回の tUpdateLoop() の呼び出しからの経過時間をもとに、必要なだけカウント値を増加させる。
 		/// カウント値が終了値に達している場合は、次の増加タイミングで開始値に戻る（値がループする）。
+		/// Increments the CurrentValue as necessary based on the time elapsed since the last call to tUpdateLoop().
+		/// CurrentValue will reset to StartValue once EndValue is reached. Otherwise Identical to tUpdate().
 		/// </summary>
 		public void tUpdateLoop()  // t進行Loop
 		{
@@ -126,12 +133,12 @@ namespace FDK
 				if (num < this.nCurrentElapsedTimeMs)
 					this.nCurrentElapsedTimeMs = num;
 
-				while ((num - this.nCurrentElapsedTimeMs) >= this.n間隔ms)
+				while ((num - this.nCurrentElapsedTimeMs) >= this.nInterval)
 				{
-					if (++this.nCurrentValue > this.n終了値)
-						this.nCurrentValue = this.n開始値;
+					if (++this.nCurrentValue > this.nEndValue)
+						this.nCurrentValue = this.nStartValue;
 
-					this.nCurrentElapsedTimeMs += this.n間隔ms;
+					this.nCurrentElapsedTimeMs += this.nInterval;
 				}
 			}
 		}
@@ -139,6 +146,7 @@ namespace FDK
 		/// <summary>
 		/// カウントを停止する。
 		/// これ以降に t進行() や t進行Loop() を呼び出しても何も処理されない。
+		/// Stop the counter. No further processing will be done by tUpdate() or tUpdateLoop().
 		/// </summary>
 		public void tStop()  // t停止
 		{
@@ -208,7 +216,7 @@ namespace FDK
 		#region [ private ]
 		//-----------------
 		private CTimer timer;
-		private int n間隔ms;
+		private int nInterval;
 		//-----------------
 		#endregion
 	}

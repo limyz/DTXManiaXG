@@ -66,7 +66,7 @@ namespace DTXMania
             {
                 return 0;
             }
-            if ((this.ct進行 == null) || this.ct進行.b停止中)
+            if ((this.ct進行 == null) || this.ct進行.bStopped)
             {
                 return 0;
             }

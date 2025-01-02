@@ -36,7 +36,7 @@ namespace DTXMania
                     #region[ コマ方式 ]
                     for (int i = 0; i < 12; i++)
                     {
-                        if (!base.st状態[i].ct進行.b停止中)
+                        if (!base.st状態[i].ct進行.bStopped)
                         {
                             base.st状態[i].ct進行.tUpdate();
                             if (base.st状態[i].ct進行.bReachedEndValue)
@@ -54,7 +54,7 @@ namespace DTXMania
                     #region[ 新しいやつ ]
                     for (int i = 0; i < 12; i++)
                     {
-                        if (!base.st状態[i].ct進行.b停止中)
+                        if (!base.st状態[i].ct進行.bStopped)
                         {
                             base.st状態[i].ct進行.tUpdate();
                             if (base.st状態[i].ct進行.bReachedEndValue)
@@ -1179,7 +1179,7 @@ namespace DTXMania
                     #region[ むかしの ]
                     for (int i = 0; i < 12; i++)
                     {
-                        if (!base.st状態[i].ct進行.b停止中)
+                        if (!base.st状態[i].ct進行.bStopped)
                         {
                             base.st状態[i].ct進行.tUpdate();
                             if (base.st状態[i].ct進行.bReachedEndValue)
@@ -1254,7 +1254,7 @@ namespace DTXMania
 
                 for (int j = 0; j < 12; j++)
                 {
-                    if (!base.st状態[j].ct進行.b停止中)
+                    if (!base.st状態[j].ct進行.bStopped)
                     {
                         #region[ 以前まで ]
                         if (CDTXMania.ConfigIni.nJudgeAnimeType < 2)

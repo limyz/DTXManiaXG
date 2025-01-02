@@ -725,7 +725,7 @@ namespace DTXMania
 				this.bAllAnimationsCompleted = true;
 				for( int i = 0; i < 13; i++ )	// パネルは全13枚。
 				{
-					if( this.ct登場アニメ用[ i ].b進行中 )
+					if( this.ct登場アニメ用[ i ].bInProgress )
 					{
 						this.bAllAnimationsCompleted = false;	// まだ進行中のアニメがあるなら false のまま。
 						break;

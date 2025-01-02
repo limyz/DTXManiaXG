@@ -617,7 +617,7 @@ namespace DTXMania
     //            }
 
 				this.bAnimationComplete = true;
-				if( this.ct登場用.b進行中 )
+				if( this.ct登場用.bInProgress )
 				{
 					this.ct登場用.tUpdate();
 					if( this.ct登場用.bReachedEndValue )
@@ -631,7 +631,7 @@ namespace DTXMania
 				}
 
 				//Play new record if available
-				if(this.ctPlayNewRecord != null && this.ctPlayNewRecord.b進行中)
+				if(this.ctPlayNewRecord != null && this.ctPlayNewRecord.bInProgress)
                 {
 					this.ctPlayNewRecord.tUpdate();
 					if (this.ctPlayNewRecord.bReachedEndValue)
@@ -648,7 +648,7 @@ namespace DTXMania
                     this.txBackground.tDraw2D( CDTXMania.app.Device, 0, 0 );
 				}
 
-				if( this.ct登場用.b進行中 && ( this.txTopPanel != null ) )
+				if( this.ct登場用.bInProgress && ( this.txTopPanel != null ) )
 				{
 					double num2 = ( (double) this.ct登場用.nCurrentValue ) / 100.0;
 					double num3 = Math.Sin( Math.PI / 2 * num2 );

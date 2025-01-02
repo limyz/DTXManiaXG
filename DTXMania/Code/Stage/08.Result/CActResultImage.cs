@@ -26,7 +26,7 @@ namespace DTXMania
 
         public void tアニメを完了させる()
         {
-            this.ct登場用.nCurrentValue = this.ct登場用.n終了値;
+            this.ct登場用.nCurrentValue = this.ct登場用.nEndValue;
         }
 
 

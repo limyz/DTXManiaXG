@@ -30,7 +30,7 @@ namespace DTXMania
         }
 		public void tフェードイン完了()		// #25406 2011.6.9 yyagi
 		{
-			this.counter.nCurrentValue = this.counter.n終了値;
+			this.counter.nCurrentValue = this.counter.nEndValue;
 		}
 
 		// CActivity 実装

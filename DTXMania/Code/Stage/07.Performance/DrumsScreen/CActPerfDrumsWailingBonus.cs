@@ -29,7 +29,7 @@ namespace DTXMania
 				int num = (int) part;
 				for( int i = 0; i < 4; i++ )
 				{
-					if( this.ct進行用[ num, i ].b停止中 )
+					if( this.ct進行用[ num, i ].bStopped )
 					{
 						this.ct進行用[ num, i ] = new CCounter( 0, 300, 2, CDTXMania.Timer );
 						if( CDTXMania.ConfigIni.b歓声を発声する )
@@ -83,7 +83,7 @@ namespace DTXMania
 					EInstrumentPart e楽器パート = ( i == 0 ) ? EInstrumentPart.GUITAR : EInstrumentPart.BASS;
 					for( int j = 0; j < 4; j++ )
 					{
-						if( !this.ct進行用[ (int) e楽器パート, j ].b停止中 )
+						if( !this.ct進行用[ (int) e楽器パート, j ].bStopped )
 						{
 							if( this.ct進行用[ (int) e楽器パート, j ].bReachedEndValue )
 							{

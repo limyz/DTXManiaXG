@@ -247,7 +247,7 @@ namespace DTXMania
 
 		public void tアニメを完了させる()
 		{
-			this.ct表示用.nCurrentValue = this.ct表示用.n終了値;
+			this.ct表示用.nCurrentValue = this.ct表示用.nEndValue;
 		}
 
 
