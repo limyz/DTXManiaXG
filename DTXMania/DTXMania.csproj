@@ -154,6 +154,11 @@
     <Compile Include="Code\Stage\07.Performance\CActPerfProgressBar.cs" />
     <Compile Include="Code\Stage\07.Performance\GuitarScreen\CActPerfGuitarBonus.cs" />
     <Compile Include="Code\Stage\CDTXVmode.cs" />
+    <Compile Include="Code\UI\Item\CItemBase.cs" />
+    <Compile Include="Code\UI\Item\CItemInteger.cs" />
+    <Compile Include="Code\UI\Item\CItemList.cs" />
+    <Compile Include="Code\UI\Item\CItemThreeState.cs" />
+    <Compile Include="Code\UI\Item\CItemToggle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -177,11 +182,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Code\Item\CItemBase.cs" />
-    <Compile Include="Code\Item\CItemInteger.cs" />
-    <Compile Include="Code\Item\CItemList.cs" />
-    <Compile Include="Code\Item\CItemThreeState.cs" />
-    <Compile Include="Code\Item\CItemToggle.cs" />
     <Compile Include="Code\Score,Song\CBoxDef.cs" />
     <Compile Include="Code\Score,Song\CDTX.cs" />
     <Compile Include="Code\Score,Song\CScoreIni.cs" />
