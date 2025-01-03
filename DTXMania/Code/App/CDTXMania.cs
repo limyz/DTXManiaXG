@@ -303,12 +303,12 @@ namespace DTXMania
             get;
             private set;
         }
-        public bool b次のタイミングで垂直帰線同期切り替えを行う
+        public bool changeVSyncModeOnNextFrame
         {
             get;
             set;
         }
-        public bool b次のタイミングで全画面_ウィンドウ切り替えを行う
+        public bool changeFullscreenModeOnNextFrame
         {
             get;
             set;
@@ -1742,23 +1742,23 @@ for (int i = 0; i < 3; i++) {
 #if !GPUFlushAfterPresent
             actFlushGPU.OnUpdateAndDraw();		// Flush GPU	// EndScene()～Present()間 (つまりVSync前) でFlush実行
 #endif
-            #region [ 全画面_ウインドウ切り替え ]
-            if (this.b次のタイミングで全画面_ウィンドウ切り替えを行う)
+            #region [ Fullscreen mode switching ]
+            if (this.changeFullscreenModeOnNextFrame)
             {
                 ConfigIni.bFullScreenMode = !ConfigIni.bFullScreenMode;
                 app.tSwitchFullScreenMode();
-                this.b次のタイミングで全画面_ウィンドウ切り替えを行う = false;
+                this.changeFullscreenModeOnNextFrame = false;
             }
             #endregion
-            #region [ 垂直基線同期切り替え ]
-            if (this.b次のタイミングで垂直帰線同期切り替えを行う)
+            #region [ VSync switching ]
+            if (this.changeVSyncModeOnNextFrame)
             {
                 bool bIsMaximized = this.Window.IsMaximized;											// #23510 2010.11.3 yyagi: to backup current window mode before changing VSyncWait
                 currentClientSize = this.Window.ClientSize;												// #23510 2010.11.3 yyagi: to backup current window size before changing VSyncWait
                 DeviceSettings currentSettings = app.GraphicsDeviceManager.CurrentSettings;
                 currentSettings.EnableVSync = ConfigIni.bVerticalSyncWait;
                 app.GraphicsDeviceManager.ChangeDevice(currentSettings);
-                this.b次のタイミングで垂直帰線同期切り替えを行う = false;
+                this.changeVSyncModeOnNextFrame = false;
                 base.Window.ClientSize = new Size(currentClientSize.Width, currentClientSize.Height);	// #23510 2010.11.3 yyagi: to resume window size after changing VSyncWait
                 if (bIsMaximized)
                 {

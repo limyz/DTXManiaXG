@@ -589,7 +589,7 @@ namespace DTXMania
 						this.ctPlayNewRecord = new CCounter(0, 150, 10, CDTXMania.Timer);
 					}
 						
-                    this.actFI.tフェードイン開始(false);
+                    this.actFI.tStartFadeIn(false);
 					base.ePhaseID = CStage.EPhase.Common_FadeIn;
 					base.bJustStartedUpdate = false;
 				}

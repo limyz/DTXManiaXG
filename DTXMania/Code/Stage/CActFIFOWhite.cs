@@ -16,13 +16,13 @@ namespace DTXMania
             this.bテクスチャを描画する = true;
 			this.counter = new CCounter( 0, 100, 5, CDTXMania.Timer );
 		}
-		public void tフェードイン開始()
+		public void tStartFadeIn()
 		{
 			this.mode = EFIFOMode.FadeIn;
             this.bテクスチャを描画する = true;
 			this.counter = new CCounter( 0, 100, 5, CDTXMania.Timer );
 		}
-        public void tフェードイン開始(bool bテクスチャの描画)
+        public void tStartFadeIn(bool bテクスチャの描画)
         {
             this.mode = EFIFOMode.FadeIn;
             this.bテクスチャを描画する = bテクスチャの描画;

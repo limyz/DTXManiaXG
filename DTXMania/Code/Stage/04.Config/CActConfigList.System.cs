@@ -330,7 +330,7 @@ namespace DTXMania
             var iSystemFullscreen = new CItemToggle("Fullscreen", CDTXMania.ConfigIni.bFullScreenMode,
                 "画面モード設定：\n ON で全画面モード、\n OFF でウィンドウモードになります。",
                 "Fullscreen mode or window mode.");
-            iSystemFullscreen.action = () => CDTXMania.app.b次のタイミングで全画面_ウィンドウ切り替えを行う = true;
+            iSystemFullscreen.action = () => CDTXMania.app.changeFullscreenModeOnNextFrame = true;
             iSystemFullscreen.BindConfig(
                 () =>
                 {
@@ -338,7 +338,7 @@ namespace DTXMania
                     {
                         //NOTE: The assignment is done in reverse because ConfigIni.bFullScreenMode will be toggled by the Draw method once the update flag is set to true
                         CDTXMania.ConfigIni.bFullScreenMode = iSystemFullscreen.bON;
-                        CDTXMania.app.b次のタイミングで全画面_ウィンドウ切り替えを行う = true;
+                        CDTXMania.app.changeFullscreenModeOnNextFrame = true;
                         //Since actual value has changed, the UI should also reflect this
                         iSystemFullscreen.bON = !iSystemFullscreen.bON;
                     }
@@ -391,13 +391,13 @@ namespace DTXMania
             iSystemVSyncWait.action = () =>
             {
                 CDTXMania.ConfigIni.bVerticalSyncWait = iSystemVSyncWait.bON;
-                CDTXMania.app.b次のタイミングで垂直帰線同期切り替えを行う = true;
+                CDTXMania.app.changeVSyncModeOnNextFrame = true;
             };
             iSystemVSyncWait.BindConfig(
                 () =>
                 {
                     if (iSystemVSyncWait.bON != CDTXMania.ConfigIni.bVerticalSyncWait) {
-                        CDTXMania.app.b次のタイミングで垂直帰線同期切り替えを行う = true;
+                        CDTXMania.app.changeVSyncModeOnNextFrame = true;
                     }            
                     iSystemVSyncWait.bON = CDTXMania.ConfigIni.bVerticalSyncWait;
                 }, 

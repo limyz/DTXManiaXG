@@ -72,8 +72,8 @@ namespace DTXMania
 		{
 			if( !base.bNotActivated )
 			{
-				this.tx背景 = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\2_background.jpg" ), false );
-				this.txメニュー = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\2_menu.png" ), false );
+				this.txBackground = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\2_background.jpg" ), false );
+				this.txMenu = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\2_menu.png" ), false );
 				base.OnManagedCreateResources();
 			}
 		}
@@ -81,8 +81,8 @@ namespace DTXMania
 		{
 			if( !base.bNotActivated )
 			{
-				CDTXMania.tReleaseTexture( ref this.tx背景 );
-				CDTXMania.tReleaseTexture( ref this.txメニュー );
+				CDTXMania.tReleaseTexture( ref this.txBackground );
+				CDTXMania.tReleaseTexture( ref this.txMenu );
 				base.OnManagedReleaseResources();
 			}
 		}
@@ -96,12 +96,12 @@ namespace DTXMania
 				{
 					if( CDTXMania.rPreviousStage == CDTXMania.stageStartup )
 					{
-						this.actFIfromSetup.tフェードイン開始();
+						this.actFIfromSetup.tStartFadeIn();
 						base.ePhaseID = CStage.EPhase.タイトル_起動画面からのフェードイン;
 					}
 					else
 					{
-						this.actFI.tフェードイン開始();
+						this.actFI.tStartFadeIn();
 						base.ePhaseID = CStage.EPhase.Common_FadeIn;
 					}
 					this.ctカーソルフラッシュ用.tStart( 0, 700, 5, CDTXMania.Timer );
@@ -151,17 +151,17 @@ namespace DTXMania
 					if( CDTXMania.InputManager.Keyboard.bKeyPressed( (int) SlimDXKey.Escape ) )
 						return (int) E戻り値.EXIT;
 
-					this.ctキー反復用.Up.tRepeatKey( CDTXMania.InputManager.Keyboard.bKeyPressing( (int)SlimDXKey.UpArrow ), new CCounter.DGキー処理( this.tカーソルを上へ移動する ) );
-					this.ctキー反復用.R.tRepeatKey( CDTXMania.Pad.b押されているGB( EPad.HH ), new CCounter.DGキー処理( this.tカーソルを上へ移動する ) );
+					this.ctキー反復用.Up.tRepeatKey( CDTXMania.InputManager.Keyboard.bKeyPressing( (int)SlimDXKey.UpArrow ), new CCounter.DGキー処理( this.tMoveCursorUp ) );
+					this.ctキー反復用.R.tRepeatKey( CDTXMania.Pad.b押されているGB( EPad.HH ), new CCounter.DGキー処理( this.tMoveCursorUp ) );
 					//Change to HT
 					if( CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.HT ) )
-						this.tカーソルを上へ移動する();
+						this.tMoveCursorUp();
 
-					this.ctキー反復用.Down.tRepeatKey( CDTXMania.InputManager.Keyboard.bKeyPressing( (int)SlimDXKey.DownArrow ), new CCounter.DGキー処理( this.tカーソルを下へ移動する ) );
-					this.ctキー反復用.B.tRepeatKey( CDTXMania.Pad.b押されているGB( EPad.SD ), new CCounter.DGキー処理( this.tカーソルを下へ移動する ) );
+					this.ctキー反復用.Down.tRepeatKey( CDTXMania.InputManager.Keyboard.bKeyPressing( (int)SlimDXKey.DownArrow ), new CCounter.DGキー処理( this.tMoveCursorDown ) );
+					this.ctキー反復用.B.tRepeatKey( CDTXMania.Pad.b押されているGB( EPad.SD ), new CCounter.DGキー処理( this.tMoveCursorDown ) );
 					//Change to LT
 					if ( CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.LT ) )
-						this.tカーソルを下へ移動する();
+						this.tMoveCursorDown();
 
 					if( ( CDTXMania.Pad.bPressedDGB( EPad.CY ) || CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.RD ) ) || ( CDTXMania.ConfigIni.bEnterがキー割り当てのどこにも使用されていない && CDTXMania.InputManager.Keyboard.bKeyPressed( (int)SlimDXKey.Return ) ) ) 
 					{
@@ -182,14 +182,14 @@ namespace DTXMania
 					}
 				}
 
-				// 描画
+				// DrawBackground
 
-				if( this.tx背景 != null )
-					this.tx背景.tDraw2D( CDTXMania.app.Device, 0, 0 );
+				if( this.txBackground != null )
+					this.txBackground.tDraw2D( CDTXMania.app.Device, 0, 0 );
 
                 CDTXMania.actDisplayString.tPrint( 2, 2, CCharacterConsole.EFontType.White, CDTXMania.VERSION_DISPLAY);
 
-				if( this.txメニュー != null )
+				if( this.txMenu != null )
 				{
 					int x = MENU_X;
 					int y = MENU_Y + ( this.n現在のカーソル行 * MENU_H );
@@ -204,24 +204,22 @@ namespace DTXMania
 					if( this.ctカーソルフラッシュ用.nCurrentValue <= 100 )
 					{
 						float nMag = (float) ( 1.0 + ( ( ( (double) this.ctカーソルフラッシュ用.nCurrentValue ) / 100.0 ) * 0.5 ) );
-						this.txメニュー.vcScaleRatio.X = nMag;
-						this.txメニュー.vcScaleRatio.Y = nMag;
-						this.txメニュー.nTransparency = (int) ( 255.0 * ( 1.0 - ( ( (double) this.ctカーソルフラッシュ用.nCurrentValue ) / 100.0 ) ) );
+						this.txMenu.vcScaleRatio.X = nMag;
+						this.txMenu.vcScaleRatio.Y = nMag;
+						this.txMenu.nTransparency = (int) ( 255.0 * ( 1.0 - ( ( (double) this.ctカーソルフラッシュ用.nCurrentValue ) / 100.0 ) ) );
 						int x_magnified = x + ( (int) ( ( MENU_W * ( 1.0 - nMag ) ) / 2.0 ) );
 						int y_magnified = y + ( (int) ( ( MENU_H * ( 1.0 - nMag ) ) / 2.0 ) );
-						this.txメニュー.tDraw2D( CDTXMania.app.Device, x_magnified, y_magnified, new Rectangle( 0, MENU_H * 5, MENU_W, MENU_H ) );
+						this.txMenu.tDraw2D( CDTXMania.app.Device, x_magnified, y_magnified, new Rectangle( 0, MENU_H * 5, MENU_W, MENU_H ) );
 					}
-					this.txメニュー.vcScaleRatio.X = 1f;
-					this.txメニュー.vcScaleRatio.Y = 1f;
-					this.txメニュー.nTransparency = 0xff;
-					this.txメニュー.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( 0, MENU_H * 4, MENU_W, MENU_H ) );
+					this.txMenu.vcScaleRatio.X = 1f;
+					this.txMenu.vcScaleRatio.Y = 1f;
+					this.txMenu.nTransparency = 0xff;
+					this.txMenu.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( 0, MENU_H * 4, MENU_W, MENU_H ) );
 				}
-				if( this.txメニュー != null )
+				if( this.txMenu != null )
 				{
-					//this.txメニュー.tDraw2D( CDTXMania.app.Device, 0xce, 0xcb, new Rectangle( 0, 0, MENU_W, MENU_H ) );
-					// #24525 2011.3.16 yyagi: "OPTION"を省いて描画。従来スキンとの互換性確保のため。
-					this.txメニュー.tDraw2D( CDTXMania.app.Device, MENU_X, MENU_Y, new Rectangle( 0, 0, MENU_W, MENU_H ) );
-					this.txメニュー.tDraw2D( CDTXMania.app.Device, MENU_X, MENU_Y + MENU_H, new Rectangle( 0, MENU_H * 2, MENU_W, MENU_H * 2 ) );
+					this.txMenu.tDraw2D( CDTXMania.app.Device, MENU_X, MENU_Y, new Rectangle( 0, 0, MENU_W, MENU_H ) );
+					this.txMenu.tDraw2D( CDTXMania.app.Device, MENU_X, MENU_Y + MENU_H, new Rectangle( 0, MENU_H * 2, MENU_W, MENU_H * 2 ) );
 				}
 				CStage.EPhase eフェーズid = base.ePhaseID;
 				switch( eフェーズid )
@@ -343,10 +341,10 @@ namespace DTXMania
         private const int MENU_X = 0x1fa;
         private const int MENU_Y = 0x201;
 		private int n現在のカーソル行;
-		private CTexture txメニュー;
-		private CTexture tx背景;
+		private CTexture txMenu;
+		private CTexture txBackground;
 	
-		private void tカーソルを下へ移動する()
+		private void tMoveCursorDown()
 		{
 			if ( this.n現在のカーソル行 != (int) E戻り値.EXIT - 1 )
 			{
@@ -360,7 +358,7 @@ namespace DTXMania
 				}
 			}
 		}
-		private void tカーソルを上へ移動する()
+		private void tMoveCursorUp()
 		{
 			if ( this.n現在のカーソル行 != (int) E戻り値.GAMESTART - 1 )
 			{
