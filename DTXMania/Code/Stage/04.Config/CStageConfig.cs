@@ -208,10 +208,6 @@ namespace DTXMania
             menuCursor.Texture.nTransparency = bFocusIsOnMenu ? 255 : 128;
             menuCursor.position.Y = 2 + configLeftOptionsMenu.currentlySelectedIndex * 32;
             
-            //make the menu rotate in a circle
-            configLeftOptionsMenu.position.X = 95 + (float)Math.Cos(CDTXMania.Timer.nCurrentTime / 1000.0) * 10;
-            configLeftOptionsMenu.position.Y = 4 + (float)Math.Sin(CDTXMania.Timer.nCurrentTime / 1000.0) * 10;
-            
             uiGroup.Draw(CDTXMania.app.Device, Vector2.Zero);
             
             #region [ アイテム ]
