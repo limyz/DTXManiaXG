@@ -228,11 +228,6 @@ namespace DTXMania
             get;
             private set;
         }
-        // public static CStageOption stageOption
-        // {
-        //     get;
-        //     private set;
-        // }
         public static CStageConfig stageConfig
         {
             get;
@@ -721,7 +716,6 @@ namespace DTXMania
                 {
                     case CStage.EStage.Title:
                     case CStage.EStage.Config:
-                    case CStage.EStage.Option:
                     case CStage.EStage.SongSelection:
                     case CStage.EStage.SongLoading:
                         if (EnumSongs != null)
@@ -858,23 +852,6 @@ namespace DTXMania
                                     #endregion
                                     break;
 
-                                #region [ OPTION: 廃止済 ]
-                                /*
-							    case 2:									// #24525 OPTIONとCONFIGの統合に伴い、OPTIONは廃止
-								    #region [ *** ]
-								    //-----------------------------
-								    rCurrentStage.OnDeactivate();
-								    Trace.TraceInformation( "----------------------" );
-								    Trace.TraceInformation( "■ Option" );
-								    stageOption.OnActivate();
-								    rPreviousStage = rCurrentStage;
-								    rCurrentStage = stageOption;
-								    //-----------------------------
-								    #endregion
-								    break;
-                                    */
-                                #endregion
-
                                 case (int)CStageTitle.E戻り値.CONFIG:
                                     #region [ *** ]
                                     //-----------------------------
@@ -915,64 +892,6 @@ namespace DTXMania
                         //-----------------------------
                         #endregion
                         break;
-
-
-                    case CStage.EStage.Option:
-                        #region [ *** ]
-                        //-----------------------------
-                        if (this.nUpdateAndDrawReturnValue != 0)
-                        {
-                            switch (rPreviousStage.eStageID)
-                            {
-                                case CStage.EStage.Title:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ Title");
-                                    stageTitle.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageTitle;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-
-                                    this.tRunGarbageCollector();
-                                    break;
-                                //-----------------------------
-                                    #endregion
-
-                                case CStage.EStage.SongSelection:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-
-                                    this.tRunGarbageCollector();
-                                    break;
-                                //-----------------------------
-                                    #endregion
-                            }
-                        }
-                        //-----------------------------
-                        #endregion
-                        break;
-
 
                     case CStage.EStage.Config:
                         #region [ *** ]

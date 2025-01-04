@@ -36,7 +36,6 @@ namespace DTXMania
 			DoNothing,
 			Startup,
 			Title,
-			Option,
 			Config,
 			SongSelection,
 			SongLoading,
