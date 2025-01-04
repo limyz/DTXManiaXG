@@ -159,6 +159,14 @@
     <Compile Include="Code\UI\Item\CItemList.cs" />
     <Compile Include="Code\UI\Item\CItemThreeState.cs" />
     <Compile Include="Code\UI\Item\CItemToggle.cs" />
+    <Compile Include="Code\UI\UIBasicButton.cs" />
+    <Compile Include="Code\UI\UIImage.cs" />
+    <Compile Include="Code\UI\UISelectable.cs" />
+    <Compile Include="Code\UI\UISelectList.cs" />
+    <Compile Include="Code\UI\UIDrawable.cs" />
+    <Compile Include="Code\UI\UIGroup.cs" />
+    <Compile Include="Code\UI\UIText.cs" />
+    <Compile Include="Code\UI\UITexture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
