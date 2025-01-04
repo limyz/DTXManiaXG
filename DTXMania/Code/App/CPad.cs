@@ -252,7 +252,7 @@ namespace DTXMania
 			}
 			return false;
 		}
-		public bool b押されているGB( EPad pad )
+		public bool bPressingGB( EPad pad )
 		{
 			if( !this.bPressing( EInstrumentPart.GUITAR, pad ) )
 			{

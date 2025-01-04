@@ -192,8 +192,8 @@ namespace DTXMania
             
             this.bFocusIsOnElementValue = false;
             this.nTargetScrollCounter = 0;
-            this.n現在のスクロールカウンタ = 0;
-            this.nスクロール用タイマ値 = -1;
+            this.currentScrollCounter = 0;
+            this.scrollTimerValue = -1;
             this.ctTriangleArrowAnimation = new CCounter();
             this.ctToastMessageCounter = new CCounter(0, 1, 10000, CDTXMania.Timer);
 
@@ -234,12 +234,12 @@ namespace DTXMania
             if (this.bNotActivated)
                 return;
 
-            this.tx通常項目行パネル = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\4_itembox.png"), false);
-            this.txその他項目行パネル = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\4_itembox other.png"), false);
-            this.tx三角矢印 = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\4_triangle arrow.png"), false);
-            this.tx説明文パネル = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_Description Panel.png" ) );
-            this.tx矢印 = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_Arrow.png" ) );
-            this.txCursor = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_itembox cursor.png" ) );
+            this.txItemBoxNormal = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\4_itembox.png"), false);
+            this.txItemBoxOther = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\4_itembox other.png"), false);
+            this.txTriangleArrow = CDTXMania.tGenerateTexture(CSkin.Path(@"Graphics\4_triangle arrow.png"), false);
+            this.txDescriptionPanel = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_Description Panel.png" ) );
+            this.txArrow = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_Arrow.png" ) );
+            this.txItemBoxCursor = CDTXMania.tGenerateTexture( CSkin.Path( @"Graphics\4_itembox cursor.png" ) );
             this.txSkinSample1 = null;		// スキン選択時に動的に設定するため、ここでは初期化しない
             this.prvFontForToastMessage = new CPrivateFastFont(new FontFamily(CDTXMania.ConfigIni.str選曲リストフォント), 14, FontStyle.Regular);
             base.OnManagedCreateResources();
@@ -250,12 +250,12 @@ namespace DTXMania
                 return;
 
             CDTXMania.tReleaseTexture(ref this.txSkinSample1);
-            CDTXMania.tReleaseTexture(ref this.tx通常項目行パネル);
-            CDTXMania.tReleaseTexture(ref this.txその他項目行パネル);
-            CDTXMania.tReleaseTexture(ref this.tx三角矢印);
-            CDTXMania.tReleaseTexture( ref this.tx説明文パネル );
-            CDTXMania.tReleaseTexture( ref this.tx矢印 );
-            CDTXMania.tReleaseTexture( ref this.txCursor );
+            CDTXMania.tReleaseTexture(ref this.txItemBoxNormal);
+            CDTXMania.tReleaseTexture(ref this.txItemBoxOther);
+            CDTXMania.tReleaseTexture(ref this.txTriangleArrow);
+            CDTXMania.tReleaseTexture( ref this.txDescriptionPanel );
+            CDTXMania.tReleaseTexture( ref this.txArrow );
+            CDTXMania.tReleaseTexture( ref this.txItemBoxCursor );
             CDTXMania.tReleaseTexture(ref this.txToastMessage);
             CDTXMania.t安全にDisposeする(ref this.prvFontForToastMessage);
             base.OnManagedReleaseResources();
@@ -292,18 +292,18 @@ namespace DTXMania
         {
             throw new InvalidOperationException("tUpdateAndDraw(bool)のほうを使用してください。");
         }
-        public int tUpdateAndDraw(bool b項目リスト側にフォーカスがある)  // t進行描画
+        public int tUpdateAndDraw(bool isFocusOnItemList)  // t進行描画 bool b項目リスト側にフォーカスがある
         {
             if (this.bNotActivated)
                 return 0;
 
             // 進行
 
-            #region [ 初めての進行描画 ]
+            #region [ First update and draw ] //初めての進行描画
             //-----------------
             if (base.bJustStartedUpdate)
             {
-                this.nスクロール用タイマ値 = CSoundManager.rcPerformanceTimer.nCurrentTime;
+                this.scrollTimerValue = CSoundManager.rcPerformanceTimer.nCurrentTime;
                 this.ctTriangleArrowAnimation.tStart(0, 9, 50, CDTXMania.Timer);
 
                 base.bJustStartedUpdate = false;
@@ -311,77 +311,77 @@ namespace DTXMania
             //-----------------
             #endregion
 
-            this.bFocusIsOnItemList = b項目リスト側にフォーカスがある;		// 記憶
+            this.bFocusIsOnItemList = isFocusOnItemList;		// 記憶
 
             #region [ 項目スクロールの進行 ]
             //-----------------
-            long n現在時刻 = CDTXMania.Timer.nCurrentTime;
-            if (n現在時刻 < this.nスクロール用タイマ値) this.nスクロール用タイマ値 = n現在時刻;
+            long currentTime = CDTXMania.Timer.nCurrentTime;
+            if (currentTime < this.scrollTimerValue) this.scrollTimerValue = currentTime;
 
             const int INTERVAL = 2;	// [ms]
-            while ((n現在時刻 - this.nスクロール用タイマ値) >= INTERVAL)
+            while ((currentTime - this.scrollTimerValue) >= INTERVAL)
             {
-                int n目標項目までのスクロール量 = Math.Abs((int)(this.nTargetScrollCounter - this.n現在のスクロールカウンタ));
-                int n加速度 = 0;
+                int scrollDistanceToTarget = Math.Abs((int)(this.nTargetScrollCounter - this.currentScrollCounter));
+                int scrollAcceleration = 0;
 
                 #region [ n加速度の決定；目標まで遠いほど加速する。]
                 //-----------------
-                if (n目標項目までのスクロール量 <= 100)
+                if (scrollDistanceToTarget <= 100)
                 {
-                    n加速度 = 2;
+                    scrollAcceleration = 2;
                 }
-                else if (n目標項目までのスクロール量 <= 300)
+                else if (scrollDistanceToTarget <= 300)
                 {
-                    n加速度 = 3;
+                    scrollAcceleration = 3;
                 }
-                else if (n目標項目までのスクロール量 <= 500)
+                else if (scrollDistanceToTarget <= 500)
                 {
-                    n加速度 = 4;
+                    scrollAcceleration = 4;
                 }
                 else
                 {
-                    n加速度 = 8;
+                    scrollAcceleration = 8;
                 }
                 //-----------------
                 #endregion
                 #region [ this.n現在のスクロールカウンタに n加速度 を加減算。]
                 //-----------------
-                if (this.n現在のスクロールカウンタ < this.nTargetScrollCounter)
+                if (this.currentScrollCounter < this.nTargetScrollCounter)
                 {
-                    this.n現在のスクロールカウンタ += n加速度;
-                    if (this.n現在のスクロールカウンタ > this.nTargetScrollCounter)
+                    this.currentScrollCounter += scrollAcceleration;
+                    if (this.currentScrollCounter > this.nTargetScrollCounter)
                     {
                         // 目標を超えたら目標値で停止。
-                        this.n現在のスクロールカウンタ = this.nTargetScrollCounter;
+                        this.currentScrollCounter = this.nTargetScrollCounter;
                     }
                 }
-                else if (this.n現在のスクロールカウンタ > this.nTargetScrollCounter)
+                else if (this.currentScrollCounter > this.nTargetScrollCounter)
                 {
-                    this.n現在のスクロールカウンタ -= n加速度;
-                    if (this.n現在のスクロールカウンタ < this.nTargetScrollCounter)
+                    this.currentScrollCounter -= scrollAcceleration;
+                    if (this.currentScrollCounter < this.nTargetScrollCounter)
                     {
                         // 目標を超えたら目標値で停止。
-                        this.n現在のスクロールカウンタ = this.nTargetScrollCounter;
+                        this.currentScrollCounter = this.nTargetScrollCounter;
                     }
                 }
                 //-----------------
                 #endregion
                 #region [ 行超え処理、ならびに目標位置に到達したらスクロールを停止して項目変更通知を発行。]
                 //-----------------
-                if (this.n現在のスクロールカウンタ >= 100)
+                if (this.currentScrollCounter >= 100)
                 {
                     this.nCurrentSelection = this.tNextItem(this.nCurrentSelection);
-                    this.n現在のスクロールカウンタ -= 100;
+                    this.currentScrollCounter -= 100;
                     this.nTargetScrollCounter -= 100;
                     if (this.nTargetScrollCounter == 0)
                     {
                         CDTXMania.stageConfig.tNotifyItemChange();
                     }
                 }
-                else if (this.n現在のスクロールカウンタ <= -100)
+                else if (this.currentScrollCounter <= -100)
                 {
                     this.nCurrentSelection = this.tPreviousItem(this.nCurrentSelection);
-                    this.n現在のスクロールカウンタ += 100;
+                    this.currentScrollCounter += 100;
                     this.nTargetScrollCounter += 100;
                     if (this.nTargetScrollCounter == 0)
                     {
@@ -391,12 +391,12 @@ namespace DTXMania
                 //-----------------
                 #endregion
 
-                this.nスクロール用タイマ値 += INTERVAL;
+                this.scrollTimerValue += INTERVAL;
             }
             //-----------------
             #endregion
 
-            #region [ ▲印アニメの進行 ]
+            #region [ Triangle arrow animation ]
             //-----------------
             if (this.bFocusIsOnItemList && (this.nTargetScrollCounter == 0))
                 this.ctTriangleArrowAnimation.tUpdateLoop();
@@ -413,53 +413,52 @@ namespace DTXMania
 
             // 描画
 
-            this.ptパネルの基本座標[4].X = this.bFocusIsOnItemList ? 0x228 : 0x25a;		// メニューにフォーカスがあるなら、項目リストの中央は頭を出さない。
+            this.basePanelCoordinates[4].X = this.bFocusIsOnItemList ? 0x228 : 0x25a;		// メニューにフォーカスがあるなら、項目リストの中央は頭を出さない。
 
             //2014.04.25 kairera0467 GITADORAでは項目パネルが11個だが、選択中のカーソルは中央に無いので両方を同じにすると7×2+1=15個パネルが必要になる。
             //　　　　　　　　　　　 さらに画面に映らないがアニメーション中に見える箇所を含めると17個は必要とされる。
             //　　　　　　　　　　　 ただ、画面に表示させる分には上のほうを考慮しなくてもよさそうなので、上4個は必要なさげ。
-            #region [ 計11個の項目パネルを描画する。]
+            #region [ Draw item panels ]
             //-----------------
             int nItem = this.nCurrentSelection;
             for (int i = 0; i < 4; i++)
                 nItem = this.tPreviousItem(nItem);
 
-            for (int n行番号 = -4; n行番号 < 10; n行番号++)		// n行番号 == 0 がフォーカスされている項目パネル。
+            for (int rowIndex = -4; rowIndex < 10; rowIndex++)		// n行番号 == 0 がフォーカスされている項目パネル。
             {
-                #region [ 今まさに画面外に飛びだそうとしている項目パネルは描画しない。]
+                #region [ Skip Offscreen Item Panels ]
                 //-----------------
-                if (((n行番号 == -4) && (this.n現在のスクロールカウンタ > 0)) ||		// 上に飛び出そうとしている
-                    ((n行番号 == +9) && (this.n現在のスクロールカウンタ < 0)))		// 下に飛び出そうとしている
+                if (((rowIndex == -4) && (this.currentScrollCounter > 0)) ||		// 上に飛び出そうとしている
+                    ((rowIndex == +9) && (this.currentScrollCounter < 0)))		// 下に飛び出そうとしている
                 {
                     nItem = this.tNextItem(nItem);
                     continue;
                 }
                 //-----------------
                 #endregion
-
-                int n移動元の行の基本位置 = n行番号 + 4;
-                int n移動先の行の基本位置 = (this.n現在のスクロールカウンタ <= 0) ? ((n移動元の行の基本位置 + 1) % 14) : (((n移動元の行の基本位置 - 1) + 14) % 14);
-                int x = this.pt新パネルの基本座標[n移動元の行の基本位置].X + ((int)((this.pt新パネルの基本座標[n移動先の行の基本位置].X - this.pt新パネルの基本座標[n移動元の行の基本位置].X) * (((double)Math.Abs(this.n現在のスクロールカウンタ)) / 100.0)));
-                int y = this.pt新パネルの基本座標[n移動元の行の基本位置].Y + ((int)((this.pt新パネルの基本座標[n移動先の行の基本位置].Y - this.pt新パネルの基本座標[n移動元の行の基本位置].Y) * (((double)Math.Abs(this.n現在のスクロールカウンタ)) / 100.0)));
+                int n移動元の行の基本位置 = rowIndex + 4;
+                int n移動先の行の基本位置 = (this.currentScrollCounter <= 0) ? ((n移動元の行の基本位置 + 1) % 14) : (((n移動元の行の基本位置 - 1) + 14) % 14);
+                int x = this.pt新パネルの基本座標[n移動元の行の基本位置].X + ((int)((this.pt新パネルの基本座標[n移動先の行の基本位置].X - this.pt新パネルの基本座標[n移動元の行の基本位置].X) * (((double)Math.Abs(this.currentScrollCounter)) / 100.0)));
+                int y = this.pt新パネルの基本座標[n移動元の行の基本位置].Y + ((int)((this.pt新パネルの基本座標[n移動先の行の基本位置].Y - this.pt新パネルの基本座標[n移動元の行の基本位置].Y) * (((double)Math.Abs(this.currentScrollCounter)) / 100.0)));
                 int n新項目パネルX = 420;
 
-                #region [ 現在の行の項目パネル枠を描画。]
+                #region [ Render Row Panel Frame ]
                 //-----------------
                 switch (this.listItems[nItem].ePanelType)
                 {
                     case CItemBase.EPanelType.Normal:
-                        if (this.tx通常項目行パネル != null)
-                            this.tx通常項目行パネル.tDraw2D(CDTXMania.app.Device, n新項目パネルX, y);
+                        if (this.txItemBoxNormal != null)
+                            this.txItemBoxNormal.tDraw2D(CDTXMania.app.Device, n新項目パネルX, y);
                         break;
 
                     case CItemBase.EPanelType.Other:
-                        if (this.txその他項目行パネル != null)
-                            this.txその他項目行パネル.tDraw2D(CDTXMania.app.Device, n新項目パネルX, y);
+                        if (this.txItemBoxOther != null)
+                            this.txItemBoxOther.tDraw2D(CDTXMania.app.Device, n新項目パネルX, y);
                         break;
                 }
                 //-----------------
                 #endregion
-                #region [ 現在の行の項目名を描画。]
+                #region [ Render Item Name ]
                 //-----------------
 				if ( listMenu[ nItem ].txMenuItemRight != null )	// 自前のキャッシュに含まれているようなら、再レンダリングせずキャッシュを使用
 				{
@@ -476,10 +475,10 @@ namespace DTXMania
 				//CDTXMania.stageConfig.actFont.tDrawString( x + 0x12, y + 12, this.listItems[ nItem ].strItemName );
                 //-----------------
                 #endregion
-                #region [ 現在の行の項目の要素を描画。]
+                #region [ Render Item Elements ]
 				//-----------------
 				string strParam = null;
-				bool b強調 = false;
+				bool isHighlighted = false;
 				switch( this.listItems[ nItem ].eType )
 				{
 					case CItemBase.EType.ONorOFFToggle:
@@ -533,7 +532,7 @@ namespace DTXMania
 							//CDTXMania.stageConfig.actFont.tDrawString( x + 210, y + 12, ( (CItemInteger) this.listItems[ nItem ] ).nCurrentValue.ToString(), ( n行番号 == 0 ) && this.bFocusIsOnElementValue );
 							strParam = ( (CItemInteger) this.listItems[ nItem ] ).nCurrentValue.ToString();
 						}
-						b強調 = ( n行番号 == 0 ) && this.bFocusIsOnElementValue;
+						isHighlighted = ( rowIndex == 0 ) && this.bFocusIsOnElementValue;
 						break;
 						//-----------------
 						#endregion
@@ -558,9 +557,9 @@ namespace DTXMania
 						//-----------------
 						#endregion
 				}
-				if ( b強調 )
+				if ( isHighlighted )
 				{
-					Bitmap bmpStr = b強調 ?
+					Bitmap bmpStr = isHighlighted ?
 						prvFont.DrawPrivateFont( strParam, Color.White, Color.Black, Color.Yellow, Color.OrangeRed ) :
 						prvFont.DrawPrivateFont( strParam, Color.Black, Color.Transparent );
 					CTexture txStr = CDTXMania.tGenerateTexture( bmpStr, false );
@@ -595,18 +594,18 @@ namespace DTXMania
             //-----------------
             #endregion
 
-            #region[ カーソル ]
+            #region[ Cursor ]
             if( this.bFocusIsOnItemList )
             {
-                this.txCursor.tDraw2D( CDTXMania.app.Device, 413, 193 );
+                this.txItemBoxCursor.tDraw2D( CDTXMania.app.Device, 413, 193 );
             }
             #endregion
 
-            #region[ 説明文パネル ]
+            #region[ Explanation Panel ]
             if( this.bFocusIsOnItemList && this.nTargetScrollCounter == 0 && CDTXMania.stageConfig.ctDisplayWait.bReachedEndValue )
             {
                 // 15SEP20 Increasing x position by 180 pixels (was 601)
-                this.tx説明文パネル.tDraw2D( CDTXMania.app.Device, 781, 252 );
+                this.txDescriptionPanel.tDraw2D( CDTXMania.app.Device, 781, 252 );
                 if ( txSkinSample1 != null && this.nTargetScrollCounter == 0 && this.listItems[ this.nCurrentSelection ] == this.iSystemSkinSubfolder )
 				{
                     // 15SEP20 Increasing x position by 180 pixels (was 615 - 60)
@@ -615,7 +614,8 @@ namespace DTXMania
             }
             #endregion
 
-            #region [ 項目リストにフォーカスがあって、かつスクロールが停止しているなら、パネルの上下に▲印を描画する。]
+            //項目リストにフォーカスがあって、かつスクロールが停止しているなら、パネルの上下に▲印を描画する。
+            #region [ Draw a ▲ symbol at the top and bottom when scrolling finishes and the focus is on the item list ]
             //-----------------
             if( this.bFocusIsOnItemList )//&& (this.nTargetScrollCounter == 0))
             {
@@ -643,10 +643,10 @@ namespace DTXMania
                 }
 
                 //新矢印
-                if( this.tx矢印 != null )
+                if( this.txArrow != null )
                 {
-                    this.tx矢印.tDraw2D(CDTXMania.app.Device, n新カーソルX, n新カーソル上Y, new Rectangle(0, 0, 40, 40));
-                    this.tx矢印.tDraw2D(CDTXMania.app.Device, n新カーソルX, n新カーソル下Y, new Rectangle(0, 40, 40, 40));
+                    this.txArrow.tDraw2D(CDTXMania.app.Device, n新カーソルX, n新カーソル上Y, new Rectangle(0, 0, 40, 40));
+                    this.txArrow.tDraw2D(CDTXMania.app.Device, n新カーソルX, n新カーソル下Y, new Rectangle(0, 40, 40, 40));
                 }
             }
             //-----------------
@@ -687,17 +687,17 @@ namespace DTXMania
         private EMenuType eMenuType;
 
         private List<CItemBase> listItems;
-        private long nスクロール用タイマ値;
-        private int n現在のスクロールカウンタ;
+        private long scrollTimerValue;
+        private int currentScrollCounter;
         public int nTargetScrollCounter;
-        private Point[] ptパネルの基本座標 = new Point[] { new Point(0x25a, 4), new Point(0x25a, 0x4f), new Point(0x25a, 0x9a), new Point(0x25a, 0xe5), new Point(0x228, 0x130), new Point(0x25a, 0x17b), new Point(0x25a, 0x1c6), new Point(0x25a, 0x211), new Point(0x25a, 0x25c), new Point(0x25a, 0x2a7), new Point(0x25a, 0x2d0) };
+        private Point[] basePanelCoordinates = new Point[] { new Point(0x25a, 4), new Point(0x25a, 0x4f), new Point(0x25a, 0x9a), new Point(0x25a, 0xe5), new Point(0x228, 0x130), new Point(0x25a, 0x17b), new Point(0x25a, 0x1c6), new Point(0x25a, 0x211), new Point(0x25a, 0x25c), new Point(0x25a, 0x2a7), new Point(0x25a, 0x2d0) };
         private Point[] pt新パネルの基本座標 = new Point[] { new Point(0x25a, -79), new Point(0x25a, -12), new Point(0x25a, 55), new Point(0x25a, 122), new Point(0x228, 189), new Point(0x25a, 256), new Point(0x25a, 323), new Point(0x25a, 390), new Point(0x25a, 457), new Point(0x25a, 524), new Point(0x25a, 591), new Point(0x25a, 658), new Point(0x25a, 725), new Point(0x25a, 792) };
-        private CTexture txその他項目行パネル;
-        private CTexture tx三角矢印;
-        private CTexture tx矢印;
-        private CTexture tx通常項目行パネル;
-        private CTexture txCursor;
-        private CTexture tx説明文パネル;
+        private CTexture txItemBoxOther;
+        private CTexture txTriangleArrow;
+        private CTexture txArrow;
+        private CTexture txItemBoxNormal;
+        private CTexture txItemBoxCursor;
+        private CTexture txDescriptionPanel;
         private CTexture txToastMessage;
         private CPrivateFastFont prvFontForToastMessage;
         private CCounter ctToastMessageCounter;

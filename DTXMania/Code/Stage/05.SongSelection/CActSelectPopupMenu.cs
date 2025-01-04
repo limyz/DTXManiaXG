@@ -331,7 +331,7 @@ namespace DTXMania
                     #endregion
                     #region [ キー入力: 前に移動 ]
                     this.ctキー反復用.Up.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.UpArrow), new CCounter.DGキー処理(this.t前に移動));
-                    this.ctキー反復用.R.tRepeatKey(CDTXMania.Pad.b押されているGB(EPad.R), new CCounter.DGキー処理(this.t前に移動));
+                    this.ctキー反復用.R.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.R), new CCounter.DGキー処理(this.t前に移動));
                     //Change to HT
                     if (CDTXMania.Pad.bPressed(EInstrumentPart.DRUMS, EPad.HT))
                     {
@@ -340,7 +340,7 @@ namespace DTXMania
                     #endregion
                     #region [ キー入力: 次に移動 ]
                     this.ctキー反復用.Down.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.DownArrow), new CCounter.DGキー処理(this.t次に移動));
-                    this.ctキー反復用.B.tRepeatKey(CDTXMania.Pad.b押されているGB(EPad.G), new CCounter.DGキー処理(this.t次に移動));
+                    this.ctキー反復用.B.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.G), new CCounter.DGキー処理(this.t次に移動));
                     //Change to LT
                     if (CDTXMania.Pad.bPressed(EInstrumentPart.DRUMS, EPad.LT))
                     {

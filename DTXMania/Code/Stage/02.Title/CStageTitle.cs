@@ -152,13 +152,13 @@ namespace DTXMania
 						return (int) E戻り値.EXIT;
 
 					this.ctキー反復用.Up.tRepeatKey( CDTXMania.InputManager.Keyboard.bKeyPressing( (int)SlimDXKey.UpArrow ), new CCounter.DGキー処理( this.tMoveCursorUp ) );
-					this.ctキー反復用.R.tRepeatKey( CDTXMania.Pad.b押されているGB( EPad.HH ), new CCounter.DGキー処理( this.tMoveCursorUp ) );
+					this.ctキー反復用.R.tRepeatKey( CDTXMania.Pad.bPressingGB( EPad.HH ), new CCounter.DGキー処理( this.tMoveCursorUp ) );
 					//Change to HT
 					if( CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.HT ) )
 						this.tMoveCursorUp();
 
 					this.ctキー反復用.Down.tRepeatKey( CDTXMania.InputManager.Keyboard.bKeyPressing( (int)SlimDXKey.DownArrow ), new CCounter.DGキー処理( this.tMoveCursorDown ) );
-					this.ctキー反復用.B.tRepeatKey( CDTXMania.Pad.b押されているGB( EPad.SD ), new CCounter.DGキー処理( this.tMoveCursorDown ) );
+					this.ctキー反復用.B.tRepeatKey( CDTXMania.Pad.bPressingGB( EPad.SD ), new CCounter.DGキー処理( this.tMoveCursorDown ) );
 					//Change to LT
 					if ( CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.LT ) )
 						this.tMoveCursorDown();

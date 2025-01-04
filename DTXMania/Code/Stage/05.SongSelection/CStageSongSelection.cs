@@ -551,7 +551,7 @@ namespace DTXMania
                             #endregion
                             #region [ Up ]
                             this.ctKeyRepeat.Up.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.UpArrow), new CCounter.DGキー処理(this.tMoveCursorUp));
-                            this.ctKeyRepeat.R.tRepeatKey(CDTXMania.Pad.b押されているGB(EPad.R), new CCounter.DGキー処理(this.tMoveCursorUp));
+                            this.ctKeyRepeat.R.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.R), new CCounter.DGキー処理(this.tMoveCursorUp));
                             //SD changed to HT to follow Gitadora style
 							if (CDTXMania.Pad.bPressed(EInstrumentPart.DRUMS, EPad.HT))
                             {
@@ -560,7 +560,7 @@ namespace DTXMania
                             #endregion
                             #region [ Down ]
                             this.ctKeyRepeat.Down.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.DownArrow), new CCounter.DGキー処理(this.tMoveCursorDown));
-                            this.ctKeyRepeat.B.tRepeatKey(CDTXMania.Pad.b押されているGB(EPad.G), new CCounter.DGキー処理(this.tMoveCursorDown));
+                            this.ctKeyRepeat.B.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.G), new CCounter.DGキー処理(this.tMoveCursorDown));
 							//FT changed to LT to follow Gitadora style
 							if (CDTXMania.Pad.bPressed(EInstrumentPart.DRUMS, EPad.LT))
                             {
