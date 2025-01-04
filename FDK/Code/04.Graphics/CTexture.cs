@@ -115,9 +115,9 @@ namespace FDK
 		/// <para>その他、ミップマップ数は 1、Usage は None、Pool は Managed、イメージフィルタは Point、ミップマップフィルタは
 		/// None、カラーキーは 0xFFFFFFFF（完全なる黒を透過）になる。</para>
 		/// </summary>
-		/// <param name="device">Direct3D9 デバイス。</param>
-		/// <param name="bitmap">作成元のビットマップ。</param>
-		/// <param name="format">テクスチャのフォーマット。</param>
+		/// <param name="device">Direct3D9 Device デバイス。</param>
+		/// <param name="bitmap">Source bitmap 作成元のビットマップ。</param>
+		/// <param name="format">Texture format テクスチャのフォーマット。</param>
 		/// <exception cref="CTextureCreateFailedException">テクスチャの作成に失敗しました。</exception>
 		public CTexture( Device device, Bitmap bitmap, Format format )
 			: this()
@@ -170,18 +170,18 @@ namespace FDK
 		/// <param name="device">Direct3D9 デバイス。</param>
 		/// <param name="strファイル名">画像ファイル名。</param>
 		/// <param name="format">テクスチャのフォーマット。</param>
-		/// <param name="b黒を透過する">画像の黒（0xFFFFFFFF）を透過させるなら true。</param>
+		/// <param name="bBlackIsTransparent">画像の黒（0xFFFFFFFF）を透過させるなら true。</param>
 		/// <exception cref="CTextureCreateFailedException">テクスチャの作成に失敗しました。</exception>
-		public CTexture( Device device, string strファイル名, Format format, bool b黒を透過する )
-			: this( device, strファイル名, format, b黒を透過する, Pool.Managed )
+		public CTexture( Device device, string strファイル名, Format format, bool bBlackIsTransparent )
+			: this( device, strファイル名, format, bBlackIsTransparent, Pool.Managed )
 		{
 		}
-		public CTexture( Device device, byte[] txData, Format format, bool b黒を透過する )
-			: this( device, txData, format, b黒を透過する, Pool.Managed )
+		public CTexture( Device device, byte[] txData, Format format, bool bBlackIsTransparent )
+			: this( device, txData, format, bBlackIsTransparent, Pool.Managed )
 		{
 		}
-		public CTexture( Device device, Bitmap bitmap, Format format, bool b黒を透過する )
-			: this( device, bitmap, format, b黒を透過する, Pool.Managed )
+		public CTexture( Device device, Bitmap bitmap, Format format, bool bBlackIsTransparent )
+			: this( device, bitmap, format, bBlackIsTransparent, Pool.Managed )
 		{
 		}
 		
@@ -250,13 +250,13 @@ namespace FDK
 		/// <param name="device">Direct3D9 デバイス。</param>
 		/// <param name="strファイル名">画像ファイル名。</param>
 		/// <param name="format">テクスチャのフォーマット。</param>
-		/// <param name="b黒を透過する">画像の黒（0xFFFFFFFF）を透過させるなら true。</param>
+		/// <param name="bBlackIsTransparent">画像の黒（0xFFFFFFFF）を透過させるなら true。</param>
 		/// <param name="pool">テクスチャの管理方法。</param>
 		/// <exception cref="CTextureCreateFailedException">テクスチャの作成に失敗しました。</exception>
-		public CTexture( Device device, string strファイル名, Format format, bool b黒を透過する, Pool pool )
+		public CTexture( Device device, string strファイル名, Format format, bool bBlackIsTransparent, Pool pool )
 			: this()
 		{
-			MakeTexture( device, strファイル名, format, b黒を透過する, pool );
+			MakeTexture( device, strファイル名, format, bBlackIsTransparent, pool );
 		}
 		public void MakeTexture( Device device, string strファイル名, Format format, bool b黒を透過する, Pool pool )
 		{
@@ -268,10 +268,10 @@ namespace FDK
 			MakeTexture( device, _txData, format, b黒を透過する, pool );
 		}
 
-		public CTexture( Device device, byte[] txData, Format format, bool b黒を透過する, Pool pool )
+		public CTexture( Device device, byte[] txData, Format format, bool bBlackIsTransparent, Pool pool )
 			: this()
 		{
-			MakeTexture( device, txData, format, b黒を透過する, pool );
+			MakeTexture( device, txData, format, bBlackIsTransparent, pool );
 		}
 		public void MakeTexture( Device device, byte[] txData, Format format, bool b黒を透過する, Pool pool )
 		{
@@ -302,10 +302,10 @@ namespace FDK
 			}
 		}
 
-		public CTexture( Device device, Bitmap bitmap, Format format, bool b黒を透過する, Pool pool )
+		public CTexture( Device device, Bitmap bitmap, Format format, bool bBlackIsTransparent, Pool pool )
 			: this()
 		{
-			MakeTexture( device, bitmap, format, b黒を透過する, pool );
+			MakeTexture( device, bitmap, format, bBlackIsTransparent, pool );
 		}
 		public void MakeTexture( Device device, Bitmap bitmap, Format format, bool b黒を透過する, Pool pool )
 		{
@@ -380,19 +380,19 @@ namespace FDK
 		{
 			this.tDraw2D( device, x, y, 1f, this.rcFullImage );
 		}
-		public void tDraw2D( Device device, int x, int y, Rectangle rc画像内の描画領域 )
+		public void tDraw2D( Device device, int x, int y, Rectangle rcClipRect )
 		{
-			this.tDraw2D( device, x, y, 1f, rc画像内の描画領域 );
+			this.tDraw2D( device, x, y, 1f, rcClipRect );
 		}
         public void tDraw2D( Device device, float x, float y )
 		{
 			this.tDraw2D( device, (int)x, (int)y, 1f, this.rcFullImage );
 		}
-		public void tDraw2D( Device device, float x, float y, Rectangle rc画像内の描画領域 )
+		public void tDraw2D( Device device, float x, float y, Rectangle rcClipRect )
 		{
-			this.tDraw2D( device, (int)x, (int)y, 1f, rc画像内の描画領域 );
+			this.tDraw2D( device, (int)x, (int)y, 1f, rcClipRect );
 		}
-		public void tDraw2D( Device device, int x, int y, float depth, Rectangle rc画像内の描画領域 )
+		public void tDraw2D( Device device, int x, int y, float depth, Rectangle rcClipRect )
 		{
             if (this.texture == null)
                 return;
@@ -405,12 +405,12 @@ namespace FDK
 				//-----------------
 				float f補正値X = -0.5f;	// -0.5 は座標とピクセルの誤差を吸収するための座標補正値。(MSDN参照)
 				float f補正値Y = -0.5f;	//
-				float w = rc画像内の描画領域.Width;
-				float h = rc画像内の描画領域.Height;
-				float f左U値 = ( (float) rc画像内の描画領域.Left ) / ( (float) this.szTextureSize.Width );
-				float f右U値 = ( (float) rc画像内の描画領域.Right ) / ( (float) this.szTextureSize.Width );
-				float f上V値 = ( (float) rc画像内の描画領域.Top ) / ( (float) this.szTextureSize.Height );
-				float f下V値 = ( (float) rc画像内の描画領域.Bottom ) / ( (float) this.szTextureSize.Height );
+				float w = rcClipRect.Width;
+				float h = rcClipRect.Height;
+				float fULeft = ( (float) rcClipRect.Left ) / ( (float) this.szTextureSize.Width );
+				float fURight = ( (float) rcClipRect.Right ) / ( (float) this.szTextureSize.Width );
+				float fVTop = ( (float) rcClipRect.Top ) / ( (float) this.szTextureSize.Height );
+				float fVBottom = ( (float) rcClipRect.Bottom ) / ( (float) this.szTextureSize.Height );
 				this.color4.Alpha = ( (float) this._Transparency ) / 255f;
 				int color = this.color4.ToRgba();
 
@@ -424,32 +424,32 @@ namespace FDK
 				this.cvTransformedColoredVertexies[ 0 ].Position.Z = depth;
 				this.cvTransformedColoredVertexies[ 0 ].Position.W = 1.0f;
 				this.cvTransformedColoredVertexies[ 0 ].Color = color;
-				this.cvTransformedColoredVertexies[ 0 ].TextureCoordinates.X = f左U値;
-				this.cvTransformedColoredVertexies[ 0 ].TextureCoordinates.Y = f上V値;
+				this.cvTransformedColoredVertexies[ 0 ].TextureCoordinates.X = fULeft;
+				this.cvTransformedColoredVertexies[ 0 ].TextureCoordinates.Y = fVTop;
 
 				this.cvTransformedColoredVertexies[ 1 ].Position.X = ( x + ( w * this.vcScaleRatio.X ) ) + f補正値X;
 				this.cvTransformedColoredVertexies[ 1 ].Position.Y = y + f補正値Y;
 				this.cvTransformedColoredVertexies[ 1 ].Position.Z = depth;
 				this.cvTransformedColoredVertexies[ 1 ].Position.W = 1.0f;
 				this.cvTransformedColoredVertexies[ 1 ].Color = color;
-				this.cvTransformedColoredVertexies[ 1 ].TextureCoordinates.X = f右U値;
-				this.cvTransformedColoredVertexies[ 1 ].TextureCoordinates.Y = f上V値;
+				this.cvTransformedColoredVertexies[ 1 ].TextureCoordinates.X = fURight;
+				this.cvTransformedColoredVertexies[ 1 ].TextureCoordinates.Y = fVTop;
 
 				this.cvTransformedColoredVertexies[ 2 ].Position.X = x + f補正値X;
 				this.cvTransformedColoredVertexies[ 2 ].Position.Y = ( y + ( h * this.vcScaleRatio.Y ) ) + f補正値Y;
 				this.cvTransformedColoredVertexies[ 2 ].Position.Z = depth;
 				this.cvTransformedColoredVertexies[ 2 ].Position.W = 1.0f;
 				this.cvTransformedColoredVertexies[ 2 ].Color = color;
-				this.cvTransformedColoredVertexies[ 2 ].TextureCoordinates.X = f左U値;
-				this.cvTransformedColoredVertexies[ 2 ].TextureCoordinates.Y = f下V値;
+				this.cvTransformedColoredVertexies[ 2 ].TextureCoordinates.X = fULeft;
+				this.cvTransformedColoredVertexies[ 2 ].TextureCoordinates.Y = fVBottom;
 
 				this.cvTransformedColoredVertexies[ 3 ].Position.X = ( x + ( w * this.vcScaleRatio.X ) ) + f補正値X;
 				this.cvTransformedColoredVertexies[ 3 ].Position.Y = ( y + ( h * this.vcScaleRatio.Y ) ) + f補正値Y;
 				this.cvTransformedColoredVertexies[ 3 ].Position.Z = depth;
 				this.cvTransformedColoredVertexies[ 3 ].Position.W = 1.0f;
 				this.cvTransformedColoredVertexies[ 3 ].Color = color;
-				this.cvTransformedColoredVertexies[ 3 ].TextureCoordinates.X = f右U値;
-				this.cvTransformedColoredVertexies[ 3 ].TextureCoordinates.Y = f下V値;
+				this.cvTransformedColoredVertexies[ 3 ].TextureCoordinates.X = fURight;
+				this.cvTransformedColoredVertexies[ 3 ].TextureCoordinates.Y = fVBottom;
 				
 				device.SetTexture( 0, this.texture );
 				device.VertexFormat = TransformedColoredTexturedVertex.Format;
@@ -461,14 +461,14 @@ namespace FDK
 			{
 				#region [ (B) 回転あり ]
 				//-----------------
-				float f補正値X = ( ( rc画像内の描画領域.Width % 2 ) == 0 ) ? -0.5f : 0f;	// -0.5 は座標とピクセルの誤差を吸収するための座標補正値。(MSDN参照)
-				float f補正値Y = ( ( rc画像内の描画領域.Height % 2 ) == 0 ) ? -0.5f : 0f;	// 3D（回転する）なら補正はいらない。
-				float f中央X = ( (float) rc画像内の描画領域.Width ) / 2f;
-				float f中央Y = ( (float) rc画像内の描画領域.Height ) / 2f;
-				float f左U値 = ( (float) rc画像内の描画領域.Left ) / ( (float) this.szTextureSize.Width );
-				float f右U値 = ( (float) rc画像内の描画領域.Right ) / ( (float) this.szTextureSize.Width );
-				float f上V値 = ( (float) rc画像内の描画領域.Top ) / ( (float) this.szTextureSize.Height );
-				float f下V値 = ( (float) rc画像内の描画領域.Bottom ) / ( (float) this.szTextureSize.Height );
+				float f補正値X = ( ( rcClipRect.Width % 2 ) == 0 ) ? -0.5f : 0f;	// -0.5 は座標とピクセルの誤差を吸収するための座標補正値。(MSDN参照)
+				float f補正値Y = ( ( rcClipRect.Height % 2 ) == 0 ) ? -0.5f : 0f;	// 3D（回転する）なら補正はいらない。
+				float f中央X = ( (float) rcClipRect.Width ) / 2f;
+				float f中央Y = ( (float) rcClipRect.Height ) / 2f;
+				float fULeft = ( (float) rcClipRect.Left ) / ( (float) this.szTextureSize.Width );
+				float fURight = ( (float) rcClipRect.Right ) / ( (float) this.szTextureSize.Width );
+				float fVTop = ( (float) rcClipRect.Top ) / ( (float) this.szTextureSize.Height );
+				float fVBottom = ( (float) rcClipRect.Bottom ) / ( (float) this.szTextureSize.Height );
 				this.color4.Alpha = ( (float) this._Transparency ) / 255f;
 				int color = this.color4.ToRgba();
 
@@ -481,32 +481,32 @@ namespace FDK
 				this.cvPositionColoredVertexies[ 0 ].Position.Y = f中央Y + f補正値Y;
 				this.cvPositionColoredVertexies[ 0 ].Position.Z = depth;
 				this.cvPositionColoredVertexies[ 0 ].Color = color;
-				this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.X = f左U値;
-				this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.Y = f上V値;
+				this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.X = fULeft;
+				this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.Y = fVTop;
 
 				this.cvPositionColoredVertexies[ 1 ].Position.X = f中央X + f補正値X;
 				this.cvPositionColoredVertexies[ 1 ].Position.Y = f中央Y + f補正値Y;
 				this.cvPositionColoredVertexies[ 1 ].Position.Z = depth;
 				this.cvPositionColoredVertexies[ 1 ].Color = color;
-				this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.X = f右U値;
-				this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.Y = f上V値;
+				this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.X = fURight;
+				this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.Y = fVTop;
 
 				this.cvPositionColoredVertexies[ 2 ].Position.X = -f中央X + f補正値X;
 				this.cvPositionColoredVertexies[ 2 ].Position.Y = -f中央Y + f補正値Y;
 				this.cvPositionColoredVertexies[ 2 ].Position.Z = depth;
 				this.cvPositionColoredVertexies[ 2 ].Color = color;
-				this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.X = f左U値;
-				this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.Y = f下V値;
+				this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.X = fULeft;
+				this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.Y = fVBottom;
 
 				this.cvPositionColoredVertexies[ 3 ].Position.X = f中央X + f補正値X;
 				this.cvPositionColoredVertexies[ 3 ].Position.Y = -f中央Y + f補正値Y;
 				this.cvPositionColoredVertexies[ 3 ].Position.Z = depth;
 				this.cvPositionColoredVertexies[ 3 ].Color = color;
-				this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.X = f右U値;
-				this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.Y = f下V値;
+				this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.X = fURight;
+				this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.Y = fVBottom;
 
-				int n描画領域内X = x + ( rc画像内の描画領域.Width / 2 );
-				int n描画領域内Y = y + ( rc画像内の描画領域.Height / 2 );
+				int n描画領域内X = x + ( rcClipRect.Width / 2 );
+				int n描画領域内Y = y + ( rcClipRect.Height / 2 );
 				var vc3移動量 = new Vector3( n描画領域内X - ( ( (float) device.Viewport.Width ) / 2f ), -( n描画領域内Y - ( ( (float) device.Viewport.Height ) / 2f ) ), 0f );
 				
 				var matrix = Matrix.Identity * Matrix.Scaling( this.vcScaleRatio );
@@ -525,11 +525,11 @@ namespace FDK
 		{
 			this.tDraw2DUpsideDown( device, x, y, 1f, this.rcFullImage );
 		}
-		public void tDraw2DUpsideDown( Device device, int x, int y, Rectangle rc画像内の描画領域 )
+		public void tDraw2DUpsideDown( Device device, int x, int y, Rectangle rcClipRect )
 		{
-			this.tDraw2DUpsideDown( device, x, y, 1f, rc画像内の描画領域 );
+			this.tDraw2DUpsideDown( device, x, y, 1f, rcClipRect );
 		}
-		public void tDraw2DUpsideDown( Device device, int x, int y, float depth, Rectangle rc画像内の描画領域 )
+		public void tDraw2DUpsideDown( Device device, int x, int y, float depth, Rectangle rcClipRect )
 		{
             if( this.texture == null )
 				throw new InvalidOperationException( "テクスチャは生成されていません。" );
@@ -538,12 +538,12 @@ namespace FDK
 
 			float fx = x * CTexture.fScreenRatio + CTexture.rcPhysicalScreenDrawingArea.X - 0.5f;	// -0.5 は座標とピクセルの誤差を吸収するための座標補正値。(MSDN参照)
 			float fy = y * CTexture.fScreenRatio + CTexture.rcPhysicalScreenDrawingArea.Y - 0.5f;	//
-			float w = rc画像内の描画領域.Width * this.vcScaleRatio.X * CTexture.fScreenRatio;
-			float h = rc画像内の描画領域.Height * this.vcScaleRatio.Y * CTexture.fScreenRatio;
-			float f左U値 = ( (float) rc画像内の描画領域.Left ) / ( (float) this.szTextureSize.Width );
-			float f右U値 = ( (float) rc画像内の描画領域.Right ) / ( (float) this.szTextureSize.Width );
-			float f上V値 = ( (float) rc画像内の描画領域.Top ) / ( (float) this.szTextureSize.Height );
-			float f下V値 = ( (float) rc画像内の描画領域.Bottom ) / ( (float) this.szTextureSize.Height );
+			float w = rcClipRect.Width * this.vcScaleRatio.X * CTexture.fScreenRatio;
+			float h = rcClipRect.Height * this.vcScaleRatio.Y * CTexture.fScreenRatio;
+			float fULeft = ( (float) rcClipRect.Left ) / ( (float) this.szTextureSize.Width );
+			float fURight = ( (float) rcClipRect.Right ) / ( (float) this.szTextureSize.Width );
+			float fVTop = ( (float) rcClipRect.Top ) / ( (float) this.szTextureSize.Height );
+			float fVBottom = ( (float) rcClipRect.Bottom ) / ( (float) this.szTextureSize.Height );
 			this.color4.Alpha = ( (float) this._Transparency ) / 255f;
 			int color = this.color4.ToRgba();
 
@@ -552,32 +552,32 @@ namespace FDK
 
 			// 以下、マネージドオブジェクトの量産を抑えるため new は使わない。
 
-			this.cvTransformedColoredVertexies[ 0 ].TextureCoordinates.X = f左U値;	// 左上	→ 左下
-			this.cvTransformedColoredVertexies[ 0 ].TextureCoordinates.Y = f下V値;
+			this.cvTransformedColoredVertexies[ 0 ].TextureCoordinates.X = fULeft;	// 左上	→ 左下
+			this.cvTransformedColoredVertexies[ 0 ].TextureCoordinates.Y = fVBottom;
 			this.cvTransformedColoredVertexies[ 0 ].Position.X = fx;
 			this.cvTransformedColoredVertexies[ 0 ].Position.Y = fy;
 			this.cvTransformedColoredVertexies[ 0 ].Position.Z = depth;
 			this.cvTransformedColoredVertexies[ 0 ].Position.W = 1.0f;
 			this.cvTransformedColoredVertexies[ 0 ].Color = color;
 
-			this.cvTransformedColoredVertexies[ 1 ].TextureCoordinates.X = f右U値;	// 右上 → 右下
-			this.cvTransformedColoredVertexies[ 1 ].TextureCoordinates.Y = f下V値;
+			this.cvTransformedColoredVertexies[ 1 ].TextureCoordinates.X = fURight;	// 右上 → 右下
+			this.cvTransformedColoredVertexies[ 1 ].TextureCoordinates.Y = fVBottom;
 			this.cvTransformedColoredVertexies[ 1 ].Position.X = fx + w;
 			this.cvTransformedColoredVertexies[ 1 ].Position.Y = fy;
 			this.cvTransformedColoredVertexies[ 1 ].Position.Z = depth;
 			this.cvTransformedColoredVertexies[ 1 ].Position.W = 1.0f;
 			this.cvTransformedColoredVertexies[ 1 ].Color = color;
 
-			this.cvTransformedColoredVertexies[ 2 ].TextureCoordinates.X = f左U値;	// 左下 → 左上
-			this.cvTransformedColoredVertexies[ 2 ].TextureCoordinates.Y = f上V値;
+			this.cvTransformedColoredVertexies[ 2 ].TextureCoordinates.X = fULeft;	// 左下 → 左上
+			this.cvTransformedColoredVertexies[ 2 ].TextureCoordinates.Y = fVTop;
 			this.cvTransformedColoredVertexies[ 2 ].Position.X = fx;
 			this.cvTransformedColoredVertexies[ 2 ].Position.Y = fy + h;
 			this.cvTransformedColoredVertexies[ 2 ].Position.Z = depth;
 			this.cvTransformedColoredVertexies[ 2 ].Position.W = 1.0f;
 			this.cvTransformedColoredVertexies[ 2 ].Color = color;
 
-			this.cvTransformedColoredVertexies[ 3 ].TextureCoordinates.X = f右U値;	// 右下 → 右上
-			this.cvTransformedColoredVertexies[ 3 ].TextureCoordinates.Y = f上V値;
+			this.cvTransformedColoredVertexies[ 3 ].TextureCoordinates.X = fURight;	// 右下 → 右上
+			this.cvTransformedColoredVertexies[ 3 ].TextureCoordinates.Y = fVTop;
 			this.cvTransformedColoredVertexies[ 3 ].Position.X = fx + w;
 			this.cvTransformedColoredVertexies[ 3 ].Position.Y = fy + h;
 			this.cvTransformedColoredVertexies[ 3 ].Position.Z = depth;
@@ -596,18 +596,18 @@ namespace FDK
 		{
 			this.tDraw3D( device, mat, this.rcFullImage );
 		}
-		public void tDraw3D( Device device, Matrix mat, Rectangle rc画像内の描画領域 )
+		public void tDraw3D( Device device, Matrix mat, Rectangle rcClipRect )
 		{
 			if( this.texture == null )
 				return;
 
-			float x = ( (float) rc画像内の描画領域.Width ) / 2f;
-			float y = ( (float) rc画像内の描画領域.Height ) / 2f;
+			float x = ( (float) rcClipRect.Width ) / 2f;
+			float y = ( (float) rcClipRect.Height ) / 2f;
 			float z = 0.0f;
-			float f左U値 = ( (float) rc画像内の描画領域.Left ) / ( (float) this.szTextureSize.Width );
-			float f右U値 = ( (float) rc画像内の描画領域.Right ) / ( (float) this.szTextureSize.Width );
-			float f上V値 = ( (float) rc画像内の描画領域.Top ) / ( (float) this.szTextureSize.Height );
-			float f下V値 = ( (float) rc画像内の描画領域.Bottom ) / ( (float) this.szTextureSize.Height );
+			float fULeft = ( (float) rcClipRect.Left ) / ( (float) this.szTextureSize.Width );
+			float fURight = ( (float) rcClipRect.Right ) / ( (float) this.szTextureSize.Width );
+			float fVTop = ( (float) rcClipRect.Top ) / ( (float) this.szTextureSize.Height );
+			float fVBottom = ( (float) rcClipRect.Bottom ) / ( (float) this.szTextureSize.Height );
 			this.color4.Alpha = ( (float) this._Transparency ) / 255f;
 			int color = this.color4.ToRgba();
 			
@@ -620,29 +620,29 @@ namespace FDK
 			this.cvPositionColoredVertexies[ 0 ].Position.Y = y;
 			this.cvPositionColoredVertexies[ 0 ].Position.Z = z;
 			this.cvPositionColoredVertexies[ 0 ].Color = color;
-			this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.X = f左U値;
-			this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.Y = f上V値;
+			this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.X = fULeft;
+			this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.Y = fVTop;
 
 			this.cvPositionColoredVertexies[ 1 ].Position.X = x;
 			this.cvPositionColoredVertexies[ 1 ].Position.Y = y;
 			this.cvPositionColoredVertexies[ 1 ].Position.Z = z;
 			this.cvPositionColoredVertexies[ 1 ].Color = color;
-			this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.X = f右U値;
-			this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.Y = f上V値;
+			this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.X = fURight;
+			this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.Y = fVTop;
 
 			this.cvPositionColoredVertexies[ 2 ].Position.X = -x;
 			this.cvPositionColoredVertexies[ 2 ].Position.Y = -y;
 			this.cvPositionColoredVertexies[ 2 ].Position.Z = z;
 			this.cvPositionColoredVertexies[ 2 ].Color = color;
-			this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.X = f左U値;
-			this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.Y = f下V値;
+			this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.X = fULeft;
+			this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.Y = fVBottom;
 
 			this.cvPositionColoredVertexies[ 3 ].Position.X = x;
 			this.cvPositionColoredVertexies[ 3 ].Position.Y = -y;
 			this.cvPositionColoredVertexies[ 3 ].Position.Z = z;
 			this.cvPositionColoredVertexies[ 3 ].Color = color;
-			this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.X = f右U値;
-			this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.Y = f下V値;
+			this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.X = fURight;
+			this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.Y = fVBottom;
 
 			this.tRenderStateSettings( device );
 
@@ -662,7 +662,7 @@ namespace FDK
 		///   mat *= SharpDX.Matrix.Translation( x, y, z );
 		/// 「mat =」ではなく「mat *=」であることを忘れないこと。
 		/// </summary>
-		public void tDraw3DTopLeftReference( Device device, Matrix mat, Rectangle rc画像内の描画領域 )
+		public void tDraw3DTopLeftReference( Device device, Matrix mat, Rectangle rcClipRect )
 		{
 			//とりあえず補正値などは無し。にしても使う機会少なさそうだなー____
 			if( this.texture == null )
@@ -671,10 +671,10 @@ namespace FDK
 			float x = 0.0f;
 			float y = 0.0f;
 			float z = 0.0f;
-			float f左U値 = ( (float) rc画像内の描画領域.Left ) / ( (float) this.szTextureSize.Width );
-			float f右U値 = ( (float) rc画像内の描画領域.Right ) / ( (float) this.szTextureSize.Width );
-			float f上V値 = ( (float) rc画像内の描画領域.Top ) / ( (float) this.szTextureSize.Height );
-			float f下V値 = ( (float) rc画像内の描画領域.Bottom ) / ( (float) this.szTextureSize.Height );
+			float fULeft = ( (float) rcClipRect.Left ) / ( (float) this.szTextureSize.Width );
+			float fURight = ( (float) rcClipRect.Right ) / ( (float) this.szTextureSize.Width );
+			float fVTop = ( (float) rcClipRect.Top ) / ( (float) this.szTextureSize.Height );
+			float fVBottom = ( (float) rcClipRect.Bottom ) / ( (float) this.szTextureSize.Height );
 			this.color4.Alpha = ( (float) this._Transparency ) / 255f;
 			int color = this.color4.ToRgba();
 			
@@ -687,29 +687,29 @@ namespace FDK
 			this.cvPositionColoredVertexies[ 0 ].Position.Y = y;
 			this.cvPositionColoredVertexies[ 0 ].Position.Z = z;
 			this.cvPositionColoredVertexies[ 0 ].Color = color;
-			this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.X = f左U値;
-			this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.Y = f上V値;
+			this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.X = fULeft;
+			this.cvPositionColoredVertexies[ 0 ].TextureCoordinates.Y = fVTop;
 
 			this.cvPositionColoredVertexies[ 1 ].Position.X = x;
 			this.cvPositionColoredVertexies[ 1 ].Position.Y = y;
 			this.cvPositionColoredVertexies[ 1 ].Position.Z = z;
 			this.cvPositionColoredVertexies[ 1 ].Color = color;
-			this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.X = f右U値;
-			this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.Y = f上V値;
+			this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.X = fURight;
+			this.cvPositionColoredVertexies[ 1 ].TextureCoordinates.Y = fVTop;
 
 			this.cvPositionColoredVertexies[ 2 ].Position.X = -x;
 			this.cvPositionColoredVertexies[ 2 ].Position.Y = -y;
 			this.cvPositionColoredVertexies[ 2 ].Position.Z = z;
 			this.cvPositionColoredVertexies[ 2 ].Color = color;
-			this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.X = f左U値;
-			this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.Y = f下V値;
+			this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.X = fULeft;
+			this.cvPositionColoredVertexies[ 2 ].TextureCoordinates.Y = fVBottom;
 
 			this.cvPositionColoredVertexies[ 3 ].Position.X = x;
 			this.cvPositionColoredVertexies[ 3 ].Position.Y = -y;
 			this.cvPositionColoredVertexies[ 3 ].Position.Z = z;
 			this.cvPositionColoredVertexies[ 3 ].Color = color;
-			this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.X = f右U値;
-			this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.Y = f下V値;
+			this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.X = fURight;
+			this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.Y = fVBottom;
 
 			this.tRenderStateSettings( device );
 
