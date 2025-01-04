@@ -70,38 +70,8 @@ namespace DTXMania
 
             base.bNotActivated = true;
         }
-
-
-        // メソッド
-        public void tラベル名からステータスパネルを決定する(string strラベル名)
-        {
-            this.tSetDifficultyLabelFromScript( strラベル名 );
-
-            if (string.IsNullOrEmpty(strラベル名))
-            {
-                this.nStatus = 0;
-                this.nIndex = 0;
-            }
-            else
-            {
-                this.nIndex = 0;
-                CActPerfCommonStatusPanel.STATUSPANEL[] array = this.stパネルマップ;
-                for (int i = 0; i < array.Length; i++)
-                {
-                    CActPerfCommonStatusPanel.STATUSPANEL sTATUSPANEL = array[i];
-                    if (strラベル名.Equals(sTATUSPANEL.label, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        this.nStatus = sTATUSPANEL.status;
-                        CDTXMania.nSongDifficulty = sTATUSPANEL.status;
-                        CDTXMania.strSongDifficulyName = sTATUSPANEL.label;
-                        return;
-                    }
-                    this.nIndex++;
-                }
-                this.nStatus = 0;
-            }
-        }
-
+        
+        
         // CActivity 実装
 
         public override void OnActivate()

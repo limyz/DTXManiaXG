@@ -112,12 +112,6 @@ namespace DTXMania
             set;
         }
 
-        public static string strSongDifficulyName
-        {
-            get;
-            set;
-        }
-
         /// <summary>
         /// The <see cref="STHitRanges"/> for all drum chips, except pedals, composed from the confirmed <see cref="CSongListNode"/> and <see cref="CConfigIni"/> settings.
         /// </summary>
@@ -998,30 +992,6 @@ namespace DTXMania
                             //-----------------------------
                                 #endregion
 
-
-                            // case (int)CStageSongSelection.EReturnValue.CallOptions:
-                            //     #region [ *** ]
-                            //     //-----------------------------
-                            //
-                            //     rCurrentStage.OnDeactivate();
-                            //     Trace.TraceInformation("----------------------");
-                            //     Trace.TraceInformation("■ Option");
-                            //     stageOption.OnActivate();
-                            //     rPreviousStage = rCurrentStage;
-                            //     rCurrentStage = stageOption;
-                            //
-                            //     foreach (STPlugin pg in this.listPlugins)
-                            //     {
-                            //         Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                            //         pg.plugin.OnChangeStage();
-                            //         Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                            //     }
-                            //
-                            //     this.tRunGarbageCollector();
-                            //     break;
-                            // //-----------------------------
-                            //     #endregion
-
                             case (int)CStageSongSelection.EReturnValue.CallConfig:
                                 #region [ *** ]
                                 //-----------------------------
@@ -1798,35 +1768,6 @@ for (int i = 0; i < 3; i++) {
 			}
 		}
 
-        public static CDirectShow t失敗してもスキップ可能なDirectShowを生成する(string fileName, IntPtr hWnd, bool bオーディオレンダラなし)
-        {
-            CDirectShow ds = null;
-            if( File.Exists( fileName ) )
-            {
-                try
-                {
-                    ds = new CDirectShow(fileName, hWnd, bオーディオレンダラなし);
-                }
-                catch (FileNotFoundException)
-                {
-                    Trace.TraceError("動画ファイルが見つかりませんでした。({0})", fileName);
-                    ds = null;      // Dispose はコンストラクタ内で実施済み
-                }
-                catch
-                {
-                    Trace.TraceError("DirectShow の生成に失敗しました。[{0}]", fileName);
-                    ds = null;      // Dispose はコンストラクタ内で実施済み
-                }
-            }
-            else
-            {
-                Trace.TraceError("動画ファイルが見つかりませんでした。({0})", fileName);
-                return null;
-            }
-
-            return ds;
-        }
-
 		/// <summary>プロパティ、インデクサには ref は使用できないので注意。</summary>
 		public static void t安全にDisposeする<T>( ref T obj )
 		{
@@ -2529,7 +2470,6 @@ for (int i = 0; i < 3; i++) {
             rPreviousStage = null;
             stageStartup = new CStageStartup();
             stageTitle = new CStageTitle();
-            //stageOption = new CStageOption();
             stageConfig = new CStageConfig();
             stageSongSelection = new CStageSongSelection();
             stageSongLoading = new CStageSongLoading();
@@ -2543,7 +2483,6 @@ for (int i = 0; i < 3; i++) {
             this.listTopLevelActivities.Add(actDisplayString);
             this.listTopLevelActivities.Add(stageStartup);
             this.listTopLevelActivities.Add(stageTitle);
-            //this.listTopLevelActivities.Add(stageOption);
             this.listTopLevelActivities.Add(stageConfig);
             this.listTopLevelActivities.Add(stageSongSelection);
             this.listTopLevelActivities.Add(stageSongLoading);

@@ -821,7 +821,6 @@ namespace DTXMania
 			Continue,      // 継続
 			ReturnToTitle, // タイトルに戻る
 			Selected,      // 選曲した
-			CallOptions,   // オプション呼び出し
 			CallConfig,    // コンフィグ呼び出し
 			ChangeSking    // スキン変更
 		}
