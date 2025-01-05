@@ -19,7 +19,7 @@ namespace DTXMania.Code.UI
         public override void Draw(Device device, Vector2 offset)
         {
             Vector2 pos = position + offset + alignmentOffset;
-            texture.tDraw2D(device, pos.X, pos.Y);
+            texture.tDraw2DFloat(device, pos.X, pos.Y);
         }
 
         public override void SetAlignment(HorizontalAlignment horizontal, VerticalAlignment vertical)

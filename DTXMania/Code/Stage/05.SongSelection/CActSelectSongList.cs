@@ -1059,9 +1059,9 @@ namespace DTXMania
 							#endregion
 						}
                         if (this.txTopPanel != null)
-                            this.txTopPanel.tDraw2D(CDTXMania.app.Device, 0f, ((float)(this.txTopPanel.szTextureSize.Height) * ((float)(this.ct登場アニメ用[0].nCurrentValue) / 100f)) - (float)(this.txTopPanel.szTextureSize.Height));
+                            this.txTopPanel.tDraw2DFloat(CDTXMania.app.Device, 0f, ((float)(this.txTopPanel.szTextureSize.Height) * ((float)(this.ct登場アニメ用[0].nCurrentValue) / 100f)) - (float)(this.txTopPanel.szTextureSize.Height));
                         if (this.txBottomPanel != null)
-                            this.txBottomPanel.tDraw2D(CDTXMania.app.Device, 0f, 720 - ((float)(this.txBottomPanel.szTextureSize.Height) * ((float)(this.ct登場アニメ用[0].nCurrentValue) / 100f)));
+                            this.txBottomPanel.tDraw2DFloat(CDTXMania.app.Device, 0f, 720 - ((float)(this.txBottomPanel.szTextureSize.Height) * ((float)(this.ct登場アニメ用[0].nCurrentValue) / 100f)));
                     }
 				}
 				//-----------------

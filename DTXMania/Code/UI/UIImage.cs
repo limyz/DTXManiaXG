@@ -54,18 +54,18 @@ namespace DTXMania.Code.UI
             switch (drawMode)
             {
                 case DrawMode.Stretched:
-                    texture.tDraw2D(device, pos.X, pos.Y, size);
+                    texture.tDraw2DFloat(device, pos.X, pos.Y, size);
                     break;
                 
                 case DrawMode.TiledLeftRight:
                     Rectangle rect = new Rectangle(0, 0, texture.szImageSize.Width / 4, size.Height);
                     
                     //draw left side
-                    texture.tDraw2D(device, pos.X, pos.Y, rect);
+                    texture.tDraw2DFloat(device, pos.X, pos.Y, rect);
                     rect.X = rect.Width * 3;
                     
                     //draw right side
-                    texture.tDraw2D(device, pos.X + size.Width - rect.Width, pos.Y, rect);
+                    texture.tDraw2DFloat(device, pos.X + size.Width - rect.Width, pos.Y, rect);
                     
                     int widthRemaining = size.Width;
                 
@@ -77,7 +77,7 @@ namespace DTXMania.Code.UI
                     {
                         int drawWidth = Math.Min(16, widthRemaining);
                         Rectangle rectangle = new Rectangle(8, 0, drawWidth, 32);
-                        texture.tDraw2D(CDTXMania.app.Device, pos.X, pos.Y, rectangle);
+                        texture.tDraw2DFloat(CDTXMania.app.Device, pos.X, pos.Y, rectangle);
 
                         pos.X += drawWidth;
                         widthRemaining -= drawWidth;

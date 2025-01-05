@@ -384,15 +384,15 @@ namespace FDK
 		{
 			this.tDraw2D( device, x, y, 1f, rcClipRect );
 		}
-        public void tDraw2D( Device device, float x, float y )
+        public void tDraw2DFloat( Device device, float x, float y )
 		{
-			this.tDraw2D( device, (int)x, (int)y, 1f, this.rcFullImage );
+			this.tDraw2D( device, x, y, 1f, this.rcFullImage );
 		}
-		public void tDraw2D( Device device, float x, float y, Rectangle rcClipRect )
+		public void tDraw2DFloat( Device device, float x, float y, Rectangle rcClipRect )
 		{
-			this.tDraw2D( device, (int)x, (int)y, 1f, rcClipRect );
+			this.tDraw2D( device, x, y, 1f, rcClipRect );
 		}
-		public void tDraw2D( Device device, int x, int y, float depth, Rectangle rcClipRect )
+		public void tDraw2D( Device device, float x, float y, float depth, Rectangle rcClipRect )
 		{
             if (this.texture == null)
                 return;
