@@ -505,8 +505,8 @@ namespace FDK
 				this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.X = fURight;
 				this.cvPositionColoredVertexies[ 3 ].TextureCoordinates.Y = fVBottom;
 
-				int n描画領域内X = x + ( rcClipRect.Width / 2 );
-				int n描画領域内Y = y + ( rcClipRect.Height / 2 );
+				float n描画領域内X = x + ( rcClipRect.Width / 2.0f );
+				float n描画領域内Y = y + ( rcClipRect.Height / 2.0f );
 				var vc3移動量 = new Vector3( n描画領域内X - ( ( (float) device.Viewport.Width ) / 2f ), -( n描画領域内Y - ( ( (float) device.Viewport.Height ) / 2f ) ), 0f );
 				
 				var matrix = Matrix.Identity * Matrix.Scaling( this.vcScaleRatio );
