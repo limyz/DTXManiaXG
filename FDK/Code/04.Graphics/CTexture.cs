@@ -9,6 +9,7 @@ using SharpDX;
 using SharpDX.Direct3D9;
 
 using Rectangle = System.Drawing.Rectangle;
+using RectangleF = System.Drawing.RectangleF;
 
 namespace FDK
 {
@@ -388,11 +389,11 @@ namespace FDK
 		{
 			this.tDraw2D( device, x, y, 1f, this.rcFullImage );
 		}
-		public void tDraw2DFloat( Device device, float x, float y, Rectangle rcClipRect )
+		public void tDraw2DFloat( Device device, float x, float y, RectangleF rcClipRect )
 		{
 			this.tDraw2D( device, x, y, 1f, rcClipRect );
 		}
-		public void tDraw2D( Device device, float x, float y, float depth, Rectangle rcClipRect )
+		public void tDraw2D( Device device, float x, float y, float depth, RectangleF rcClipRect )
 		{
             if (this.texture == null)
                 return;
@@ -588,7 +589,53 @@ namespace FDK
 			device.VertexFormat = TransformedColoredTexturedVertex.Format;
 			device.DrawUserPrimitives( PrimitiveType.TriangleStrip, 2, this.cvTransformedColoredVertexies );
 		}
+		
+		public void tDraw2DMatrix(Device device, Matrix transformMatrix, RectangleF clipRect)
+		{
+			if (this.texture == null) return;
 
+			//texture dimensions
+			float texWidth = this.szTextureSize.Width;
+			float texHeight = this.szTextureSize.Height;
+
+			//calculate UV coordinates
+			float uLeft = clipRect.Left / texWidth;
+			float uRight = clipRect.Right / texWidth;
+			float vTop = clipRect.Top / texHeight;
+			float vBottom = clipRect.Bottom / texHeight;
+
+			//vertices
+			var vertices = new TransformedColoredTexturedVertex[4];
+			Vector3[] corners = 
+			{
+				new Vector3(0, 0, 0), // TL
+				new Vector3(1, 0, 0), // TR
+				new Vector3(0, 1, 0), // BL
+				new Vector3(1, 1, 0) // BR
+			};
+
+			for (int i = 0; i < corners.Length; i++)
+			{
+				//transform corner
+				Vector3 transformed = Vector3.TransformCoordinate(corners[i], transformMatrix);
+				
+				vertices[i] = new TransformedColoredTexturedVertex
+				{
+					Position = new Vector4(transformed.X, transformed.Y, transformed.Z, 1f),
+					TextureCoordinates = i == 0 ? new Vector2(uLeft, vTop) :
+						i == 1 ? new Vector2(uRight, vTop) :
+						i == 2 ? new Vector2(uLeft, vBottom) : 
+						new Vector2(uRight, vBottom),
+					Color = color4.ToRgba()
+				};
+			}
+
+			//render texture
+			device.SetTexture(0, this.texture);
+			device.VertexFormat = TransformedColoredTexturedVertex.Format;
+			device.DrawUserPrimitives(PrimitiveType.TriangleStrip, 2, vertices);
+		}
+		
 		/// <summary>
 		/// テクスチャを 3D 画像と見なして描画する。
 		/// </summary>
