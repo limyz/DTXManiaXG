@@ -115,6 +115,7 @@ namespace DTXMania
 
         private UISelectList configLeftOptionsMenu;
         private UIImage menuCursor;
+        
         public override void OnManagedCreateResources()											// OPTIONと画像以外共通
         {
             if (!base.bNotActivated)
@@ -122,42 +123,39 @@ namespace DTXMania
                 //create resources for menu elements
                 var bg = uiGroup.AddChild(new UIImage(CSkin.Path(@"Graphics\4_background.png")));
                 bg.renderOrder = -100;
-                bg.position = new Vector2(0, 0);
+                bg.position = Vector3.Zero;
                 
                 var itemBar = uiGroup.AddChild(new UIImage(CSkin.Path(@"Graphics\4_item bar.png")));
-                itemBar.position = new Vector2(400, 0);
+                itemBar.position = new Vector3(400, 0, 0);
                 itemBar.renderOrder = 50;
                 
                 var headerPanel = uiGroup.AddChild(new UIImage(CSkin.Path(@"Graphics\4_header panel.png")));
-                headerPanel.position = new Vector2(0, 0);
+                headerPanel.position = Vector3.Zero;
                 headerPanel.renderOrder = 52;
                 
                 var footerPanel = uiGroup.AddChild(new UIImage(CSkin.Path(@"Graphics\4_footer panel.png")));
-                footerPanel.position = new Vector2(0, 720 - footerPanel.Texture.szTextureSize.Height);
+                footerPanel.position = new Vector3(0, 720 - footerPanel.Texture.szTextureSize.Height, 0);
                 footerPanel.renderOrder = 53;
                 
-                var cursor = uiGroup.AddChild(new UIImage(CSkin.Path(@"Graphics\4_menu cursor.png")));
-                cursor.renderOrder = 100;
-                cursor.isVisible = false;
-
                 //left menu
                 var leftMenu = uiGroup.AddChild(new UIGroup());
-                leftMenu.position = new Vector2(245, 140);
+                leftMenu.position = new Vector3(245, 140, 0);
                 leftMenu.renderOrder = 50;
                 
                 var menuPanel = leftMenu.AddChild(new UIImage(CSkin.Path(@"Graphics\4_menu panel.png")));
-                menuPanel.position = new Vector2(0, 0);
+                menuPanel.position = Vector3.Zero;
                 
                 //menu items
                 configLeftOptionsMenu = leftMenu.AddChild(new UISelectList());
+                configLeftOptionsMenu.isVisible = true;
                 //340 - size/2, so this becomes 340-245= 95
-                configLeftOptionsMenu.position = new Vector2(95, 4);
-                
+                configLeftOptionsMenu.position = new Vector3(95, 4, 0);
+
+                //todo: render menu cursor correctly to match current version of the game. right now its rendered as a stretched image.
                 menuCursor = configLeftOptionsMenu.AddChild(new UIImage(CSkin.Path(@"Graphics\4_menu cursor.png")));
-                menuCursor.drawMode = DrawMode.TiledLeftRight;
-                menuCursor.position = new Vector2(-5, 2);
-                menuCursor.size = new Rectangle(0, 0, 170, 32);
-                menuCursor.SetAlignment(HorizontalAlignment.Center, VerticalAlignment.Top);
+                menuCursor.position = new Vector3(-5, 2, 0);
+                menuCursor.size = new Vector2(170, 32);
+                menuCursor.anchor = new Vector2(0.5f, 0f);
                 
                 var font = new CPrivateFastFont(new FontFamily(CDTXMania.ConfigIni.str選曲リストフォント), 18);
                 configLeftOptionsMenu.AddSelectableChild(new UIBasicButton(font, "System", () => { this.actList.tSetupItemList_System(); }));
@@ -208,7 +206,7 @@ namespace DTXMania
             menuCursor.Texture.nTransparency = bFocusIsOnMenu ? 255 : 128;
             menuCursor.position.Y = 2 + configLeftOptionsMenu.currentlySelectedIndex * 32;
             
-            uiGroup.Draw(CDTXMania.app.Device, Vector2.Zero);
+            uiGroup.Draw(CDTXMania.app.Device, Matrix.Identity);
             
             #region [ アイテム ]
             //---------------------
