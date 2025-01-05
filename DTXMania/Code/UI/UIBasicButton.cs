@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Drawing;
+using SharpDX;
+using Color = System.Drawing.Color;
 
 namespace DTXMania.Code.UI
 {
@@ -16,7 +17,7 @@ namespace DTXMania.Code.UI
             normalText = AddChild(new UIText(font));
             normalText.SetText(text);
             normalText.RenderTexture();
-            normalText.SetAlignment(HorizontalAlignment.Center, VerticalAlignment.Top);
+            normalText.anchor = new Vector2(0.5f, 0f);
             
             selectedText = AddChild(new UIText(font));
             selectedText.SetText(text);
@@ -24,7 +25,7 @@ namespace DTXMania.Code.UI
             selectedText.gradationBottomColor = Color.OrangeRed;
             selectedText.drawMode = CPrivateFont.DrawMode.Edge | CPrivateFont.DrawMode.Gradation;
             selectedText.RenderTexture();
-            selectedText.SetAlignment(HorizontalAlignment.Center, VerticalAlignment.Top);
+            selectedText.anchor = new Vector2(0.5f, 0f);
             selectedText.isVisible = false;
         }
         

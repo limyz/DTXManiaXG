@@ -19,8 +19,14 @@ namespace DTXMania.Code.UI
             children.Remove(element);
         }
         
-        public override void Draw(Device device, Vector2 offset)
+        public override void Draw(Device device, Matrix parentMatrix)
         {
+            if (!isVisible) return;
+            
+            UpdateLocalTransformMatrix();
+            
+            Matrix combinedMatrix = localTransformMatrix * parentMatrix;
+            
             //sort by draw priority
             children.Sort((a, b) => a.renderOrder.CompareTo(b.renderOrder));
             
@@ -29,7 +35,7 @@ namespace DTXMania.Code.UI
                 if (element.isVisible)
                 {
                     //draw elements at their position relative to the group
-                    element.Draw(device, offset + position);
+                    element.Draw(device, combinedMatrix);
                 }
             }
         }

@@ -1,6 +1,7 @@
 ﻿using FDK;
 using SharpDX;
 using SharpDX.Direct3D9;
+using RectangleF = System.Drawing.RectangleF;
 
 namespace DTXMania.Code.UI
 {
@@ -16,41 +17,15 @@ namespace DTXMania.Code.UI
         
         protected Vector2 alignmentOffset = Vector2.Zero;
         
-        public override void Draw(Device device, Vector2 offset)
+        public override void Draw(Device device, Matrix parentMatrix)
         {
-            Vector2 pos = position + offset + alignmentOffset;
-            texture.tDraw2DFloat(device, pos.X, pos.Y);
-        }
-
-        public override void SetAlignment(HorizontalAlignment horizontal, VerticalAlignment vertical)
-        {
-            base.SetAlignment(horizontal, vertical);
+            if (!isVisible) return;
             
-            switch (horizontalAlignment)
-            {
-                case HorizontalAlignment.Left:
-                    alignmentOffset.X = 0;
-                    break;
-                case HorizontalAlignment.Center:
-                    alignmentOffset.X = -(texture.szImageSize.Width / 2.0f);
-                    break;
-                case HorizontalAlignment.Right:
-                    alignmentOffset.X = -texture.szImageSize.Width;
-                    break;
-            }
+            UpdateLocalTransformMatrix();
             
-            switch (verticalAlignment)
-            {
-                case VerticalAlignment.Top:
-                    alignmentOffset.Y = 0;
-                    break;
-                case VerticalAlignment.Center:
-                    alignmentOffset.Y = (texture.szImageSize.Height / 2.0f);
-                    break;
-                case VerticalAlignment.Bottom:
-                    alignmentOffset.Y = texture.szImageSize.Height;
-                    break;
-            }
+            Matrix combinedMatrix = localTransformMatrix * parentMatrix;
+            
+            texture.tDraw2DMatrix(device, combinedMatrix, new RectangleF(0, 0, texture.szTextureSize.Width, texture.szTextureSize.Height));
         }
 
         public override void Dispose()

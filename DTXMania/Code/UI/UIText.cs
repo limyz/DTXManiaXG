@@ -29,20 +29,21 @@ namespace DTXMania.Code.UI
             dirty = true;
         }
         
-        public override void Draw(Device device, Vector2 offset)
+        public override void Draw(Device device, Matrix parentMatrix)
         {
             if (dirty)
             {
                 RenderTexture();
             }
             
-            base.Draw(device, offset);
+            base.Draw(device, parentMatrix);
         }
 
         public void RenderTexture()
         {
             var bmp = font.DrawPrivateFont(text, drawMode, fontColor, edgeColor, gradationTopColor, gradationBottomColor);
             texture = CDTXMania.tGenerateTexture(bmp, false);
+            size = new Vector2(texture.szImageSize.Width, texture.szImageSize.Height);
             bmp.Dispose();
             dirty = false;
         }
