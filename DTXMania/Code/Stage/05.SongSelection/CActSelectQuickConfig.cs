@@ -51,32 +51,65 @@ namespace DTXMania
 
         private List<CItemBase> MakeListCItemBase(int nConfigSet, int nInst)
         {
-            List<CItemBase> l = new List<CItemBase>();
-
+            List<CItemBase> itemList = new List<CItemBase>();
+            
             #region [ 共通 Target/AutoMode/AutoLane ]
-            l.Add(new CSwitchItemList("Target", CItemBase.EPanelType.Normal, nInst, "", "", new string[] { "Drums", "Guitar", "Bass" }));
+            var target = new CSwitchItemList("Target", CItemBase.EPanelType.Normal, nInst, "", "",
+                new string[] { "Drums", "Guitar", "Bass" })
+            {
+                action = () =>
+                {
+                    nCurrentTarget = (nCurrentTarget + 1) % 3;
+                
+                    // eInst = (EInstrumentPart) nCurrentTarget;	// ここではeInstは変えない。メニューを開いたタイミングでのみeInstを使う
+                    Initialize(lci[nCurrentConfigSet][nCurrentTarget], true, QuickCfgTitle, n現在の選択行);
+                    MakeAutoPanel();
+                }
+            };
+            itemList.Add(target);
+            
             List<int> automode = tConfigureAuto_DefaultSettings();
             if (nInst == (int)EInstrumentPart.DRUMS)
             {
-                l.Add(new CItemList("Auto Mode", CItemBase.EPanelType.Normal, automode[nInst], "", "", new string[] { "All Auto", "Auto LP", "Auto BD", "2PedalAuto", "XGLaneAuto", "Custom", "OFF" }));
+                var autoMode = new CItemList("Auto Mode", CItemBase.EPanelType.Normal, automode[nInst], "", "",
+                    new string[] { "All Auto", "Auto LP", "Auto BD", "2PedalAuto", "XGLaneAuto", "Custom", "OFF" })
+                {
+                    action = MakeAutoPanel
+                };
+                itemList.Add(autoMode);
             }
             else
             {
-                l.Add(new CItemList("Auto Mode", CItemBase.EPanelType.Normal, automode[nInst], "", "", new string[] { "All Auto", "Auto Neck", "Auto Pick", "Custom", "OFF" }));
+                var autoMode = new CItemList("Auto Mode", CItemBase.EPanelType.Normal, automode[nInst], "", "",
+                    new string[] { "All Auto", "Auto Neck", "Auto Pick", "Custom", "OFF" })
+                {
+                    action = MakeAutoPanel
+                };
+                itemList.Add(autoMode);
             }
             #endregion
+            
             #region [ 個別 ScrollSpeed ]
-            l.Add(new CItemInteger("ScrollSpeed", 0, 1999, CDTXMania.ConfigIni.nScrollSpeed[nInst],
+            var scrollSpeed = new CItemInteger("ScrollSpeed", 0, 1999, CDTXMania.ConfigIni.nScrollSpeed[nInst],
                 "演奏時のドラム譜面のスクロールの\n" +
                 "速度を指定します。\n" +
                 "x0.5 ～ x1000.0 を指定可能です。",
                 "To change the scroll speed for the\n" +
                 "drums lanes.\n" +
                 "You can set it from x0.5 to x1000.0.\n" +
-                "(ScrollSpeed=x0.5 means half speed)"));
+                "(ScrollSpeed=x0.5 means half speed)")
+            {
+                action = () =>
+                {
+                    CDTXMania.ConfigIni.nScrollSpeed[nInst] = (int)GetObj現在値((int)EOrder.ScrollSpeed);
+                }
+            };
+            itemList.Add(scrollSpeed);
             #endregion
+            
             #region [ 共通 Dark/Risky/PlaySpeed ]
-            l.Add(new CItemList("Dark", CItemBase.EPanelType.Normal, (int)CDTXMania.ConfigIni.eDark,
+
+            var dark = new CItemList("Dark", CItemBase.EPanelType.Normal, (int)CDTXMania.ConfigIni.eDark,
                 "HALF: 背景、レーン、ゲージが表示\n" +
                 "されなくなります。\n" +
                 "FULL: さらに小節線、拍線、判定ラ\n" +
@@ -86,8 +119,37 @@ namespace DTXMania
                 " disappeared.\n" +
                 "FULL: additionaly to HALF, bar/beat\n" +
                 " lines, hit bar, pads are disappeared.",
-                new string[] { "OFF", "HALF", "FULL" }));
-            l.Add(new CItemInteger("Risky", 0, 10, CDTXMania.ConfigIni.nRisky,
+                new string[] { "OFF", "HALF", "FULL" })
+            {
+                action = () =>
+                {
+                    EDarkMode d = (EDarkMode)GetIndex((int)EOrder.Dark);
+                    CDTXMania.ConfigIni.eDark = d;
+                    SetValueToAllTarget((int)EOrder.Dark, (int)d); // 全楽器で共有する値のため、全targetに値を展開する
+
+                    if (d == EDarkMode.FULL)
+                    {
+                        CDTXMania.ConfigIni.nLaneDisp[nCurrentTarget] = 3;
+                        CDTXMania.ConfigIni.bJudgeLineDisp[nCurrentTarget] = false;
+                        CDTXMania.ConfigIni.bLaneFlush[nCurrentTarget] = false;
+                    }
+                    else if (d == EDarkMode.HALF)
+                    {
+                        CDTXMania.ConfigIni.nLaneDisp[nCurrentTarget] = 1;
+                        CDTXMania.ConfigIni.bJudgeLineDisp[nCurrentTarget] = true;
+                        CDTXMania.ConfigIni.bLaneFlush[nCurrentTarget] = true;
+                    }
+                    else
+                    {
+                        CDTXMania.ConfigIni.nLaneDisp[nCurrentTarget] = 0;
+                        CDTXMania.ConfigIni.bJudgeLineDisp[nCurrentTarget] = true;
+                        CDTXMania.ConfigIni.bLaneFlush[nCurrentTarget] = true;
+                    }
+                }
+            };
+            itemList.Add(dark);
+
+            var risky = new CItemInteger("Risky", 0, 10, CDTXMania.ConfigIni.nRisky,
                 "Riskyモードの設定:\n" +
                 "1以上の値にすると、その回数分の\n" +
                 "Poor/MissでFAILEDとなります。\n" +
@@ -99,8 +161,19 @@ namespace DTXMania
                 "Set over 1, in case you'd like to specify\n" +
                 " the number of Poor/Miss times to be\n" +
                 " FAILED.\n" +
-                "Set 0 to disable Risky mode."));
-            l.Add(new CItemInteger("PlaySpeed", CConstants.PLAYSPEED_MIN, CConstants.PLAYSPEED_MAX, CDTXMania.ConfigIni.nPlaySpeed,
+                "Set 0 to disable Risky mode.")
+            {
+                action = () =>
+                {
+                    int r = (int)GetObj現在値((int)EOrder.Risky);
+                    CDTXMania.ConfigIni.nRisky = r;
+                    SetValueToAllTarget((int)EOrder.Risky, r); // 全楽器で共有する値のため、全targetに値を展開する
+                }
+            };
+            itemList.Add(risky);
+
+            var playSpeed = new CItemInteger("PlaySpeed", CConstants.PLAYSPEED_MIN, CConstants.PLAYSPEED_MAX,
+                CDTXMania.ConfigIni.nPlaySpeed,
                 "曲の演奏速度を、速くしたり遅くした\n" +
                 "りすることができます。\n" +
                 "（※一部のサウンドカードでは正しく\n" +
@@ -109,34 +182,115 @@ namespace DTXMania
                 "For example, you can play in half\n" +
                 " speed by setting PlaySpeed = 0.500\n" +
                 " for your practice.\n" +
-                "Note: It also changes the songs' pitch."));
+                "Note: It also changes the songs' pitch.")
+            {
+                action = () => CDTXMania.ConfigIni.nPlaySpeed = (int)GetObj現在値((int)EOrder.PlaySpeed)
+            };
+            itemList.Add(playSpeed);
+
             #endregion
+            
             #region [ 個別 Sud/Hid ]
-            l.Add(new CItemList("HID/SUD", CItemBase.EPanelType.Normal, CDTXMania.ConfigIni.nHidSud[nInst],
+
+            var suddenHidden = new CItemList("HID/SUD", CItemBase.EPanelType.Normal, CDTXMania.ConfigIni.nHidSud[nInst],
                 "",
                 "",
-                new string[] { "OFF", "HIDDEN", "SUDDEN", "HID/SUD", "STEALTH" }));
+                new string[] { "OFF", "HIDDEN", "SUDDEN", "HID/SUD", "STEALTH" })
+            {
+                action = () =>
+                {
+                    CDTXMania.ConfigIni.nHidSud[nCurrentTarget] = (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] + 1) % 5;
+
+                    if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 0)
+                    {
+                        CDTXMania.ConfigIni.bHidden[nCurrentTarget] = false;
+                        CDTXMania.ConfigIni.bSudden[nCurrentTarget] = false;
+                    }
+                    else if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 1)
+                    {
+                        CDTXMania.ConfigIni.bHidden[nCurrentTarget] = true;
+                        CDTXMania.ConfigIni.bSudden[nCurrentTarget] = false;
+                    }
+                    else if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 2)
+                    {
+                        CDTXMania.ConfigIni.bHidden[nCurrentTarget] = false;
+                        CDTXMania.ConfigIni.bSudden[nCurrentTarget] = true;
+                    }
+                    else if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 3)
+                    {
+                        CDTXMania.ConfigIni.bHidden[nCurrentTarget] = true;
+                        CDTXMania.ConfigIni.bSudden[nCurrentTarget] = true;
+                    }
+                    else if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 4)
+                    {
+                        CDTXMania.ConfigIni.bHidden[nCurrentTarget] = true;
+                        CDTXMania.ConfigIni.bSudden[nCurrentTarget] = true;
+                    }
+                }
+            };
+            itemList.Add(suddenHidden);
             //ドラム、ギター、ベースでのHIDDEN/SUDDENの設定の分離を考えなければならない。
+            //CDTXMania.ConfigIni.nHidSud = (int) GetObj現在値((int) EOrder.SuddenHidden);
             #endregion
+            
             #region [ 個別 Ghost ]
-            l.Add( new CItemList("AUTO Ghost", CItemBase.EPanelType.Normal, (int)CDTXMania.ConfigIni.eAutoGhost[ nInst ],
+
+            var autoGhost = new CItemList("AUTO Ghost", CItemBase.EPanelType.Normal,
+                (int)CDTXMania.ConfigIni.eAutoGhost[nInst],
                 "AUTOプレーのゴーストを指定します。\n",
                 "Specify Play Ghost data.\n",
-                new string[] {"Perfect", "Last Play", "Hi Skill", "Hi Score", "Online" }
-                ));
-            l.Add(new CItemList("Target Ghost", CItemBase.EPanelType.Normal, (int)CDTXMania.ConfigIni.eTargetGhost[ nInst ],
+                new string[] { "Perfect", "Last Play", "Hi Skill", "Hi Score", "Online" }
+            )
+            {
+                action = () =>
+                {
+                    EAutoGhostData gd = (EAutoGhostData)GetIndex((int)EOrder.AutoGhost);
+                    CDTXMania.ConfigIni.eAutoGhost[nCurrentTarget] = gd;
+                }
+            };
+            itemList.Add(autoGhost);
+
+            var targetGhost = new CItemList("Target Ghost", CItemBase.EPanelType.Normal,
+                (int)CDTXMania.ConfigIni.eTargetGhost[nInst],
                 "ターゲットゴーストを指定します。\n",
                 "Specify Target Ghost data.\n",
-                new string[] {"None", "Perfect", "Last Play", "Hi Skill", "Hi Score", "Online" }
-                ));
+                new string[] { "None", "Perfect", "Last Play", "Hi Skill", "Hi Score", "Online" }
+            )
+            {
+                action = () =>
+                {
+                    ETargetGhostData gtd = (ETargetGhostData)GetIndex((int)EOrder.TargetGhost);
+                    CDTXMania.ConfigIni.eTargetGhost[nCurrentTarget] = gtd;
+                }
+            };
+            itemList.Add(targetGhost);
             #endregion
+            
             #region [ 共通 SET切り替え/More/Return ]
             //l.Add(new CSwitchItemList("Config Set", CItemBase.EPanelType.Normal, nCurrentConfigSet, "", "", new string[] { "SET-1", "SET-2", "SET-3" }));
-            l.Add(new CSwitchItemList("More...", CItemBase.EPanelType.Normal, 0, "", "", new string[] { "" }));
-            l.Add(new CSwitchItemList("Return", CItemBase.EPanelType.Normal, 0, "", "", new string[] { "", "" }));
+            var more = new CSwitchItemList("More...", CItemBase.EPanelType.Normal, 0, "", "", new string[] { "" })
+            {
+                action = () =>
+                {
+                    SetAutoParameters(); // 簡易CONFIGメニュー脱出に伴い、簡易CONFIG内のAUTOの設定をConfigIniクラスに反映する
+                    this.bGotoDetailConfig = true;
+                    this.tDeativatePopupMenu();
+                }
+            };
+            itemList.Add(more);
+
+            var returnBtn = new CSwitchItemList("Return", CItemBase.EPanelType.Normal, 0, "", "", new string[] { "", "" })
+            {
+                action = () =>
+                {
+                    SetAutoParameters(); // 簡易CONFIGメニュー脱出に伴い、簡易CONFIG内のAUTOの設定をConfigIniクラスに反映する
+                    this.tDeativatePopupMenu();
+                }
+            };
+            itemList.Add(returnBtn);
             #endregion
 
-            return l;
+            return itemList;
         }
 
         /// <summary>
@@ -350,118 +504,7 @@ namespace DTXMania
 
         public override void tPressEnterMain(int nSortOrder)
         {
-            switch (n現在の選択行)
-            {
-                case (int)EOrder.Target:
-                    nCurrentTarget = (nCurrentTarget + 1) % 3;
-                    // eInst = (EInstrumentPart) nCurrentTarget;	// ここではeInstは変えない。メニューを開いたタイミングでのみeInstを使う
-                    Initialize(lci[nCurrentConfigSet][nCurrentTarget], true, QuickCfgTitle, n現在の選択行);
-                    MakeAutoPanel();
-                    break;
-
-                case (int)EOrder.AutoMode:
-                    MakeAutoPanel();
-                    break;
-
-                case (int)EOrder.ScrollSpeed:
-                    CDTXMania.ConfigIni.nScrollSpeed[nCurrentTarget] = (int)GetObj現在値((int)EOrder.ScrollSpeed);
-                    break;
-
-                case (int)EOrder.Dark:
-                    {
-                        EDarkMode d = (EDarkMode)GetIndex((int)EOrder.Dark);
-                        CDTXMania.ConfigIni.eDark = d;
-                        SetValueToAllTarget((int)EOrder.Dark, (int)d);		// 全楽器で共有する値のため、全targetに値を展開する
-
-                        if (d == EDarkMode.FULL)
-                        {
-                            CDTXMania.ConfigIni.nLaneDisp[nCurrentTarget] = 3;
-                            CDTXMania.ConfigIni.bJudgeLineDisp[nCurrentTarget] = false;
-                            CDTXMania.ConfigIni.bLaneFlush[nCurrentTarget] = false;
-                        }
-                        else if (d == EDarkMode.HALF)
-                        {
-                            CDTXMania.ConfigIni.nLaneDisp[nCurrentTarget] = 1;
-                            CDTXMania.ConfigIni.bJudgeLineDisp[nCurrentTarget] = true;
-                            CDTXMania.ConfigIni.bLaneFlush[nCurrentTarget] = true;
-                        }
-                        else
-                        {
-                            CDTXMania.ConfigIni.nLaneDisp[nCurrentTarget] = 0;
-                            CDTXMania.ConfigIni.bJudgeLineDisp[nCurrentTarget] = true;
-                            CDTXMania.ConfigIni.bLaneFlush[nCurrentTarget] = true;
-                        }
-                    }
-                    break;
-                case (int)EOrder.Risky:
-                    {
-                        int r = (int)GetObj現在値((int)EOrder.Risky);
-                        CDTXMania.ConfigIni.nRisky = r;
-                        SetValueToAllTarget((int)EOrder.Risky, r);			// 全楽器で共有する値のため、全targetに値を展開する
-                    }
-                    break;
-                case (int)EOrder.PlaySpeed:
-                    CDTXMania.ConfigIni.nPlaySpeed = (int)GetObj現在値((int)EOrder.PlaySpeed);
-                    break;
-                case (int)EOrder.SuddenHidden:
-                    {
-                        CDTXMania.ConfigIni.nHidSud[nCurrentTarget] = (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] + 1) % 5;
-
-                        if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 0)
-                        {
-                            CDTXMania.ConfigIni.bHidden[nCurrentTarget] = false;
-                            CDTXMania.ConfigIni.bSudden[nCurrentTarget] = false;
-                        }
-                        else if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 1)
-                        {
-                            CDTXMania.ConfigIni.bHidden[nCurrentTarget] = true;
-                            CDTXMania.ConfigIni.bSudden[nCurrentTarget] = false;
-                        }
-                        else if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 2)
-                        {
-                            CDTXMania.ConfigIni.bHidden[nCurrentTarget] = false;
-                            CDTXMania.ConfigIni.bSudden[nCurrentTarget] = true;
-                        }
-                        else if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 3)
-                        {
-                            CDTXMania.ConfigIni.bHidden[nCurrentTarget] = true;
-                            CDTXMania.ConfigIni.bSudden[nCurrentTarget] = true;
-                        }
-                        else if (CDTXMania.ConfigIni.nHidSud[nCurrentTarget] == 4)
-                        {
-                            CDTXMania.ConfigIni.bHidden[nCurrentTarget] = true;
-                            CDTXMania.ConfigIni.bSudden[nCurrentTarget] = true;
-                        }
-                    }
-                    //CDTXMania.ConfigIni.nHidSud = (int) GetObj現在値((int) EOrder.SuddenHidden);
-                    break;
-                case (int) EOrder.AutoGhost: // #35411 chnmr0 AUTOゴーストデータ
-                    EAutoGhostData gd = (EAutoGhostData)GetIndex((int)EOrder.AutoGhost);
-                    CDTXMania.ConfigIni.eAutoGhost[ nCurrentTarget ] = gd;
-                    break;
-
-                case (int)EOrder.TargetGhost: // #35411 chnmr0 ターゲットゴーストデータ
-                    ETargetGhostData gtd = (ETargetGhostData)GetIndex((int)EOrder.TargetGhost);
-                    CDTXMania.ConfigIni.eTargetGhost[ nCurrentTarget ] = gtd;
-                    break;
-                //case (int)EOrder.ConfSet:			// CONF-SET切り替え
-                //    nCurrentConfigSet = (int)GetIndex((int)EOrder.ConfSet);
-                //    //Initialize( lci[ nCurrentConfigSet ], true, QuickCfgTitle, pos );
-                //    break;
-
-                case (int)EOrder.More:
-                    SetAutoParameters();			// 簡易CONFIGメニュー脱出に伴い、簡易CONFIG内のAUTOの設定をConfigIniクラスに反映する
-                    this.bGotoDetailConfig = true;
-                    this.tDeativatePopupMenu();
-                    break;
-
-                case (int)EOrder.Return:
-                    SetAutoParameters();			// 簡易CONFIGメニュー脱出に伴い、簡易CONFIG内のAUTOの設定をConfigIniクラスに反映する
-                    this.tDeativatePopupMenu();
-                    break;
-                default:
-                    break;
-            }
+            lci[nCurrentConfigSet][nCurrentTarget][n現在の選択行].RunAction();
         }
 
         public override void tCancel()
