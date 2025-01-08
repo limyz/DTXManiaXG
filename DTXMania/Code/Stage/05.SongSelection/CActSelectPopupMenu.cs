@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.IO;
 using FDK;
 
@@ -16,8 +13,6 @@ namespace DTXMania
     {
 
         // プロパティ
-
-
         public int GetIndex(int pos)
         {
             return lciMenuItems[pos].GetIndex();
@@ -68,7 +63,7 @@ namespace DTXMania
         }
 
 
-        public void tEnter押下()
+        public void tPressEnter()
         {
             if (this.bキー入力待ち)
             {
@@ -124,12 +119,12 @@ namespace DTXMania
         /// <summary>
         /// 追加の描画処理。必要に応じて、継承先で記述する。
         /// </summary>
-        public virtual void t進行描画sub()
+        public virtual void tDrawSub()
         {
         }
 
 
-        public void t次に移動()
+        public void tMoveToNext()
         {
             if (this.bキー入力待ち)
             {
@@ -147,7 +142,7 @@ namespace DTXMania
                 }
             }
         }
-        public void t前に移動()
+        public void tMoveToPrevious()
         {
             if (this.bキー入力待ち)
             {
@@ -239,9 +234,8 @@ namespace DTXMania
         {
             if (!base.bNotActivated && this.bIsActivePopupMenu)
             {
-                n本体X = 460; //XG選曲画面の中心点はX=646 Y=358
-                n本体Y = 150;
-
+                nBodyX = 460; //XG選曲画面の中心点はX=646 Y=358
+                nBodyY = 150;
 
                 if (this.bキー入力待ち)
                 {
@@ -326,44 +320,44 @@ namespace DTXMania
                     }
                     if (eAction == ESortAction.Decide)	// 決定
                     {
-                        this.tEnter押下();
+                        this.tPressEnter();
                     }
                     #endregion
                     #region [ キー入力: 前に移動 ]
-                    this.ctキー反復用.Up.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.UpArrow), new CCounter.DGキー処理(this.t前に移動));
-                    this.ctキー反復用.R.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.R), new CCounter.DGキー処理(this.t前に移動));
+                    this.ctキー反復用.Up.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.UpArrow), new CCounter.DGキー処理(this.tMoveToPrevious));
+                    this.ctキー反復用.R.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.R), new CCounter.DGキー処理(this.tMoveToPrevious));
                     //Change to HT
                     if (CDTXMania.Pad.bPressed(EInstrumentPart.DRUMS, EPad.HT))
                     {
-                        this.t前に移動();
+                        this.tMoveToPrevious();
                     }
                     #endregion
                     #region [ キー入力: 次に移動 ]
-                    this.ctキー反復用.Down.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.DownArrow), new CCounter.DGキー処理(this.t次に移動));
-                    this.ctキー反復用.B.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.G), new CCounter.DGキー処理(this.t次に移動));
+                    this.ctキー反復用.Down.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.DownArrow), new CCounter.DGキー処理(this.tMoveToNext));
+                    this.ctキー反復用.B.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.G), new CCounter.DGキー処理(this.tMoveToNext));
                     //Change to LT
                     if (CDTXMania.Pad.bPressed(EInstrumentPart.DRUMS, EPad.LT))
                     {
-                        this.t次に移動();
+                        this.tMoveToNext();
                     }
                     #endregion
                 }
                 #region [ ポップアップメニュー 背景描画 ]
                 if (this.txPopupMenuBackground != null)
                 {
-                    this.txPopupMenuBackground.tDraw2D(CDTXMania.app.Device, n本体X, n本体Y);
+                    this.txPopupMenuBackground.tDraw2D(CDTXMania.app.Device, nBodyX, nBodyY);
                 }
                 #endregion
                 #region [ ソートメニュータイトル描画 ]
-                int x = n本体X + 96, y = n本体Y + 4;
+                int x = nBodyX + 96, y = nBodyY + 4;
                 font.t文字列描画(x, y, strMenuTitle, false, 1.0f);
                 #endregion
                 #region [ カーソル描画 ]
 				if ( this.txCursor != null )
 				{
 					int height = 32;
-                    int curX = n本体X + 12;
-                    int curY = n本体Y + 6 + (height * (this.n現在の選択行 + 1));
+                    int curX = nBodyX + 12;
+                    int curY = nBodyY + 6 + (height * (this.n現在の選択行 + 1));
 					this.txCursor.tDraw2D( CDTXMania.app.Device, curX, curY, new Rectangle( 0, 0, 16, 32 ) );
 					curX += 0x10;
 					Rectangle rectangle = new Rectangle( 8, 0, 0x10, 0x20 );
@@ -379,7 +373,7 @@ namespace DTXMania
                 for (int i = 0; i < lciMenuItems.Count; i++)
                 {
                     bool bItemBold = (i == nItemSelecting && !bShowAllItems) ? true : false;
-                    font.t文字列描画(n本体X + 18, n本体Y + 40 + i * 32, lciMenuItems[i].strItemName, bItemBold, 1.0f);
+                    font.t文字列描画(nBodyX + 18, nBodyY + 40 + i * 32, lciMenuItems[i].strItemName, bItemBold, 1.0f);
 
                     bool bValueBold = (bItemBold || (i == nItemSelecting && bIsSelectingIntItem)) ? true : false;
                     if (bItemBold || bShowAllItems)
@@ -404,11 +398,11 @@ namespace DTXMania
                                 s = lciMenuItems[i].obj現在値().ToString();
                                 break;
                         }
-                        font.t文字列描画(n本体X + 200, n本体Y + 40 + i * 32, s, bValueBold, 1.0f);
+                        font.t文字列描画(nBodyX + 200, nBodyY + 40 + i * 32, s, bValueBold, 1.0f);
                     }
                 }
                 #endregion
-                t進行描画sub();
+                tDrawSub();
             }
             return 0;
         }
@@ -428,8 +422,8 @@ namespace DTXMania
         private CTexture txCursor;
         private CActDFPFont font;
 
-        private int n本体X;
-        private int n本体Y;
+        private int nBodyX;
+        private int nBodyY;
 
         private string strMenuTitle;
         private List<CItemBase> lciMenuItems;

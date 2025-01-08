@@ -435,7 +435,7 @@ namespace DTXMania
         /// Auto Modeにフォーカスを合わせているときだけ、AUTOの設定状態を表示する。
         /// 現状はDrumでのみ表示。
         /// </summary>
-        public override void t進行描画sub()
+        public override void tDrawSub()
         {
             if (base.n現在の選択行 == (int)EOrder.AutoMode)
             {
