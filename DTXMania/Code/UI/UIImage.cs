@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using FDK;
 using SharpDX;
 using SharpDX.Direct3D9;
@@ -10,10 +11,12 @@ namespace DTXMania.Code.UI
     {
         public RectangleF clipRect;
         
-        public UIImage(string texturePath) : base(CDTXMania.tGenerateTexture(texturePath, false))
-        {
+        public UIImage(string texturePath) : base(null)
+        { 
+            CTexture temp = CDTXMania.tGenerateTexture(texturePath);
+            texture = temp ?? fallback;
+            
             clipRect = new RectangleF(0, 0, texture.szImageSize.Width, texture.szImageSize.Height);
-            size = new Vector2(texture.szImageSize.Width, texture.szImageSize.Height);
         }
         
         public UIImage(CTexture texture) : base(texture)

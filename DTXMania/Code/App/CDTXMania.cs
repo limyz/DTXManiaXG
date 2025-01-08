@@ -17,7 +17,7 @@ using SampleFramework;
 using DTXMania.Properties;
 using System.Reflection;
 using DirectShowLib;
-
+using DTXMania.Code.UI;
 using Point = System.Drawing.Point;
 
 namespace DTXMania
@@ -519,6 +519,9 @@ namespace DTXMania
                 st.plugin.OnUnmanagedリソースの作成();
                 Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
             }
+            
+            //load fallback texture
+            UITexture.LoadFallbackTexture();
         }
         protected override void UnloadContent()
         {

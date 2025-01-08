@@ -1,4 +1,5 @@
-﻿using FDK;
+﻿using System.Diagnostics;
+using FDK;
 using SharpDX;
 using SharpDX.Direct3D9;
 using RectangleF = System.Drawing.RectangleF;
@@ -9,7 +10,7 @@ namespace DTXMania.Code.UI
     {
         protected UITexture(CTexture texture)
         {
-            this.texture = texture;
+            this.texture = texture ?? fallback;
         }
         
         public CTexture Texture => texture;
@@ -31,6 +32,14 @@ namespace DTXMania.Code.UI
         public override void Dispose()
         {
             CDTXMania.tReleaseTexture(ref texture);
+        }
+
+        protected static CTexture fallback = null;
+        
+        public static void LoadFallbackTexture()
+        {
+            string fallbackPath = @"System\Graphics\fallback.png";
+            fallback = CDTXMania.tGenerateTexture(fallbackPath);
         }
     }
 }

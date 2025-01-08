@@ -196,10 +196,10 @@ Runtime/config.ini
 Runtime/dtxmanialog.txt
 Runtime/songlist.db
 Runtime/songs.db
-!Runtime/System/Sounds/*
-!Runtime/System/Graphics/*
 Runtime/System/*
 Runtime/DTXFiles/*
+!Runtime/System/Sounds
+!Runtime/System/Graphics
 
 # IDE files
 .idea/*
