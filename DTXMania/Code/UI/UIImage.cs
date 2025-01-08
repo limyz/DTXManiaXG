@@ -16,6 +16,7 @@ namespace DTXMania.Code.UI
             CTexture temp = CDTXMania.tGenerateTexture(texturePath);
             texture = temp ?? fallback;
             
+            size = new Vector2(texture.szTextureSize.Width, texture.szTextureSize.Height);
             clipRect = new RectangleF(0, 0, texture.szImageSize.Width, texture.szImageSize.Height);
         }
         

@@ -10,7 +10,16 @@ namespace DTXMania.Code.UI
     {
         protected UITexture(CTexture texture)
         {
-            this.texture = texture ?? fallback;
+            if (texture != null)
+            {
+                this.texture = texture;
+            }
+            else
+            {
+                texture = fallback;
+            }
+            
+            size = new Vector2(texture.szTextureSize.Width, texture.szTextureSize.Height);
         }
         
         public CTexture Texture => texture;
