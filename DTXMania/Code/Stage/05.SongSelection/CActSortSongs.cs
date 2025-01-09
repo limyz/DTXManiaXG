@@ -25,7 +25,7 @@ namespace DTXMania
 			lci.Add( new CItemList( "Date",			CItemBase.EPanelType.Normal, 0, "", "", new string[] { "Dec.31,30,...",	"Jan.1,2,..." } ) );
 			lci.Add( new CItemList( "Return",		CItemBase.EPanelType.Normal, 0, "", "", new string[] { "", 				"" } ) );
 			
-			base.Initialize( lci, false, "SORT MENU" );
+			base.Initialize( lci, "SORT MENU" );
 		}
 
 
@@ -45,7 +45,7 @@ namespace DTXMania
 		{
 			nSortOrder *= 2;	// 0,1  => -1, 1
 			nSortOrder -= 1;
-			switch ( n現在の選択行 )
+			switch ( nCurrentSelection )
 			{
 				case (int) EOrder.Title:
 					this.actSongList.tSortSongList(

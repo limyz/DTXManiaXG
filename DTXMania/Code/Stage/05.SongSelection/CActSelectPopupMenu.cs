@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.IO;
+using DTXMania.Code.UI;
 using FDK;
-
+using SharpDX;
+using Rectangle = System.Drawing.Rectangle;
 using SlimDXKey = SlimDX.DirectInput.Key;
 
 namespace DTXMania
@@ -37,7 +38,6 @@ namespace DTXMania
         }
         public virtual void tActivatePopupMenu(EInstrumentPart einst)
         {
-            nItemSelecting = -1;		// #24757 2011.4.1 yyagi: Clear sorting status in each stating menu.
             this.eInst = einst;
             this.bIsActivePopupMenu = true;
             this.bIsSelectingIntItem = false;
@@ -49,17 +49,46 @@ namespace DTXMania
         }
 
 
-        public void Initialize(List<CItemBase> menulist, bool showAllItems, string title)
+        public void Initialize(List<CItemBase> menulist, string title)
         {
-            Initialize(menulist, showAllItems, title, 0);
+            Initialize(menulist, title, 0);
         }
 
-        public void Initialize(List<CItemBase> menulist, bool showAllItems, string title, int defaultPos)
+        struct ItemPair
+        {
+            public UIDFPText name;
+            public UIDFPText value;
+        }
+
+        private List<ItemPair> listItems = new List<ItemPair>();
+        
+        public void Initialize(List<CItemBase> menulist, string title, int defaultPos)
         {
             strMenuTitle = title;
             lciMenuItems = menulist;
-            bShowAllItems = showAllItems;
-            n現在の選択行 = defaultPos;
+            nCurrentSelection = defaultPos;
+
+            if (menuItems == null) return;
+            
+            //remove current lci items
+            menuItems.ClearChildren();
+
+            listItems.Clear();
+            listItems = new List<ItemPair>();
+            
+            //add new lci items
+            for (int i = 0; i < lciMenuItems.Count; i++)
+            {
+                var item = menuItems.AddChild(new UIDFPText(font, lciMenuItems[i].strItemName));
+                item.position = new Vector3(18, 40 + i * 32, 0);
+                item.renderOrder = 1;
+                
+                var value = menuItems.AddChild(new UIDFPText(font, ""));
+                value.position = new Vector3(200, 40 + i * 32, 0);
+                value.renderOrder = 1;
+
+                listItems.Add(new ItemPair() {name = item, value = value});
+            }
         }
 
 
@@ -69,29 +98,16 @@ namespace DTXMania
             {
                 CDTXMania.Skin.soundDecide.tPlay();
 
-                if (this.n現在の選択行 != lciMenuItems.Count - 1)
+                if (this.nCurrentSelection != lciMenuItems.Count - 1)
                 {
-                    if (lciMenuItems[n現在の選択行].eType == CItemBase.EType.List ||
-                         lciMenuItems[n現在の選択行].eType == CItemBase.EType.ONorOFFToggle ||
-                         lciMenuItems[n現在の選択行].eType == CItemBase.EType.ONorOFForUndefined3State)
-                    {
-                        lciMenuItems[n現在の選択行].tMoveItemValueToNext();
-                    }
-                    else if (lciMenuItems[n現在の選択行].eType == CItemBase.EType.Integer)
+                    lciMenuItems[nCurrentSelection].RunAction();
+                    
+                    if (lciMenuItems[nCurrentSelection].eType == CItemBase.EType.Integer)
                     {
                         bIsSelectingIntItem = !bIsSelectingIntItem;		// 選択状態/選択解除状態を反転する
                     }
-                    else if (lciMenuItems[n現在の選択行].eType == CItemBase.EType.切替リスト)
-                    {
-                        // 特に何もしない
-                    }
-                    else
-                    {
-                        throw new ArgumentException();
-                    }
-                    nItemSelecting = n現在の選択行;
                 }
-                tPressEnterMain((int)lciMenuItems[n現在の選択行].GetIndex());
+                tPressEnterMain(lciMenuItems[nCurrentSelection].GetIndex());
 
                 this.bキー入力待ち = true;
             }
@@ -131,13 +147,13 @@ namespace DTXMania
                 CDTXMania.Skin.soundCursorMovement.tPlay();
                 if (bIsSelectingIntItem)
                 {
-                    lciMenuItems[n現在の選択行].tMoveItemValueToPrevious();		// 項目移動と数値上下は方向が逆になるので注意
+                    lciMenuItems[nCurrentSelection].tMoveItemValueToPrevious();		// 項目移動と数値上下は方向が逆になるので注意
                 }
                 else
                 {
-                    if (++this.n現在の選択行 >= this.lciMenuItems.Count)
+                    if (++this.nCurrentSelection >= this.lciMenuItems.Count)
                     {
-                        this.n現在の選択行 = 0;
+                        this.nCurrentSelection = 0;
                     }
                 }
             }
@@ -149,13 +165,13 @@ namespace DTXMania
                 CDTXMania.Skin.soundCursorMovement.tPlay();
                 if (bIsSelectingIntItem)
                 {
-                    lciMenuItems[n現在の選択行].tMoveItemValueToNext();		// 項目移動と数値上下は方向が逆になるので注意
+                    lciMenuItems[nCurrentSelection].tMoveItemValueToNext();		// 項目移動と数値上下は方向が逆になるので注意
                 }
                 else
                 {
-                    if (--this.n現在の選択行 < 0)
+                    if (--this.nCurrentSelection < 0)
                     {
-                        this.n現在の選択行 = this.lciMenuItems.Count - 1;
+                        this.nCurrentSelection = this.lciMenuItems.Count - 1;
                     }
                 }
             }
@@ -176,7 +192,6 @@ namespace DTXMania
             this.bIsActivePopupMenu = false;
             this.font = new CActDFPFont();
             base.listChildActivities.Add(this.font);
-            nItemSelecting = -1;
 
             this.CommandHistory = new DTXMania.CStageSongSelection.CCommandHistory();
             base.OnActivate();
@@ -189,8 +204,8 @@ namespace DTXMania
                 this.font.OnDeactivate();
                 this.font = null;
 
-                CDTXMania.tReleaseTexture(ref this.txCursor);
-                CDTXMania.tReleaseTexture(ref this.txPopupMenuBackground);
+                ui.Dispose();
+                
                 for (int i = 0; i < 4; i++)
                 {
                     this.ctキー反復用[i] = null;
@@ -202,16 +217,24 @@ namespace DTXMania
         {
             if (!base.bNotActivated)
             {
-                string pathCursor = CSkin.Path(@"Graphics\ScreenConfig menu cursor.png"); ;
-                string pathPopupMenuBackground = CSkin.Path(@"Graphics\ScreenSelect sort menu background.png");
-                if (File.Exists(pathCursor))
-                {
-                    this.txCursor = CDTXMania.tGenerateTexture(pathCursor, false);
-                }
-                if (File.Exists(pathPopupMenuBackground))
-                {
-                    this.txPopupMenuBackground = CDTXMania.tGenerateTexture(pathPopupMenuBackground, false);
-                }
+                ui = new UIGroup();
+                ui.position = new Vector3(1280.0f/2.0f, 720.0f/2.0f + 20.0f, 0); 
+                ui.anchor = new Vector2(0.5f, 0.5f);
+                
+                var bg = ui.AddChild(new UIImage(CSkin.Path(@"Graphics\ScreenSelect sort menu background.png")));
+                ui.size = bg.size;
+                
+                cursor = ui.AddChild(new UIImage(CSkin.Path(@"Graphics\ScreenConfig menu cursor.png")));
+                cursor.position = new Vector3(12, 32 + 6, 0);
+                cursor.size = new Vector2(336, 32);
+                cursor.renderMode = ERenderMode.Sliced;
+                cursor.sliceRect = new System.Drawing.RectangleF(8, 0, 16, 32);
+                
+                menuItems = ui.AddChild(new UIGroup());
+                
+                var menuText = ui.AddChild(new UIDFPText(font, strMenuTitle));
+                menuText.position = new Vector3(96.0f, 4.0f, 0);
+                
                 base.OnManagedCreateResources();
             }
         }
@@ -219,8 +242,7 @@ namespace DTXMania
         {
             if (!base.bNotActivated)
             {
-                CDTXMania.tReleaseTexture(ref this.txPopupMenuBackground);
-                CDTXMania.tReleaseTexture(ref this.txCursor);
+                ui.Dispose();
             }
             base.OnManagedReleaseResources();
         }
@@ -234,9 +256,6 @@ namespace DTXMania
         {
             if (!base.bNotActivated && this.bIsActivePopupMenu)
             {
-                nBodyX = 460; //XG選曲画面の中心点はX=646 Y=358
-                nBodyY = 150;
-
                 if (this.bキー入力待ち)
                 {
                     #region [ CONFIG画面 ]
@@ -318,6 +337,7 @@ namespace DTXMania
                         eInst = EInstrumentPart.DRUMS;
                         eAction = ESortAction.Decide;
                     }
+                    
                     if (eAction == ESortAction.Decide)	// 決定
                     {
                         this.tPressEnter();
@@ -342,67 +362,42 @@ namespace DTXMania
                     }
                     #endregion
                 }
-                #region [ ポップアップメニュー 背景描画 ]
-                if (this.txPopupMenuBackground != null)
-                {
-                    this.txPopupMenuBackground.tDraw2D(CDTXMania.app.Device, nBodyX, nBodyY);
-                }
-                #endregion
-                #region [ ソートメニュータイトル描画 ]
-                int x = nBodyX + 96, y = nBodyY + 4;
-                font.t文字列描画(x, y, strMenuTitle, false, 1.0f);
-                #endregion
-                #region [ カーソル描画 ]
-				if ( this.txCursor != null )
-				{
-					int height = 32;
-                    int curX = nBodyX + 12;
-                    int curY = nBodyY + 6 + (height * (this.n現在の選択行 + 1));
-					this.txCursor.tDraw2D( CDTXMania.app.Device, curX, curY, new Rectangle( 0, 0, 16, 32 ) );
-					curX += 0x10;
-					Rectangle rectangle = new Rectangle( 8, 0, 0x10, 0x20 );
-					for ( int j = 0; j < 19; j++ )
-					{
-						this.txCursor.tDraw2D( CDTXMania.app.Device, curX, curY, rectangle );
-						curX += 16;
-					}
-					this.txCursor.tDraw2D( CDTXMania.app.Device, curX, curY, new Rectangle( 0x10, 0, 16, 32 ) );
-				}
-                #endregion
-                #region [ ソート候補文字列描画 ]
+                
+                cursor.position.Y = 6 + (32 * (this.nCurrentSelection + 1));
+                
+                //draw value items
                 for (int i = 0; i < lciMenuItems.Count; i++)
                 {
-                    bool bItemBold = (i == nItemSelecting && !bShowAllItems) ? true : false;
-                    font.t文字列描画(nBodyX + 18, nBodyY + 40 + i * 32, lciMenuItems[i].strItemName, bItemBold, 1.0f);
-
-                    bool bValueBold = (bItemBold || (i == nItemSelecting && bIsSelectingIntItem)) ? true : false;
-                    if (bItemBold || bShowAllItems)
+                    var pair = listItems[i];
+                    string s;
+                    switch (lciMenuItems[i].strItemName)
                     {
-                        string s;
-                        switch (lciMenuItems[i].strItemName)
+                        case "PlaySpeed":
                         {
-                            case "PlaySpeed":
-                                {
-                                    double d = (double)((int)lciMenuItems[i].obj現在値() / 20.0);
-                                    s = "x" + d.ToString("0.000");
-                                }
-                                break;
-                            case "ScrollSpeed":
-                                {
-                                    double d = (double)((((int)lciMenuItems[i].obj現在値()) + 1) / 2.0);
-                                    s = "x" + d.ToString("0.0");
-                                }
-                                break;
-
-                            default:
-                                s = lciMenuItems[i].obj現在値().ToString();
-                                break;
+                            double d = (double)((int)lciMenuItems[i].obj現在値() / 20.0);
+                            s = "x" + d.ToString("0.000");
                         }
-                        font.t文字列描画(nBodyX + 200, nBodyY + 40 + i * 32, s, bValueBold, 1.0f);
+                            break;
+                        case "ScrollSpeed":
+                        {
+                            double d = (double)((((int)lciMenuItems[i].obj現在値()) + 1) / 2.0);
+                            s = "x" + d.ToString("0.0");
+                        }
+                            break;
+
+                        default:
+                            s = lciMenuItems[i].obj現在値().ToString();
+                            break;
                     }
+
+                    bool bValueBold = i == nCurrentSelection && bIsSelectingIntItem;
+                    pair.value.SetText(s);
+                    pair.value.isHighlighted = bValueBold;
                 }
-                #endregion
+                
                 tDrawSub();
+                
+                ui.Draw(CDTXMania.app.Device, Matrix.Identity);
             }
             return 0;
         }
@@ -412,22 +407,19 @@ namespace DTXMania
 
         #region [ private ]
         //-----------------
+        protected UIGroup ui;
+        private UIGroup menuItems;
+        private UIImage cursor;
 
         private bool bキー入力待ち;
 
-        internal int n現在の選択行;
+        internal int nCurrentSelection;
         internal EInstrumentPart eInst = EInstrumentPart.UNKNOWN;
-
-        private CTexture txPopupMenuBackground;
-        private CTexture txCursor;
+        
         private CActDFPFont font;
-
-        private int nBodyX;
-        private int nBodyY;
 
         private string strMenuTitle;
         private List<CItemBase> lciMenuItems;
-        private bool bShowAllItems;
         private bool bIsSelectingIntItem;
         public DTXMania.CStageSongSelection.CCommandHistory CommandHistory;
 
@@ -486,9 +478,8 @@ namespace DTXMania
 
         private enum ESortAction : int
         {
-            Cancel, Decide, Previous, Next, END
+            Decide, END
         }
-        private int nItemSelecting;		// 「nSelectedRow」とは別に設ける。sortでメニュー表示直後にアイテムの中身を表示しないようにするため
         //-----------------
         #endregion
     }
