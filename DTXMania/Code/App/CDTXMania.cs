@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.IO;
 using System.Threading;
 using System.Runtime;
-using System.Runtime.Serialization.Formatters.Binary;
 using SharpDX;
 using SharpDX.Direct3D9;
 using FDK;
 using SampleFramework;
-using DTXMania.Properties;
 using System.Reflection;
-using DirectShowLib;
 using DTXMania.Code.UI;
 using Point = System.Drawing.Point;
 

@@ -4,7 +4,6 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Diagnostics;
-using System.Web;
 using FDK;
 
 using SlimDXKey = SlimDX.DirectInput.Key;
