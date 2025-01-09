@@ -38,11 +38,6 @@ namespace DTXMania
             get;
             private set;
         }
-        public static Folder Folder
-        {
-            get;
-            protected set;
-        }
         public static CCharacterConsole actDisplayString  // act文字コンソール
         {
             get;
