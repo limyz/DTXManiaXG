@@ -14,9 +14,24 @@ namespace DTXMania.Code.UI
             return element;
         }
         
+        public T GetChild<T>(int i) where T : UIDrawable
+        {
+            return (T)children[i];
+        }
+        
+        public UIDrawable GetChild(int i)
+        {
+            return children[i];
+        }
+        
         public void RemoveChild(UIDrawable element)
         {
             children.Remove(element);
+        }
+        
+        public void ClearChildren()
+        {
+            children.Clear();
         }
         
         public override void Draw(Device device, Matrix parentMatrix)

@@ -25,8 +25,6 @@ namespace DTXMania.Code.UI
         public CTexture Texture => texture;
         protected CTexture texture;
         
-        protected Vector2 alignmentOffset = Vector2.Zero;
-        
         public override void Draw(Device device, Matrix parentMatrix)
         {
             if (!isVisible) return;
@@ -35,7 +33,7 @@ namespace DTXMania.Code.UI
             
             Matrix combinedMatrix = localTransformMatrix * parentMatrix;
             
-            texture.tDraw2DMatrix(device, combinedMatrix, new RectangleF(0, 0, texture.szTextureSize.Width, texture.szTextureSize.Height));
+            texture.tDraw2DMatrix(device, combinedMatrix, size, new RectangleF(0, 0, texture.szTextureSize.Width, texture.szTextureSize.Height));
         }
 
         public override void Dispose()

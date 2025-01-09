@@ -22,6 +22,13 @@ namespace DTXMania.Code.UI
             this.font = font;
         }
         
+        public UIText(CPrivateFont font, string text) : base(null)
+        {
+            this.font = font;
+            SetText(text);
+            RenderTexture();
+        }
+        
         public void SetText(string text)
         {
             this.text = text;
