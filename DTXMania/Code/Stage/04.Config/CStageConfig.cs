@@ -156,6 +156,8 @@ namespace DTXMania
                 menuCursor.position = new Vector3(-5, 2, 0);
                 menuCursor.size = new Vector2(170, 32);
                 menuCursor.anchor = new Vector2(0.5f, 0f);
+                menuCursor.renderMode = ERenderMode.Sliced;
+                menuCursor.sliceRect = new RectangleF(16, 0, 12, 32);
                 
                 var font = new CPrivateFastFont(new FontFamily(CDTXMania.ConfigIni.str選曲リストフォント), 18);
                 configLeftOptionsMenu.AddSelectableChild(new UIBasicButton(font, "System", () => { this.actList.tSetupItemList_System(); }));
