@@ -25,9 +25,11 @@ namespace DTXMania
     internal class CDTXMania : Game
     {
         // プロパティ
-        public static readonly string VERSION_DISPLAY = "DTX:NX:A:A:2024051900";
-        public static readonly string VERSION = "v1.4.2 20240519";
-        public static readonly string D3DXDLL = "d3dx9_43.dll";		// June 2010
+        //these get set when initializing the game
+        public static string VERSION_DISPLAY;// = "DTX:NX:A:A:2024051900";
+        public static string VERSION;// = "v1.4.2 20240519";
+        
+        public static string D3DXDLL = "d3dx9_43.dll";		// June 2010
         //public static readonly string D3DXDLL = "d3dx9_42.dll";	// February 2010
         //public static readonly string D3DXDLL = "d3dx9_41.dll";	// March 2009
 
@@ -523,6 +525,7 @@ namespace DTXMania
             //load fallback texture
             UITexture.LoadFallbackTexture();
         }
+        
         protected override void UnloadContent()
         {
             if (this.listTopLevelActivities != null)
@@ -1784,6 +1787,30 @@ for (int i = 0; i < 3; i++) {
 
 			obj = default( T );
 		}
+        
+        //https://stackoverflow.com/questions/1600962/displaying-the-build-date
+        public static DateTime GetLinkerTime(Assembly assembly, TimeZoneInfo target = null)
+        {
+            string filePath = assembly.Location;
+            const int cPeHeaderOffset = 60;
+            const int cLinkerTimestampOffset = 8;
+
+            byte[] buffer = new byte[2048];
+
+            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                stream.Read(buffer, 0, 2048);
+
+            int offset = BitConverter.ToInt32(buffer, cPeHeaderOffset);
+            int secondsSince1970 = BitConverter.ToInt32(buffer, offset + cLinkerTimestampOffset);
+            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            DateTime linkTimeUtc = epoch.AddSeconds(secondsSince1970);
+
+            TimeZoneInfo tz = target ?? TimeZoneInfo.Local;
+            DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(linkTimeUtc, tz);
+
+            return localTime;
+        }
 		//-----------------
 		#endregion
         #region [ private ]
@@ -1804,6 +1831,12 @@ for (int i = 0; i < 3; i++) {
 
         private void tStartProcess()
         {
+            //Update version information
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            DateTime buildDate = GetLinkerTime(assembly);
+            VERSION = $"v{assembly.GetName().Version.ToString().Substring(0, 5)} ({buildDate:yyyyMMdd})";
+            VERSION_DISPLAY = $"DTX:NX:A:A:{buildDate:yyyyMMdd}00";
+            
             #region [ Determine strEXE folder ]
             //-----------------
             // BEGIN #23629 2010.11.13 from: デバッグ時は Application.ExecutablePath が ($SolutionDir)/bin/x86/Debug/ などになり System/ の読み込みに失敗するので、カレントディレクトリを採用する。（プロジェクトのプロパティ→デバッグ→作業ディレクトリが有効になる）
