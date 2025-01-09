@@ -160,6 +160,7 @@
     <Compile Include="Code\UI\Item\CItemThreeState.cs" />
     <Compile Include="Code\UI\Item\CItemToggle.cs" />
     <Compile Include="Code\UI\UIBasicButton.cs" />
+    <Compile Include="Code\UI\UIDFPText.cs" />
     <Compile Include="Code\UI\UIImage.cs" />
     <Compile Include="Code\UI\UISelectable.cs" />
     <Compile Include="Code\UI\UISelectList.cs" />
