@@ -281,7 +281,6 @@
     <Compile Include="Code\App\CActFlushGPU.cs" />
     <Compile Include="Code\App\CConfigIni.cs" />
     <Compile Include="Code\App\CDTXMania.cs" />
-    <Compile Include="Code\App\CDTXVersion.cs" />
     <Compile Include="Code\App\CPad.cs" />
     <Compile Include="Code\App\CPrivateFastFont.cs" />
     <Compile Include="Code\App\CPrivateFont.cs" />
