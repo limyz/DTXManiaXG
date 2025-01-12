@@ -278,9 +278,6 @@
     <Compile Include="Code\Stage\CStage.cs" />
     <Compile Include="Code\Stage\CActFIFOWhiteClear.cs" />
     <Compile Include="Code\Stage\CActFIFOBlackStart.cs" />
-    <Compile Include="Code\Plugin\CPluginHost.cs" />
-    <Compile Include="Code\Plugin\IPluginActivity.cs" />
-    <Compile Include="Code\Plugin\IPluginHost.cs" />
     <Compile Include="Code\App\CActFlushGPU.cs" />
     <Compile Include="Code\App\CConfigIni.cs" />
     <Compile Include="Code\App\CDTXMania.cs" />

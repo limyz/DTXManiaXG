@@ -145,8 +145,7 @@ namespace DTXMania
 
 				// キー入力
 
-				if( base.ePhaseID == CStage.EPhase.Common_DefaultState		// 通常状態、かつ
-					&& CDTXMania.actPluginOccupyingInput == null )	// プラグインの入力占有がない
+				if( base.ePhaseID == CStage.EPhase.Common_DefaultState)
 				{
 					if( CDTXMania.InputManager.Keyboard.bKeyPressed( (int) SlimDXKey.Escape ) )
 						return (int) E戻り値.EXIT;

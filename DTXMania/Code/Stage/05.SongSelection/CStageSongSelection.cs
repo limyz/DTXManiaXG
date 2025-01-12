@@ -166,13 +166,6 @@ namespace DTXMania
 						nブロック番号inSetDef = c曲リストノード.SetDefのブロック番号;
 						n曲番号inブロック = CDTXMania.stageSongSelection.actSongList.n現在のアンカ難易度レベルに最も近い難易度レベルを返す( c曲リストノード );
 					}
-
-					foreach( CDTXMania.STPlugin stPlugin in CDTXMania.app.listPlugins )
-					{
-						Directory.SetCurrentDirectory( stPlugin.strプラグインフォルダ );
-						stPlugin.plugin.On選択曲変更( str選択曲ファイル名, setDef, nブロック番号inSetDef, n曲番号inブロック );
-						Directory.SetCurrentDirectory( CDTXMania.strEXEのあるフォルダ );
-					}
 				}
 			}
 			//---------------------
@@ -444,8 +437,7 @@ namespace DTXMania
 
 
 				// キー入力
-				if( base.ePhaseID == CStage.EPhase.Common_DefaultState 
-					&& CDTXMania.actPluginOccupyingInput == null )
+				if( base.ePhaseID == CStage.EPhase.Common_DefaultState)
 				{
 					#region [ 簡易CONFIGでMore、またはShift+F1: 詳細CONFIG呼び出し ]
 					if (  actQuickConfig.bGotoDetailConfig )

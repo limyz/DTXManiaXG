@@ -278,7 +278,6 @@ namespace DTXMania
             private set;
         }
         public static Format TextureFormat = Format.A8R8G8B8;
-        internal static IPluginActivity actPluginOccupyingInput = null;  // act現在入力を占有中のプラグイン
         public bool bApplicationActive
         {
             get;
@@ -298,19 +297,6 @@ namespace DTXMania
         public Device Device
         {
             get { return base.GraphicsDeviceManager.Direct3D9.Device; }
-        }
-        public CPluginHost PluginHost
-        {
-            get;
-            private set;
-        }
-        public List<STPlugin> listPlugins = new List<STPlugin>();
-        public struct STPlugin
-        {
-            public IPluginActivity plugin;
-            public string strプラグインフォルダ;
-            public string strアセンブリ簡易名;
-            public Version Version;
         }
         private static Size currentClientSize		// #23510 2010.10.27 add yyagi to keep current window size
         {
@@ -447,12 +433,6 @@ namespace DTXMania
                 }
             }
 
-            foreach (STPlugin st in this.listPlugins)
-            {
-                Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                st.plugin.OnManagedリソースの作成();
-                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-            }
 #if GPUFlushAfterPresent
         FrameEnd += dtxmania_FrameEnd;
 #endif
@@ -505,13 +485,6 @@ namespace DTXMania
                     activity.OnUnmanagedCreateResources();
             }
 
-            foreach (STPlugin st in this.listPlugins)
-            {
-                Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                st.plugin.OnUnmanagedリソースの作成();
-                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-            }
-            
             //load fallback texture
             UITexture.LoadFallbackTexture();
         }
@@ -522,13 +495,6 @@ namespace DTXMania
             {
                 foreach (CActivity activity in this.listTopLevelActivities)
                     activity.OnUnmanagedReleaseResources();
-            }
-
-            foreach (STPlugin st in this.listPlugins)
-            {
-                Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                st.plugin.OnUnmanagedリソースの解放();
-                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
             }
         }
         protected override void OnExiting(EventArgs e)
@@ -671,24 +637,7 @@ namespace DTXMania
             if (rCurrentStage != null)
             {
                 this.nUpdateAndDrawReturnValue = (rCurrentStage != null) ? rCurrentStage.OnUpdateAndDraw() : 0;
-
-                #region [ プラグインの進行描画 ]
-                //---------------------
-                foreach (STPlugin sp in this.listPlugins)
-                {
-                    Directory.SetCurrentDirectory(sp.strプラグインフォルダ);
-
-                    if (CDTXMania.actPluginOccupyingInput == null || CDTXMania.actPluginOccupyingInput == sp.plugin)
-                        sp.plugin.On進行描画(CDTXMania.Pad, CDTXMania.InputManager.Keyboard);
-                    else
-                        sp.plugin.On進行描画(null, null);
-
-                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                }
-                //---------------------
-                #endregion
-
-
+                
                 CScoreIni scoreIni = null;
 
                 //if (Control.IsKeyLocked(Keys.CapsLock)) // #30925 2013.3.11 yyagi; capslock=ON時は、EnumSongsしないようにして、起動負荷とASIOの音切れの関係を確認する
@@ -809,13 +758,7 @@ namespace DTXMania
                                 rCurrentStage = stageSongLoading;
 
                             }
-                            foreach (STPlugin pg in this.listPlugins)
-                            {
-                                Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                pg.plugin.OnChangeStage();
-                                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                            }
-
+                            
                             this.tRunGarbageCollector();
                         }
                         //-----------------------------
@@ -869,13 +812,6 @@ namespace DTXMania
                                     break;
                             }
 
-                            foreach (STPlugin pg in this.listPlugins)
-                            {
-                                Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                pg.plugin.OnChangeStage();
-                                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                            }
-
                             this.tRunGarbageCollector();       // #31980 2013.9.3 yyagi タイトル画面でだけ、毎フレームGCを実行して重くなっていた問題の修正
                         }
 
@@ -899,14 +835,7 @@ namespace DTXMania
                                     stageTitle.OnActivate();
                                     rPreviousStage = rCurrentStage;
                                     rCurrentStage = stageTitle;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-
+                                    
                                     this.tRunGarbageCollector();
                                     break;
                                 //-----------------------------
@@ -921,13 +850,6 @@ namespace DTXMania
                                     stageSongSelection.OnActivate();
                                     rPreviousStage = rCurrentStage;
                                     rCurrentStage = stageSongSelection;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
 
                                     this.tRunGarbageCollector();
                                     break;
@@ -953,14 +875,7 @@ namespace DTXMania
                                 stageTitle.OnActivate();
                                 rPreviousStage = rCurrentStage;
                                 rCurrentStage = stageTitle;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-
+                                
                                 this.tRunGarbageCollector();
                                 break;
                             //-----------------------------
@@ -975,14 +890,7 @@ namespace DTXMania
                                 stageSongLoading.OnActivate();
                                 rPreviousStage = rCurrentStage;
                                 rCurrentStage = stageSongLoading;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-
+                                
                                 this.tRunGarbageCollector();
                                 break;
                             //-----------------------------
@@ -997,14 +905,7 @@ namespace DTXMania
                                 stageConfig.OnActivate();
                                 rPreviousStage = rCurrentStage;
                                 rCurrentStage = stageConfig;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-
+                                
                                 this.tRunGarbageCollector();
                                 break;
                             //-----------------------------
@@ -1049,12 +950,6 @@ namespace DTXMania
                                 stageSongSelection.OnActivate();
                                 rPreviousStage = rCurrentStage;
                                 rCurrentStage = stageSongSelection;
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
                                 break;
                             }
                             #endregion
@@ -1097,13 +992,6 @@ for (int i = 0; i < 3; i++) {
 #endif
                                 rPreviousStage = rCurrentStage;
                                 rCurrentStage = stagePerfGuitarScreen;
-                            }
-
-                            foreach (STPlugin pg in this.listPlugins)
-                            {
-                                Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                pg.plugin.OnChangeStage();
-                                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
                             }
 
                             this.tRunGarbageCollector();
@@ -1177,17 +1065,6 @@ for (int i = 0; i < 3; i++) {
                                     scoreIni = this.tScoreIniへBGMAdjustとHistoryとPlayCountを更新("Play cancelled");
                                 }
 
-                                #region [ プラグイン On演奏キャンセル() の呼び出し ]
-                                //---------------------
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.On演奏キャンセル(scoreIni);
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-                                //---------------------
-                                #endregion
-
                                 DTX.tStopPlayingAllChips();
                                 DTX.OnDeactivate();
                                 rCurrentStage.OnDeactivate();
@@ -1202,14 +1079,7 @@ for (int i = 0; i < 3; i++) {
                                     stageSongLoading.OnActivate();
                                     rPreviousStage = rCurrentStage;
                                     rCurrentStage = stageSongLoading;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-
+                                    
                                     this.tRunGarbageCollector();
                                 }
                                 else
@@ -1219,17 +1089,6 @@ for (int i = 0; i < 3; i++) {
                                     stageSongSelection.OnActivate();
                                     rPreviousStage = rCurrentStage;
                                     rCurrentStage = stageSongSelection;
-
-                                    #region [ プラグイン Onステージ変更() の呼び出し ]
-                                    //---------------------
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-                                    //---------------------
-                                    #endregion
 
                                     this.tRunGarbageCollector();
                                 }
@@ -1379,17 +1238,6 @@ for (int i = 0; i < 3; i++) {
                                     
                                 }
 
-                                #region [ プラグイン On演奏失敗() の呼び出し ]
-                                //---------------------
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.On演奏失敗(scoreIni);
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-                                //---------------------
-                                #endregion
-
                                 DTX.tStopPlayingAllChips();
                                 DTX.OnDeactivate();
                                 rCurrentStage.OnDeactivate();
@@ -1404,17 +1252,6 @@ for (int i = 0; i < 3; i++) {
                                     stageSongSelection.OnActivate();
                                     rPreviousStage = rCurrentStage;
                                     rCurrentStage = stageSongSelection;
-
-                                    #region [ プラグイン Onステージ変更() の呼び出し ]
-                                    //---------------------
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-                                    //---------------------
-                                    #endregion
 
                                     this.tRunGarbageCollector();
                                 }
@@ -1512,17 +1349,6 @@ for (int i = 0; i < 3; i++) {
                                     scoreIni = this.tScoreIniへBGMAdjustとHistoryとPlayCountを更新(str);
                                 }
 
-                                #region [ プラグイン On演奏クリア() の呼び出し ]
-                                //---------------------
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.On演奏クリア(scoreIni);
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-                                //---------------------
-                                #endregion
-
                                 rCurrentStage.OnDeactivate();
                                 Trace.TraceInformation("----------------------");
                                 Trace.TraceInformation("■ Result");
@@ -1534,17 +1360,6 @@ for (int i = 0; i < 3; i++) {
                                 stageResult.OnActivate();
                                 rPreviousStage = rCurrentStage;
                                 rCurrentStage = stageResult;
-
-                                #region [ プラグイン Onステージ変更() の呼び出し ]
-                                //---------------------
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-                                //---------------------
-                                #endregion
 
                                 break;
                             //-----------------------------
@@ -1574,13 +1389,6 @@ for (int i = 0; i < 3; i++) {
                                 stageSongSelection.OnActivate();
                                 rPreviousStage = rCurrentStage;
                                 rCurrentStage = stageSongSelection;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
 
                                 this.tRunGarbageCollector();
                             }
@@ -2520,54 +2328,6 @@ for (int i = 0; i < 3; i++) {
             this.listTopLevelActivities.Add(actFlushGPU);
             //---------------------
             #endregion
-            #region [ Search and generate Plugin ]
-            //---------------------
-            PluginHost = new CPluginHost();
-
-            Trace.TraceInformation("プラグインの検索と生成を行います。");
-            Trace.Indent();
-            try
-            {
-                this.tプラグイン検索と生成();
-                Trace.TraceInformation("プラグインの検索と生成を完了しました。");
-            }
-            finally
-            {
-                Trace.Unindent();
-            }
-            //---------------------
-            #endregion
-            #region [ Initialize Plugin ]
-            //---------------------
-            if (this.listPlugins != null && this.listPlugins.Count > 0)
-            {
-                Trace.TraceInformation("プラグインの初期化を行います。");
-                Trace.Indent();
-                try
-                {
-                    foreach (STPlugin st in this.listPlugins)
-                    {
-                        Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                        st.plugin.On初期化(this.PluginHost);
-                        st.plugin.OnManagedリソースの作成();
-                        st.plugin.OnUnmanagedリソースの作成();
-                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                    }
-                    Trace.TraceInformation("すべてのプラグインの初期化を完了しました。");
-                }
-                catch
-                {
-                    Trace.TraceError("プラグインのどれかの初期化に失敗しました。");
-                    throw;
-                }
-                finally
-                {
-                    Trace.Unindent();
-                }
-            }
-
-            //---------------------
-            #endregion
 
             #region [ Discord Rich Presence ]
             if (ConfigIni.bDiscordRichPresenceEnabled && !bCompactMode)
@@ -2643,32 +2403,6 @@ for (int i = 0; i < 3; i++) {
                     {
                         rCurrentStage.OnDeactivate();
                         Trace.TraceInformation("現在のステージの終了処理を完了しました。");
-                    }
-                    finally
-                    {
-                        Trace.Unindent();
-                    }
-                }
-                //---------------------
-                #endregion
-                #region [ プラグインの終了処理 ]
-                //---------------------
-                if (this.listPlugins != null && this.listPlugins.Count > 0)
-                {
-                    Trace.TraceInformation("すべてのプラグインを終了します。");
-                    Trace.Indent();
-                    try
-                    {
-                        foreach (STPlugin st in this.listPlugins)
-                        {
-                            Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                            st.plugin.OnUnmanagedリソースの解放();
-                            st.plugin.OnManagedリソースの解放();
-                            st.plugin.On終了();
-                            Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                        }
-                        PluginHost = null;
-                        Trace.TraceInformation("すべてのプラグインの終了処理を完了しました。");
                     }
                     finally
                     {
@@ -3002,69 +2736,7 @@ for (int i = 0; i < 3; i++) {
             //通常通り、LOHへのGCを抑制
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.Default;
         }
-        private void tプラグイン検索と生成()
-        {
-            this.listPlugins = new List<STPlugin>();
-
-            string strIPluginActivityの名前 = typeof(IPluginActivity).FullName;
-            string strプラグインフォルダパス = strEXEのあるフォルダ + "Plugins\\";
-
-            this.t指定フォルダ内でのプラグイン検索と生成(strプラグインフォルダパス, strIPluginActivityの名前);
-
-            if (this.listPlugins.Count > 0)
-                Trace.TraceInformation(this.listPlugins.Count + " 個のプラグインを読み込みました。");
-        }
         #region [ Windowイベント処理 ]
-        private void t指定フォルダ内でのプラグイン検索と生成(string strプラグインフォルダパス, string strプラグイン型名)
-        {
-            // 指定されたパスが存在しないとエラー
-            if (!Directory.Exists(strプラグインフォルダパス))
-            {
-                Trace.TraceWarning("プラグインフォルダが存在しません。(" + strプラグインフォルダパス + ")");
-                return;
-            }
-
-            // (1) すべての *.dll について…
-            string[] strDLLs = System.IO.Directory.GetFiles(strプラグインフォルダパス, "*.dll");
-            foreach (string dllName in strDLLs)
-            {
-                try
-                {
-                    // (1-1) dll をアセンブリとして読み込む。
-                    System.Reflection.Assembly asm = System.Reflection.Assembly.LoadFrom(dllName);
-
-                    // (1-2) アセンブリ内のすべての型について、プラグインとして有効か調べる
-                    foreach (Type t in asm.GetTypes())
-                    {
-                        //  (1-3) ↓クラスであり↓Publicであり↓抽象クラスでなく↓IPlugin型のインスタンスが作れる　型を持っていれば有効
-                        if (t.IsClass && t.IsPublic && !t.IsAbstract && t.GetInterface(strプラグイン型名) != null)
-                        {
-                            // (1-4) クラス名からインスタンスを作成する
-                            var st = new STPlugin()
-                            {
-                                plugin = (IPluginActivity)asm.CreateInstance(t.FullName),
-                                strプラグインフォルダ = Path.GetDirectoryName(dllName),
-                                strアセンブリ簡易名 = asm.GetName().Name,
-                                Version = asm.GetName().Version,
-                            };
-
-                            // (1-5) プラグインリストへ登録
-                            this.listPlugins.Add(st);
-                            Trace.TraceInformation("プラグイン {0} ({1}, {2}, {3}) を読み込みました。", t.FullName, Path.GetFileName(dllName), st.strアセンブリ簡易名, st.Version.ToString());
-                        }
-                    }
-                }
-                catch
-                {
-                    Trace.TraceInformation(dllName + " からプラグインを生成することに失敗しました。スキップします。");
-                }
-            }
-
-            // (2) サブフォルダがあれば再帰する
-            string[] strDirs = Directory.GetDirectories(strプラグインフォルダパス, "*");
-            foreach (string dir in strDirs)
-                this.t指定フォルダ内でのプラグイン検索と生成(dir + "\\", strプラグイン型名);
-        }
         //-----------------
         private void Window_ApplicationActivated(object sender, EventArgs e)
         {

@@ -256,9 +256,7 @@ namespace DTXMania
             
             // キー入力
 
-            if ((base.ePhaseID != CStage.EPhase.Common_DefaultState)
-                || this.actKeyAssign.bキー入力待ちの最中である
-                || CDTXMania.actPluginOccupyingInput != null)
+            if ((base.ePhaseID != CStage.EPhase.Common_DefaultState) || this.actKeyAssign.bキー入力待ちの最中である)
                 return 0;
 
             // 曲データの一覧取得中は、キー入力を無効化する
