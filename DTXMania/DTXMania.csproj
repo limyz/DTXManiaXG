@@ -291,9 +291,6 @@
     <Compile Include="Code\App\CSkin.cs" />
     <Compile Include="Code\App\CConstants.cs" />
     <Compile Include="Code\App\CCharacterConsole.cs" />
-    <Compile Include="Code\App\Folder.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Code\App\Program.cs" />
   </ItemGroup>
   <ItemGroup>
