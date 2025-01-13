@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -15,7 +13,6 @@ using Color = System.Drawing.Color;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using System.Drawing.Drawing2D;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace DTXMania
 {
@@ -1003,7 +1000,7 @@ namespace DTXMania
 							#endregion
 							#region [ タイトル名テクスチャを描画。]
 							//-----------------
-							Point titleOffsets = this.getTitleOffsetsForBarType(this.stBarInformation[nパネル番号].eBarType);
+							Point titleOffsets = new Point(0, 0);
 							if( this.stBarInformation[ nパネル番号 ].txTitleName != null )
                                 this.stBarInformation[ nパネル番号 ].txTitleName.tDraw2D(CDTXMania.app.Device, i選択曲バーX座標 + 55 + titleOffsets.X, y + titleOffsets.Y);
 							//-----------------
@@ -1038,7 +1035,7 @@ namespace DTXMania
 							#endregion
 							#region [ タイトル名テクスチャを描画。]
 							//-----------------
-							Point titleOffsets = this.getTitleOffsetsForBarType(this.stBarInformation[nパネル番号].eBarType);
+							Point titleOffsets = new Point(0, 0);
 							if ( this.stBarInformation[ nパネル番号 ].txTitleName != null )
 								this.stBarInformation[ nパネル番号 ].txTitleName.tDraw2D( CDTXMania.app.Device, x + 78 + titleOffsets.X, y + 5 + titleOffsets.Y);
 							//-----------------
@@ -1105,7 +1102,7 @@ namespace DTXMania
 						#endregion
 						#region [ タイトル名テクスチャを描画。]
 						//-----------------
-						Point titleOffsets = this.getTitleOffsetsForBarType(this.stBarInformation[nパネル番号].eBarType);
+						Point titleOffsets = new Point(0, 0);
 						if ( this.stBarInformation[ nパネル番号 ].txTitleName != null )
                             this.stBarInformation[ nパネル番号 ].txTitleName.tDraw2D( CDTXMania.app.Device, i選択曲バーX座標 + 55 + titleOffsets.X, y選曲 + titleOffsets.Y);
 
@@ -1152,7 +1149,7 @@ namespace DTXMania
 						#endregion
 						#region [ タイトル名テクスチャを描画。]
 						//-----------------
-						Point titleOffsets = this.getTitleOffsetsForBarType(this.stBarInformation[nパネル番号].eBarType);
+						Point titleOffsets = new Point(0, 0);
 						if ( this.stBarInformation[ nパネル番号 ].txTitleName != null )
 							this.stBarInformation[ nパネル番号 ].txTitleName.tDraw2D( CDTXMania.app.Device, x + 78 + titleOffsets.X, y + 5 + titleOffsets.Y);
 						//-----------------
@@ -1425,62 +1422,6 @@ namespace DTXMania
 
 			return list[ index - 1 ];
 		}
-		private void tDrawSkillValue( int x, int y, int nスキル値)  // tスキル値の描画
-		{
-			if( nスキル値 <= 0 || nスキル値 > 100 )		// スキル値 0 ＝ 未プレイ なので表示しない。
-				return;
-
-			int color = ( nスキル値 == 100 ) ? 3 : ( nスキル値 / 25 );
-
-			int n百の位 = nスキル値 / 100;
-			int n十の位 = ( nスキル値 % 100 ) / 10;
-			int n一の位 = ( nスキル値 % 100 ) % 10;
-
-
-			// 百の位の描画。
-
-			if( n百の位 > 0 )
-				this.tDrawSkillValue_１DrawDigit( x, y, n百の位, color );
-
-
-			// 十の位の描画。
-
-			if( n百の位 != 0 || n十の位 != 0 )//14
-				this.tDrawSkillValue_１DrawDigit( x + 10, y, n十の位, color );
-
-
-			// 一の位の描画。//28
-
-			this.tDrawSkillValue_１DrawDigit( x + 20, y, n一の位, color );
-		}
-		private void tDrawSkillValue_１DrawDigit( int x, int y, int n数値, int color)  // tスキル値の描画_１桁描画
-		{
-			int dx = ( n数値 % 5 ) * 9;
-			int dy = ( n数値 / 5 ) * 12;
-			
-			switch( color )
-			{
-				case 0:
-					if( this.txSkillNumbers != null )
-						this.txSkillNumbers.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( 45 + dx, 24 + dy, 9, 12 ) );
-					break;
-
-				case 1:
-					if( this.txSkillNumbers != null )
-						this.txSkillNumbers.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( 45 + dx, dy, 9, 12 ) );
-					break;
-
-				case 2:
-					if( this.txSkillNumbers != null )
-						this.txSkillNumbers.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( dx, 24 + dy, 9, 12 ) );
-					break;
-
-				case 3:
-					if( this.txSkillNumbers != null )
-						this.txSkillNumbers.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( dx, dy, 9, 12 ) );
-					break;
-			}
-		}
 		private void tInitializeBar()  // tバーの初期化
 		{
 			CSongListNode song = this.rSelectedSong;
@@ -1546,24 +1487,24 @@ namespace DTXMania
 			if( x >= SampleFramework.GameWindowSize.Width || y >= SampleFramework.GameWindowSize.Height )
 				return;
 
-                if (b選択曲)
-                {
-                    #region [ (A) 選択曲の場合 ]
-                    //-----------------
-                    if (this.txSongSelectionBar[(int)type] != null)
-                        this.txSongSelectionBar[(int)type].tDraw2D(CDTXMania.app.Device, x, y);	// ヘサキ
-                    //-----------------
-                    #endregion
-                }
-                else
-                {
-                    #region [ (B) その他の場合 ]
-                    //-----------------
-                    if (this.txSongNameBar[(int)type] != null)
-                        this.txSongNameBar[(int)type].tDraw2D(CDTXMania.app.Device, x, y);		// ヘサキ
-                    //-----------------
-                    #endregion
-                }
+            if (b選択曲)
+            {
+                #region [ (A) 選択曲の場合 ]
+                //-----------------
+                if (this.txSongSelectionBar[(int)type] != null)
+                    this.txSongSelectionBar[(int)type].tDraw2D(CDTXMania.app.Device, x, y);	// ヘサキ
+                //-----------------
+                #endregion
+            }
+            else
+            {
+                #region [ (B) その他の場合 ]
+                //-----------------
+                if (this.txSongNameBar[(int)type] != null)
+                    this.txSongNameBar[(int)type].tDraw2D(CDTXMania.app.Device, x, y);		// ヘサキ
+                //-----------------
+                #endregion
+            }
         }
         private CTexture tGenerateTextTexture( string str文字)  // t指定された文字テクスチャを生成する
 		{
@@ -1643,16 +1584,6 @@ namespace DTXMania
 				this.stBarInformation[ nバー番号 ].txTitleName = null;
 			}
 		}
-
-		private Point getTitleOffsetsForBarType(EBarType eBarType)
-        {
-			if(eBarType == EBarType.Box)
-            {
-				return new Point(0, 0);
-			}
-
-			return new Point(0, 0);
-        }
 
 		private void tGeneratePreviewImageTexture(int nBarIndex, string strPreviewImagePath, EBarType eBarType)
         {
@@ -1772,7 +1703,7 @@ namespace DTXMania
 
         private void tアイテム数の描画()
         {
-            string s = nCurrentPosition.ToString() + "/" + nNumOfItems.ToString();
+            string s = nCurrentPosition + "/" + nNumOfItems;
             int x = 1260;
             int y = 620;
 
@@ -1792,7 +1723,7 @@ namespace DTXMania
             }
             else
             {
-                int n = (int)s数値 - (int)'0';
+                int n = s数値 - '0';
                 dx = (n % 6) * 16;
                 dy = (n / 6) * 16;
             }
