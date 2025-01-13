@@ -528,9 +528,6 @@ namespace DTXMania
             if (FPS != null)
                 FPS.tカウンタ更新();
 
-            //if( Pad != null )					ポーリング時にクリアしたらダメ！曲の開始時に1回だけクリアする。(2010.9.11)
-            //	Pad.stDetectedDevice.Clear();
-
             if (this.Device == null)
                 return;
 
@@ -576,45 +573,13 @@ namespace DTXMania
 
                         bCompactMode = true;
                         strCompactModeFile = DTXVmode.filename;
-                        /*if (DTXVmode.Command == CDTXVmode.ECommand.Preview)
-                        {
-                            // preview soundの再生
-                            string strPreviewFilename = DTXVmode.previewFilename;
-                            //Trace.TraceInformation( "Preview Filename=" + DTXVmode.previewFilename );
-                            try
-                            {
-                                if (this.previewSound != null)
-                                {
-                                    this.previewSound.tサウンドを停止する();
-                                    this.previewSound.Dispose();
-                                    this.previewSound = null;
-                                }
-                                this.previewSound = CDTXMania.Instance.Sound管理.tサウンドを生成する(strPreviewFilename);
-                                this.previewSound.n音量 = DTXVmode.previewVolume;
-                                this.previewSound.n位置 = DTXVmode.previewPan;
-                                this.previewSound.t再生を開始する();
-                                Trace.TraceInformation("DTXCからの指示で、サウンドを生成しました。({0})", strPreviewFilename);
-                            }
-                            catch
-                            {
-                                Trace.TraceError("DTXCからの指示での、サウンドの生成に失敗しました。({0})", strPreviewFilename);
-                                if (this.previewSound != null)
-                                {
-                                    this.previewSound.Dispose();
-                                }
-                                this.previewSound = null;
-                            }
-                        }*/
                     }
                     if (DTX2WAVmode.Enabled)
                     {
                         if (DTX2WAVmode.Command == CDTX2WAVmode.ECommand.Cancel)
                         {
                             Trace.TraceInformation("録音のCancelコマンドをDTXMania本体が受信しました。");
-                            //Microsoft.VisualBasic.Interaction.AppActivate("メモ帳");
-                            //SendKeys.Send("{ESC}");
-                            //SendKeys.SendWait("%{F4}");
-                            //Application.Exit();
+                     
                             if (DTX != null)    // 曲読み込みの前に録音Cancelされると、DTXがnullのままここにきてでGPFとなる→nullチェック追加
                             {
                                 DTX.tStopPlayingAllChips();
@@ -622,8 +587,6 @@ namespace DTXMania
                             }
                             rCurrentStage.OnDeactivate();
 
-                            //Environment.ExitCode = 10010;		// この組み合わせではダメ、返り値が反映されない
-                            //base.Window.Close();
                             Environment.Exit(10010);            // このやり方ならばOK
                         }
                     }
@@ -639,14 +602,8 @@ namespace DTXMania
                 this.nUpdateAndDrawReturnValue = (rCurrentStage != null) ? rCurrentStage.OnUpdateAndDraw() : 0;
                 
                 CScoreIni scoreIni = null;
-
-                //if (Control.IsKeyLocked(Keys.CapsLock)) // #30925 2013.3.11 yyagi; capslock=ON時は、EnumSongsしないようにして、起動負荷とASIOの音切れの関係を確認する
-                //{                                       // → songs.db等の書き込み時だと音切れするっぽい
-                //    CDTXMania.stageSongSelection.bIsEnumeratingSongs = false;
-                //    actEnumSongs.OnDeactivate();
-                //    EnumSongs.SongListEnumCompletelyDone();
-                //}
-                #region [ 曲検索スレッドの起動/終了 ]					// ここに"Enumerating Songs..."表示を集約
+                
+                #region [ Handle enumerating songs ]					// ここに"Enumerating Songs..."表示を集約
                 if (!CDTXMania.bCompactMode)
                 {
                     actEnumSongs.OnUpdateAndDraw();							// "Enumerating Songs..."アイコンの描画
@@ -729,6 +686,7 @@ namespace DTXMania
                 }
                 #endregion
 
+                //handle stage changes
                 switch (rCurrentStage.eStageID)
                 {
                     case CStage.EStage.DoNothing:
@@ -741,25 +699,12 @@ namespace DTXMania
                         {
                             if (!bCompactMode)
                             {
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Title");
-                                stageTitle.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageTitle;
+                                tChangeStage(stageTitle);
                             }
                             else
                             {
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ SongLoading");
-                                stageSongLoading.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageSongLoading;
-
+                                tChangeStage(stageSongLoading);
                             }
-                            
-                            this.tRunGarbageCollector();
                         }
                         //-----------------------------
                         #endregion
@@ -773,46 +718,17 @@ namespace DTXMania
                             switch (this.nUpdateAndDrawReturnValue)
                             {
                                 case (int)CStageTitle.E戻り値.GAMESTART:
-                                    #region [ 選曲処理へ ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-                                    //-----------------------------
-                                    #endregion
+                                    tChangeStage(stageSongSelection);
                                     break;
 
                                 case (int)CStageTitle.E戻り値.CONFIG:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ Config");
-                                    stageConfig.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageConfig;
-                                    //-----------------------------
-                                    #endregion
+                                    tChangeStage(stageConfig);
                                     break;
 
                                 case (int)CStageTitle.E戻り値.EXIT:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ End");
-                                    stageEnd.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageEnd;
-                                    //-----------------------------
-                                    #endregion
+                                    tChangeStage(stageEnd);
                                     break;
                             }
-
-                            this.tRunGarbageCollector();       // #31980 2013.9.3 yyagi タイトル画面でだけ、毎フレームGCを実行して重くなっていた問題の修正
                         }
 
                         //-----------------------------
@@ -827,34 +743,12 @@ namespace DTXMania
                             switch (rPreviousStage.eStageID)
                             {
                                 case CStage.EStage.Title:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ Title");
-                                    stageTitle.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageTitle;
-                                    
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageTitle);
                                     break;
-                                //-----------------------------
-                                    #endregion
 
                                 case CStage.EStage.SongSelection:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageSongSelection);
                                     break;
-                                //-----------------------------
-                                    #endregion
                             }
                         }
                         //-----------------------------
@@ -867,63 +761,20 @@ namespace DTXMania
                         switch (this.nUpdateAndDrawReturnValue)
                         {
                             case (int)CStageSongSelection.EReturnValue.ReturnToTitle:
-                                #region [ *** ]
-                                //-----------------------------
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Title");
-                                stageTitle.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageTitle;
-                                
-                                this.tRunGarbageCollector();
+                                tChangeStage(stageTitle);
                                 break;
-                            //-----------------------------
-                                #endregion
 
                             case (int)CStageSongSelection.EReturnValue.Selected:
-                                #region [ *** ]
-                                //-----------------------------
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ SongLoading");
-                                stageSongLoading.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageSongLoading;
-                                
-                                this.tRunGarbageCollector();
+                                tChangeStage(stageSongLoading);
                                 break;
-                            //-----------------------------
-                                #endregion
 
                             case (int)CStageSongSelection.EReturnValue.CallConfig:
-                                #region [ *** ]
-                                //-----------------------------
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Config");
-                                stageConfig.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageConfig;
-                                
-                                this.tRunGarbageCollector();
+                                tChangeStage(stageConfig);
                                 break;
-                            //-----------------------------
-                                #endregion
 
                             case (int)CStageSongSelection.EReturnValue.ChangeSking:
-
-                                #region [ *** ]
-                                //-----------------------------
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ スキン切り替え");
-                                stageChangeSkin.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageChangeSkin;
+                                tChangeStage(stageChangeSkin);
                                 break;
-                            //-----------------------------
-                                #endregion
                         }
                         //-----------------------------
                         #endregion
@@ -935,9 +786,7 @@ namespace DTXMania
                         if (this.nUpdateAndDrawReturnValue != 0)
                         {
                             CDTXMania.Pad.stDetectedDevice.Clear();	// 入力デバイスフラグクリア(2010.9.11)
-
-                            rCurrentStage.OnDeactivate();
-
+                            
                             #region [ ESC押下時は、曲の読み込みを中止して選曲画面に戻る ]
                             if (this.nUpdateAndDrawReturnValue == (int)ESongLoadingScreenReturnValue.LoadingStopped)
                             {
@@ -945,56 +794,21 @@ namespace DTXMania
                                 DTX.OnDeactivate();
                                 Trace.TraceInformation("曲の読み込みを中止しました。");
                                 this.tRunGarbageCollector();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ SongSelection");
-                                stageSongSelection.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageSongSelection;
+                                
+                                tChangeStage(stageSongSelection);
                                 break;
                             }
                             #endregion
 
 
                             if (!ConfigIni.bGuitarRevolutionMode)
-                            {
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Playing（ドラム画面）");
-#if false		// #23625 2011.1.11 Config.iniからダメージ/回復値の定数変更を行う場合はここを有効にする 087リリースに合わせ機能無効化
-for (int i = 0; i < 5; i++)
-{
-	for (int j = 0; j < 2; j++)
-	{
-		stage演奏ドラム画面.fDamageGaugeDelta[i, j] = ConfigIni.fGaugeFactor[i, j];
-	}
-}
-for (int i = 0; i < 3; i++) {
-	stage演奏ドラム画面.fDamageLevelFactor[i] = ConfigIni.fDamageLevelFactor[i];
-}		
-#endif
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stagePerfDrumsScreen;
+                            { 
+                                tChangeStage(stagePerfDrumsScreen, false);
                             }
                             else
                             {
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Playing（ギター画面）");
-#if false		// #23625 2011.1.11 Config.iniからダメージ/回復値の定数変更を行う場合はここを有効にする 087リリースに合わせ機能無効化
-for (int i = 0; i < 5; i++)
-{
-	for (int j = 0; j < 2; j++)
-	{
-		stage演奏ギター画面.fDamageGaugeDelta[i, j] = ConfigIni.fGaugeFactor[i, j];
-	}
-}
-for (int i = 0; i < 3; i++) {
-	stage演奏ギター画面.fDamageLevelFactor[i] = ConfigIni.fDamageLevelFactor[i];
-}		
-#endif
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stagePerfGuitarScreen;
+                                tChangeStage(stagePerfGuitarScreen, false);
                             }
-
-                            this.tRunGarbageCollector();
                         }
                         //-----------------------------
                         #endregion
@@ -1074,23 +888,11 @@ for (int i = 0; i < 3; i++) {
                                 }
                                 else if (this.nUpdateAndDrawReturnValue == (int)EPerfScreenReturnValue.Restart)
                                 {
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongLoading");
-                                    stageSongLoading.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongLoading;
-                                    
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageSongLoading, true, false);
                                 }
                                 else
                                 {
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageSongSelection, true, false);
                                 }
                                 break;
                             //-----------------------------
@@ -1235,7 +1037,6 @@ for (int i = 0; i < 3; i++) {
                                             }
                                         }
                                     }
-                                    
                                 }
 
                                 DTX.tStopPlayingAllChips();
@@ -1247,13 +1048,7 @@ for (int i = 0; i < 3; i++) {
                                 }
                                 else
                                 {
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageSongSelection);
                                 }
                                 break;
                             //-----------------------------
@@ -1348,19 +1143,14 @@ for (int i = 0; i < 3; i++) {
                                     
                                     scoreIni = this.tScoreIniへBGMAdjustとHistoryとPlayCountを更新(str);
                                 }
-
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Result");
+                                
                                 stageResult.stPerformanceEntry.Drums = cPerfEntry_Drums;
                                 stageResult.stPerformanceEntry.Guitar = cPerfEntry_Guitar;
                                 stageResult.stPerformanceEntry.Bass = cPerfEntry_Bass;
                                 stageResult.rEmptyDrumChip = chipArray;
                                 stageResult.bIsTrainingMode = bIsTrainingMode;
-                                stageResult.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageResult;
 
+                                tChangeStage(stageResult);
                                 break;
                             //-----------------------------
                                 #endregion
@@ -1384,13 +1174,7 @@ for (int i = 0; i < 3; i++) {
                             rCurrentStage.OnDeactivate();
                             if (!bCompactMode)
                             {
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ SongSelection");
-                                stageSongSelection.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageSongSelection;
-
-                                this.tRunGarbageCollector();
+                                tChangeStage(stageSongSelection);
                             }
                             else
                             {
@@ -1406,13 +1190,7 @@ for (int i = 0; i < 3; i++) {
                         //-----------------------------
                         if (this.nUpdateAndDrawReturnValue != 0)
                         {
-                            rCurrentStage.OnDeactivate();
-                            Trace.TraceInformation("----------------------");
-                            Trace.TraceInformation("■ SongSelection");
-                            stageSongSelection.OnActivate();
-                            rPreviousStage = rCurrentStage;
-                            rCurrentStage = stageSongSelection;
-                            this.tRunGarbageCollector();
+                            tChangeStage(stageSongSelection);
                         }
                         //-----------------------------
                         #endregion
@@ -1459,6 +1237,27 @@ for (int i = 0; i < 3; i++) {
                 }
             }
             #endregion
+        }
+
+        public void tChangeStage(CStage newStage, bool activateNewStage = true, bool deactivateOldStage = true)
+        {
+            if (deactivateOldStage)
+            {
+                rCurrentStage.OnDeactivate();
+            }
+
+            Trace.TraceInformation("----------------------");
+            Trace.TraceInformation($"■ {newStage.eStageID}");
+            
+            if (activateNewStage)
+            {
+                newStage.OnActivate();
+            }
+
+            rPreviousStage = rCurrentStage;
+            rCurrentStage = newStage;
+            
+            this.tRunGarbageCollector();
         }
 
 
