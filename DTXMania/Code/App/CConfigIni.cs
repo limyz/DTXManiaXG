@@ -2560,7 +2560,6 @@ namespace DTXMania
 				StreamReader reader = new StreamReader( this.ConfigIniファイル名, Encoding.GetEncoding( "Shift_JIS" ) );
 				str = reader.ReadToEnd();
 				tReadFromString( str );
-				CDTXVersion version = new CDTXVersion( this.strDTXManiaのバージョン );
 			}
 		}
 
