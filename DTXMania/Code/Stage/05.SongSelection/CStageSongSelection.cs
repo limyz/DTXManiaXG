@@ -300,8 +300,8 @@ namespace DTXMania
 				CDTXMania.tReleaseTexture( ref this.txBottomPanel);
 				CDTXMania.tReleaseTexture(ref this.txBPMLabel);
 				//
-				CDTXMania.t安全にDisposeする(ref this.txSearchInputNotification);
-				CDTXMania.t安全にDisposeする(ref this.prvFontSearchInputNotification);
+				CDTXMania.tDisposeSafely(ref this.txSearchInputNotification);
+				CDTXMania.tDisposeSafely(ref this.prvFontSearchInputNotification);
 
 				base.OnManagedReleaseResources();
 			}
@@ -1224,7 +1224,7 @@ namespace DTXMania
 
 		public void tUpdateSearchNotification(string strNotification)
         {
-			CDTXMania.t安全にDisposeする(ref this.txSearchInputNotification);
+			CDTXMania.tDisposeSafely(ref this.txSearchInputNotification);
 
 			//
 			if(strNotification != "")

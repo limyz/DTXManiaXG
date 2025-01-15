@@ -445,12 +445,12 @@ namespace DTXMania
                     graネームプレート用.DrawImage( bmpCardName, -2f, 26f );
                     graネームプレート用.DrawImage( bmpTitleName, 6f, 8f );
                     #endregion
-                    CDTXMania.t安全にDisposeする( ref bmpCardName );
-                    CDTXMania.t安全にDisposeする( ref bmpTitleName );
+                    CDTXMania.tDisposeSafely( ref bmpCardName );
+                    CDTXMania.tDisposeSafely( ref bmpTitleName );
                     this.txネームプレート用文字[ i ] = new CTexture( CDTXMania.app.Device, image2, CDTXMania.TextureFormat, false );
-                    CDTXMania.t安全にDisposeする( ref image2 );
+                    CDTXMania.tDisposeSafely( ref image2 );
 
-                    CDTXMania.t安全にDisposeする( ref graネームプレート用 );
+                    CDTXMania.tDisposeSafely( ref graネームプレート用 );
                 }
                 this.prv表示用フォント.Dispose();
                 this.prv称号フォント.Dispose();
@@ -462,7 +462,7 @@ namespace DTXMania
                 {
                     //Best Record (Previous)
                     CTexture bestRecordProgressBarTexture = this.txPreviousBestProgressBar[i];
-                    CDTXMania.t安全にDisposeする(ref bestRecordProgressBarTexture);
+                    CDTXMania.tDisposeSafely(ref bestRecordProgressBarTexture);
                     CActPerfProgressBar.txGenerateProgressBarHelper(
                         ref bestRecordProgressBarTexture,
                         CDTXMania.stageResult.strBestProgressBarRecord[i], 4, 425,
@@ -471,7 +471,7 @@ namespace DTXMania
 
                     //Current Progress Bar
                     CTexture currProgressBarTexture = this.txCurrentProgressBar[i];
-                    CDTXMania.t安全にDisposeする(ref currProgressBarTexture);
+                    CDTXMania.tDisposeSafely(ref currProgressBarTexture);
                     CActPerfProgressBar.txGenerateProgressBarHelper(
                         ref currProgressBarTexture,
                         CDTXMania.stageResult.strCurrProgressBarRecord[i], 12, 425, 
@@ -504,12 +504,12 @@ namespace DTXMania
                 }
                 CDTXMania.tReleaseTexture(ref this.txLagHitCount);
                 //
-                CDTXMania.t安全にDisposeする(ref this.txPreviousBestProgressBar.Drums);
-                CDTXMania.t安全にDisposeする(ref this.txPreviousBestProgressBar.Guitar);
-                CDTXMania.t安全にDisposeする(ref this.txPreviousBestProgressBar.Bass);
-                CDTXMania.t安全にDisposeする(ref this.txCurrentProgressBar.Drums);
-                CDTXMania.t安全にDisposeする(ref this.txCurrentProgressBar.Guitar);
-                CDTXMania.t安全にDisposeする(ref this.txCurrentProgressBar.Bass);
+                CDTXMania.tDisposeSafely(ref this.txPreviousBestProgressBar.Drums);
+                CDTXMania.tDisposeSafely(ref this.txPreviousBestProgressBar.Guitar);
+                CDTXMania.tDisposeSafely(ref this.txPreviousBestProgressBar.Bass);
+                CDTXMania.tDisposeSafely(ref this.txCurrentProgressBar.Drums);
+                CDTXMania.tDisposeSafely(ref this.txCurrentProgressBar.Guitar);
+                CDTXMania.tDisposeSafely(ref this.txCurrentProgressBar.Bass);
                 base.OnManagedReleaseResources();
             }
         }

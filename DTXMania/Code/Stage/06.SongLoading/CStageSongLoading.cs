@@ -329,8 +329,8 @@ namespace DTXMania
                         Bitmap bmpSongName = new Bitmap(1, 1);
                         bmpSongName = this.pfタイトル.DrawPrivateFont(this.strSongTitle, CPrivateFont.DrawMode.Edge, Color.Black, Color.Black, this.clGITADORAgradationTopColor, this.clGITADORAgradationBottomColor, true);
                         this.txTitle = CDTXMania.tGenerateTexture(bmpSongName, false);
-                        CDTXMania.t安全にDisposeする( ref bmpSongName );
-                        CDTXMania.t安全にDisposeする( ref this.pfタイトル );
+                        CDTXMania.tDisposeSafely( ref bmpSongName );
+                        CDTXMania.tDisposeSafely( ref this.pfタイトル );
                     }
                     else
                     {
@@ -343,8 +343,8 @@ namespace DTXMania
                         Bitmap bmpArtistName = new Bitmap(1, 1);
                         bmpArtistName = pfアーティスト.DrawPrivateFont(this.strArtistName, CPrivateFont.DrawMode.Edge, Color.Black, Color.Black, this.clGITADORAgradationTopColor, this.clGITADORAgradationBottomColor, true);
                         this.txArtist = CDTXMania.tGenerateTexture(bmpArtistName, false);
-                        CDTXMania.t安全にDisposeする( ref bmpArtistName );
-                        CDTXMania.t安全にDisposeする( ref this.pfアーティスト );
+                        CDTXMania.tDisposeSafely( ref bmpArtistName );
+                        CDTXMania.tDisposeSafely( ref this.pfアーティスト );
                     }
                     else
                     {

@@ -27,6 +27,7 @@ namespace DTXMania
         public static string D3DXDLL = "d3dx9_43.dll";		// June 2010
         //public static readonly string D3DXDLL = "d3dx9_42.dll";	// February 2010
         //public static readonly string D3DXDLL = "d3dx9_41.dll";	// March 2009
+        
 
         public static CDTXMania app
         {
@@ -1295,12 +1296,12 @@ namespace DTXMania
 		{
             if (tx != null) {
                 //Trace.WriteLine( "CTextureを解放 Size W:" + tx.szImageSize.Width + " H:" + tx.szImageSize.Height );
-			    CDTXMania.t安全にDisposeする( ref tx );
+			    CDTXMania.tDisposeSafely( ref tx );
             }
 		}
         public static void tReleaseTexture( ref CTextureAf tx )
 		{
-			CDTXMania.t安全にDisposeする( ref tx );
+			CDTXMania.tDisposeSafely( ref tx );
 		}
 		public static CTexture tGenerateTexture( byte[] txData )
 		{
@@ -1372,14 +1373,12 @@ namespace DTXMania
 		}
 
 		/// <summary>プロパティ、インデクサには ref は使用できないので注意。</summary>
-		public static void t安全にDisposeする<T>( ref T obj )
+		public static void tDisposeSafely<T>( ref T obj )
 		{
 			if ( obj == null )
 				return;
 
-			var d = obj as IDisposable;
-
-			if ( d != null )
+            if ( obj is IDisposable d )
 				d.Dispose();
 
 			obj = default( T );

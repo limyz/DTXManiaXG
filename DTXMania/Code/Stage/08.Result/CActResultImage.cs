@@ -176,8 +176,8 @@ namespace DTXMania
         {
             if (!base.bNotActivated)
             {
-                CDTXMania.t安全にDisposeする(ref this.ftSongDifficultyFont);
-                CDTXMania.t安全にDisposeする(ref this.iDrumSpeed);
+                CDTXMania.tDisposeSafely(ref this.ftSongDifficultyFont);
+                CDTXMania.tDisposeSafely(ref this.iDrumSpeed);
                 CDTXMania.tReleaseTexture(ref this.txジャケットパネル);
                 CDTXMania.tReleaseTexture(ref this.txリザルト画像);
                 CDTXMania.tReleaseTexture(ref this.txリザルト画像がないときの画像);

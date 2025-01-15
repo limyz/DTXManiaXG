@@ -109,7 +109,7 @@ namespace DTXMania
                     this.txMessage = new CTexture(CDTXMania.app.Device, image, CDTXMania.TextureFormat);
                     this.txMessage.vcScaleRatio = new Vector3(0.5f, 0.5f, 1f);
                     image.Dispose();
-                    CDTXMania.t安全にDisposeする(ref ftMessage);
+                    CDTXMania.tDisposeSafely(ref ftMessage);
                 }
                 else
                 {
@@ -129,9 +129,9 @@ namespace DTXMania
             if (this.bNotActivated)
                 return;
 
-            CDTXMania.t安全にDisposeする(ref this.txDialogNowEnumeratingSongs);
-            CDTXMania.t安全にDisposeする(ref this.txNowEnumeratingSongs);
-            CDTXMania.t安全にDisposeする(ref this.txMessage);
+            CDTXMania.tDisposeSafely(ref this.txDialogNowEnumeratingSongs);
+            CDTXMania.tDisposeSafely(ref this.txNowEnumeratingSongs);
+            CDTXMania.tDisposeSafely(ref this.txMessage);
             base.OnManagedReleaseResources();
         }
 

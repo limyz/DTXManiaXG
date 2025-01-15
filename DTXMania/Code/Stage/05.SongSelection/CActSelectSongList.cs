@@ -538,7 +538,7 @@ namespace DTXMania
 			if( this.bNotActivated )
 				return;
 
-			CDTXMania.t安全にDisposeする( ref this.ftSongListFont );
+			CDTXMania.tDisposeSafely( ref this.ftSongListFont );
 
 			for( int i = 0; i < 13; i++ )
 				this.ct登場アニメ用[ i ] = null;
@@ -635,31 +635,32 @@ namespace DTXMania
 			if( this.bNotActivated )
 				return;
 
-			CDTXMania.t安全にDisposeする( ref this.txItemNumbers );
+			CDTXMania.tDisposeSafely( ref this.txItemNumbers );
 
 			for( int i = 0; i < 13; i++ )
             {
-				CDTXMania.t安全にDisposeする(ref this.stBarInformation[i].txTitleName);
-				CDTXMania.t安全にDisposeする(ref this.stBarInformation[i].txPreviewImage);
-				CDTXMania.t安全にDisposeする(ref this.stBarInformation[i].txClearLamp);
+				CDTXMania.tDisposeSafely(ref this.stBarInformation[i].txTitleName);
+				CDTXMania.tDisposeSafely(ref this.stBarInformation[i].txPreviewImage);
+				CDTXMania.tDisposeSafely(ref this.stBarInformation[i].txClearLamp);
 			}
 				
 
-			CDTXMania.t安全にDisposeする( ref this.txSkillNumbers );
-			CDTXMania.t安全にDisposeする( ref this.txEnumeratingSongs );
-			CDTXMania.t安全にDisposeする( ref this.txSongNotFound );
-			CDTXMania.t安全にDisposeする( ref this.txSongNameBar.Score );
-			CDTXMania.t安全にDisposeする( ref this.txSongNameBar.Box );
-			CDTXMania.t安全にDisposeする( ref this.txSongNameBar.Other );
-			CDTXMania.t安全にDisposeする( ref this.txSongSelectionBar.Score );
-			CDTXMania.t安全にDisposeする( ref this.txSongSelectionBar.Box );
-			CDTXMania.t安全にDisposeする( ref this.txSongSelectionBar.Other );
-            CDTXMania.t安全にDisposeする( ref this.txTopPanel );
-            CDTXMania.t安全にDisposeする( ref this.txBottomPanel );
+			CDTXMania.tDisposeSafely( ref this.txSkillNumbers );
+			CDTXMania.tDisposeSafely( ref this.txEnumeratingSongs );
+			CDTXMania.tDisposeSafely( ref this.txSongNotFound );
+			CDTXMania.tDisposeSafely( ref this.txSongNameBar.Score );
+			CDTXMania.tDisposeSafely( ref this.txSongNameBar.Box );
+			CDTXMania.tDisposeSafely( ref this.txSongNameBar.Other );
+			CDTXMania.tDisposeSafely( ref this.txSongSelectionBar.Score );
+			CDTXMania.tDisposeSafely( ref this.txSongSelectionBar.Box );
+			CDTXMania.tDisposeSafely( ref this.txSongSelectionBar.Other );
+            CDTXMania.tDisposeSafely( ref this.txTopPanel );
+            CDTXMania.tDisposeSafely( ref this.txBottomPanel );
 
-            CDTXMania.t安全にDisposeする( ref this.prvFont );
-            CDTXMania.t安全にDisposeする( ref this.prvFontSmall );
-            if( this.tx選択中の曲名テクスチャ != null )
+            CDTXMania.tDisposeSafely( ref this.prvFont );
+            CDTXMania.tDisposeSafely( ref this.prvFontSmall );
+            
+            if( this.txSelectedSongName != null )
             {
                 this.tx選択中の曲名テクスチャ.Dispose();
                 this.tx選択中の曲名テクスチャ = null;
@@ -1570,7 +1571,7 @@ namespace DTXMania
 					g.DrawString( str曲名, this.ftSongListFont, new SolidBrush( this.color文字影 ), (float) 2f, (float) ( y + 2f ) );
 					g.DrawString( str曲名, this.ftSongListFont, new SolidBrush( color ), 0f, y );
 
-					CDTXMania.t安全にDisposeする( ref this.stBarInformation[ nバー番号 ].txTitleName );
+					CDTXMania.tDisposeSafely( ref this.stBarInformation[ nバー番号 ].txTitleName );
 
 					this.stBarInformation[ nバー番号 ].txTitleName = new CTexture( CDTXMania.app.Device, bmp, CDTXMania.TextureFormat );
 					this.stBarInformation[ nバー番号 ].txTitleName.vcScaleRatio = new Vector3( f拡大率X, 0.5f, 1f );
@@ -1592,7 +1593,7 @@ namespace DTXMania
 
 			try
 			{
-				CDTXMania.t安全にDisposeする(ref this.stBarInformation[nBarIndex].txPreviewImage);
+				CDTXMania.tDisposeSafely(ref this.stBarInformation[nBarIndex].txPreviewImage);
 				string strSelectedPreviewImagePath = strPreviewImagePath;
 				if(!File.Exists(strSelectedPreviewImagePath))
                 {
@@ -1661,7 +1662,7 @@ namespace DTXMania
             {
 				try
 				{
-					CDTXMania.t安全にDisposeする(ref this.stBarInformation[nBarIndex].txClearLamp);
+					CDTXMania.tDisposeSafely(ref this.stBarInformation[nBarIndex].txClearLamp);
 
 					Bitmap bitmap = new Bitmap(7, 41);
 					SolidBrush[] lampBrushes = {

@@ -158,7 +158,7 @@ namespace DTXMania
                 CDTXMania.tReleaseTexture(ref this.txStageCleared);
                 CDTXMania.tReleaseTexture(ref this.txFullCombo);
                 CDTXMania.tReleaseTexture(ref this.txExcellent);
-                CDTXMania.t安全にDisposeする(ref this.txランク文字);
+                CDTXMania.tDisposeSafely(ref this.txランク文字);
                 base.OnManagedReleaseResources();
             }
         }

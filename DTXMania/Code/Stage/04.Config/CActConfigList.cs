@@ -118,7 +118,7 @@ namespace DTXMania
                     0, 0, 1280, 720, GraphicsUnit.Pixel);
                 if (txSkinSample1 != null)
                 {
-                    CDTXMania.t安全にDisposeする(ref txSkinSample1);
+                    CDTXMania.tDisposeSafely(ref txSkinSample1);
                 }
                 txSkinSample1 = CDTXMania.tGenerateTexture(bmDest, false);
                 g.Dispose();
@@ -257,7 +257,7 @@ namespace DTXMania
             CDTXMania.tReleaseTexture( ref this.txArrow );
             CDTXMania.tReleaseTexture( ref this.txItemBoxCursor );
             CDTXMania.tReleaseTexture(ref this.txToastMessage);
-            CDTXMania.t安全にDisposeする(ref this.prvFontForToastMessage);
+            CDTXMania.tDisposeSafely(ref this.prvFontForToastMessage);
             base.OnManagedReleaseResources();
         }
 
@@ -470,7 +470,7 @@ namespace DTXMania
 					listMenu[ nItem ].txMenuItemRight = CDTXMania.tGenerateTexture( bmpItem );
 //					ctItem.tDraw2D( CDTXMania.app.Device, ( x + 0x12 ) * Scale.X, ( y + 12 ) * Scale.Y - 20 );
 //					CDTXMania.tReleaseTexture( ref ctItem );
-					CDTXMania.t安全にDisposeする( ref bmpItem );
+					CDTXMania.tDisposeSafely( ref bmpItem );
 				}
 				//CDTXMania.stageConfig.actFont.tDrawString( x + 0x12, y + 12, this.listItems[ nItem ].strItemName );
                 //-----------------
@@ -565,7 +565,7 @@ namespace DTXMania
 					CTexture txStr = CDTXMania.tGenerateTexture( bmpStr, false );
 					txStr.tDraw2D( CDTXMania.app.Device, ( n新項目パネルX + 260 ) , ( y + 20 ) );
 					CDTXMania.tReleaseTexture( ref txStr );
-					CDTXMania.t安全にDisposeする( ref bmpStr );
+					CDTXMania.tDisposeSafely( ref bmpStr );
 				}
 				else
 				{
@@ -580,7 +580,7 @@ namespace DTXMania
 				        Bitmap bmpStr =
 				            prvFont.DrawPrivateFont( strParam, Color.Black, Color.Transparent );
 				        stm.txParam = CDTXMania.tGenerateTexture( bmpStr, false );
-				        CDTXMania.t安全にDisposeする( ref bmpStr );
+				        CDTXMania.tDisposeSafely( ref bmpStr );
 
 				        listMenu[ nItem ] = stm;
 				    }
@@ -760,13 +760,13 @@ namespace DTXMania
         }
 
         private void tUpdateToastMessage(string strMessage) {
-            CDTXMania.t安全にDisposeする(ref this.txToastMessage);
+            CDTXMania.tDisposeSafely(ref this.txToastMessage);
 
             if (strMessage != "" && this.prvFontForToastMessage != null)
             {                
                 Bitmap bmpItem = this.prvFontForToastMessage.DrawPrivateFont(strMessage, Color.White, Color.Black);
                 this.txToastMessage = CDTXMania.tGenerateTexture(bmpItem);                
-                CDTXMania.t安全にDisposeする(ref bmpItem);
+                CDTXMania.tDisposeSafely(ref bmpItem);
             }
             else 
             {

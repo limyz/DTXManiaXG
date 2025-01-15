@@ -45,7 +45,7 @@ namespace DTXMania
 		{
 			if ( !base.bNotActivated )
 			{
-				CDTXMania.t安全にDisposeする( ref this.txScrollBar );
+				CDTXMania.tDisposeSafely( ref this.txScrollBar );
 				base.OnManagedReleaseResources();
 			}
 		}
