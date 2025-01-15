@@ -166,13 +166,6 @@ namespace DTXMania
 						nブロック番号inSetDef = c曲リストノード.SetDefのブロック番号;
 						n曲番号inブロック = CDTXMania.stageSongSelection.actSongList.n現在のアンカ難易度レベルに最も近い難易度レベルを返す( c曲リストノード );
 					}
-
-					foreach( CDTXMania.STPlugin stPlugin in CDTXMania.app.listPlugins )
-					{
-						Directory.SetCurrentDirectory( stPlugin.strプラグインフォルダ );
-						stPlugin.plugin.On選択曲変更( str選択曲ファイル名, setDef, nブロック番号inSetDef, n曲番号inブロック );
-						Directory.SetCurrentDirectory( CDTXMania.strEXEのあるフォルダ );
-					}
 				}
 			}
 			//---------------------
@@ -307,8 +300,8 @@ namespace DTXMania
 				CDTXMania.tReleaseTexture( ref this.txBottomPanel);
 				CDTXMania.tReleaseTexture(ref this.txBPMLabel);
 				//
-				CDTXMania.t安全にDisposeする(ref this.txSearchInputNotification);
-				CDTXMania.t安全にDisposeする(ref this.prvFontSearchInputNotification);
+				CDTXMania.tDisposeSafely(ref this.txSearchInputNotification);
+				CDTXMania.tDisposeSafely(ref this.prvFontSearchInputNotification);
 
 				base.OnManagedReleaseResources();
 			}
@@ -385,7 +378,7 @@ namespace DTXMania
 				this.actStatusPanel.OnUpdateAndDraw();
 				this.actPerHistoryPanel.OnUpdateAndDraw();
 				int y = 0;
-				if( this.ct登場時アニメ用共通.b進行中 )
+				if( this.ct登場時アニメ用共通.bInProgress )
 				{
 					double db登場割合 = ( (double) this.ct登場時アニメ用共通.nCurrentValue ) / 100.0;	// 100が最終値
 					double dbY表示割合 = Math.Sin( Math.PI / 2 * db登場割合 );
@@ -444,8 +437,7 @@ namespace DTXMania
 
 
 				// キー入力
-				if( base.ePhaseID == CStage.EPhase.Common_DefaultState 
-					&& CDTXMania.actPluginOccupyingInput == null )
+				if( base.ePhaseID == CStage.EPhase.Common_DefaultState)
 				{
 					#region [ 簡易CONFIGでMore、またはShift+F1: 詳細CONFIG呼び出し ]
 					if (  actQuickConfig.bGotoDetailConfig )
@@ -551,7 +543,7 @@ namespace DTXMania
                             #endregion
                             #region [ Up ]
                             this.ctKeyRepeat.Up.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.UpArrow), new CCounter.DGキー処理(this.tMoveCursorUp));
-                            this.ctKeyRepeat.R.tRepeatKey(CDTXMania.Pad.b押されているGB(EPad.R), new CCounter.DGキー処理(this.tMoveCursorUp));
+                            this.ctKeyRepeat.R.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.R), new CCounter.DGキー処理(this.tMoveCursorUp));
                             //SD changed to HT to follow Gitadora style
 							if (CDTXMania.Pad.bPressed(EInstrumentPart.DRUMS, EPad.HT))
                             {
@@ -560,7 +552,7 @@ namespace DTXMania
                             #endregion
                             #region [ Down ]
                             this.ctKeyRepeat.Down.tRepeatKey(CDTXMania.InputManager.Keyboard.bKeyPressing((int)SlimDXKey.DownArrow), new CCounter.DGキー処理(this.tMoveCursorDown));
-                            this.ctKeyRepeat.B.tRepeatKey(CDTXMania.Pad.b押されているGB(EPad.G), new CCounter.DGキー処理(this.tMoveCursorDown));
+                            this.ctKeyRepeat.B.tRepeatKey(CDTXMania.Pad.bPressingGB(EPad.G), new CCounter.DGキー処理(this.tMoveCursorDown));
 							//FT changed to LT to follow Gitadora style
 							if (CDTXMania.Pad.bPressed(EInstrumentPart.DRUMS, EPad.LT))
                             {
@@ -821,7 +813,6 @@ namespace DTXMania
 			Continue,      // 継続
 			ReturnToTitle, // タイトルに戻る
 			Selected,      // 選曲した
-			CallOptions,   // オプション呼び出し
 			CallConfig,    // コンフィグ呼び出し
 			ChangeSking    // スキン変更
 		}
@@ -1233,7 +1224,7 @@ namespace DTXMania
 
 		public void tUpdateSearchNotification(string strNotification)
         {
-			CDTXMania.t安全にDisposeする(ref this.txSearchInputNotification);
+			CDTXMania.tDisposeSafely(ref this.txSearchInputNotification);
 
 			//
 			if(strNotification != "")

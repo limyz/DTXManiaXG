@@ -61,7 +61,7 @@ namespace DTXMania
 
                 for ( int i = 0; i < 10; i++ )
 				{
-					if( !base.ctUpdate[ i ].b停止中 )
+					if( !base.ctUpdate[ i ].bStopped )
 					{
 						EInstrumentPart e楽器パート = ( i < 5 ) ? EInstrumentPart.GUITAR : EInstrumentPart.BASS;
 						CTexture texture = CDTXMania.ConfigIni.bReverse[ (int) e楽器パート ] ? base.txFlush[ ( i % 5 ) + 5 ] : base.txFlush[ i % 5 ];
@@ -86,43 +86,43 @@ namespace DTXMania
 				}
                 //ここの分岐文はbase.ctUpdate[ n ]のものを使わないと、停止中にレーンフラッシュが消えてしまう。
                 
-                if ( !base.ctUpdate[ 0 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Guitar )
+                if ( !base.ctUpdate[ 0 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Guitar )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, ( CDTXMania.ConfigIni.bLeft.Guitar ? 242 : 86 ), 104, new Rectangle(0, 0, 41, 566));
                 }
-                if ( !base.ctUpdate[ 1 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Guitar )
+                if ( !base.ctUpdate[ 1 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Guitar )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, ( CDTXMania.ConfigIni.bLeft.Guitar ? 203 : 125 ), 104, new Rectangle(39, 0, 41, 566));
                 }
-                if ( !base.ctUpdate[ 2 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Guitar )
+                if ( !base.ctUpdate[ 2 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Guitar )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, 164, 104, new Rectangle(78, 0, 41, 566));
                 }
-                if ( !base.ctUpdate[ 3 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Guitar )
+                if ( !base.ctUpdate[ 3 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Guitar )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, ( CDTXMania.ConfigIni.bLeft.Guitar ? 125 : 203 ), 104, new Rectangle(117, 0, 41, 566));
                 }
-                if ( !base.ctUpdate[ 4 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Guitar )
+                if ( !base.ctUpdate[ 4 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Guitar )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, ( CDTXMania.ConfigIni.bLeft.Guitar ? 86 : 242 ), 104, new Rectangle(156, 0, 41, 566));
                 }
-                if( !base.ctUpdate[ 5 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Bass )
+                if( !base.ctUpdate[ 5 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Bass )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, ( CDTXMania.ConfigIni.bLeft.Bass ? 1112 : 957 ), 104, new Rectangle(0, 0, 41, 566));
                 }
-                if( !base.ctUpdate[ 6 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Bass )
+                if( !base.ctUpdate[ 6 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Bass )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, ( CDTXMania.ConfigIni.bLeft.Bass ? 1073 : 995 ), 104, new Rectangle(39, 0, 41, 566));
                 }
-                if( !base.ctUpdate[ 7 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Bass )
+                if( !base.ctUpdate[ 7 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Bass )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, 1034, 104, new Rectangle(78, 0, 41, 566));
                 }
-                if( !base.ctUpdate[ 8 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Bass )
+                if( !base.ctUpdate[ 8 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Bass )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, ( CDTXMania.ConfigIni.bLeft.Bass ? 995 : 1073 ), 104, new Rectangle(117, 0, 41, 566));
                 }
-                if( !base.ctUpdate[ 9 ].b停止中 && CDTXMania.ConfigIni.bLaneFlush.Bass )
+                if( !base.ctUpdate[ 9 ].bStopped && CDTXMania.ConfigIni.bLaneFlush.Bass )
                 {
                     this.txLaneFlush.tDraw2D(CDTXMania.app.Device, ( CDTXMania.ConfigIni.bLeft.Bass ? 957 : 1112 ), 104, new Rectangle(156, 0, 41, 566));
                 }

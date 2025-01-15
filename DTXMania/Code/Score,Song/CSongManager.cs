@@ -371,7 +371,7 @@ namespace DTXMania
 					c曲リストノード.arScore[ 0 ].FileInformation.AbsoluteFolderPath = infoDir.FullName + @"\";
 					c曲リストノード.arScore[ 0 ].SongInformation.Title = c曲リストノード.strタイトル;
 					c曲リストノード.arScore[ 0 ].SongInformation.Comment =
-						(CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja") ?
+						(CDTXMania.isJapanese) ?
 						"BOX に移動します。" :
 						"Enter into the BOX.";
 					listノードリスト.Add(c曲リストノード);
@@ -1055,9 +1055,9 @@ namespace DTXMania
 					itemRandom.arScore[ i ].SongInformation.Title = string.Format( "< RANDOM SELECT Lv.{0} >", i + 1 );
                     itemRandom.arScore[ i ].SongInformation.Preimage = CSkin.Path(@"Graphics\5_preimage random.png");
                     itemRandom.arScore[ i ].SongInformation.Comment =
-						 (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja") ?
-						 string.Format("難易度レベル {0} 付近の曲をランダムに選択します。難易度レベルを持たない曲も選択候補となります。", i + 1) :
-						 string.Format("Random select from the songs which has the level about L{0}. Non-leveled songs may also selected.", i + 1);
+	                    CDTXMania.isJapanese ? 
+		                    string.Format("難易度レベル {0} 付近の曲をランダムに選択します。難易度レベルを持たない曲も選択候補となります。", i + 1) : 
+		                    string.Format("Random select from the songs which has the level about L{0}. Non-leveled songs may also selected.", i + 1);
 					itemRandom.arDifficultyLabel[ i ] = string.Format( "L{0}", i + 1 );
 				}
 				ノードリスト.Add( itemRandom );
@@ -1116,7 +1116,7 @@ namespace DTXMania
 					itemBack.arScore[ 0 ].SongInformation.Title = itemBack.strタイトル;
                     itemBack.arScore[ 0 ].SongInformation.Preimage = CSkin.Path(@"Graphics\5_preimage backbox.png");
 					itemBack.arScore[ 0 ].SongInformation.Comment =
-						(CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja") ?
+						CDTXMania.isJapanese ?
 						"BOX を出ます。" :
 						"Exit from the BOX.";
 					c曲リストノード.list子リスト.Insert( 0, itemBack );

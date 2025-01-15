@@ -93,8 +93,8 @@
       <HintPath>..\packages\DiscordRichPresence.1.0.169\lib\net35\DiscordRPC.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\Runtime\dll\SharpDX.dll</HintPath>
@@ -144,12 +144,30 @@
     <Compile Include="Code\Score,Song\CChip.cs" />
     <Compile Include="Code\Score,Song\CProgress.cs" />
     <Compile Include="Code\Score,Song\EChannel.cs" />
+    <Compile Include="Code\Stage\04.Config\CActConfigList.Bass.cs" />
+    <Compile Include="Code\Stage\04.Config\CActConfigList.Drums.cs" />
+    <Compile Include="Code\Stage\04.Config\CActConfigList.Guitar.cs" />
+    <Compile Include="Code\Stage\04.Config\CActConfigList.System.cs" />
     <Compile Include="Code\Stage\05.SongSelection\CActSelectBackgroundAVI.cs" />
     <Compile Include="Code\Stage\05.SongSelection\CActTextBox.cs" />
     <Compile Include="Code\Stage\05.SongSelection\CSongSearch.cs" />
     <Compile Include="Code\Stage\07.Performance\CActPerfProgressBar.cs" />
     <Compile Include="Code\Stage\07.Performance\GuitarScreen\CActPerfGuitarBonus.cs" />
     <Compile Include="Code\Stage\CDTXVmode.cs" />
+    <Compile Include="Code\UI\Item\CItemBase.cs" />
+    <Compile Include="Code\UI\Item\CItemInteger.cs" />
+    <Compile Include="Code\UI\Item\CItemList.cs" />
+    <Compile Include="Code\UI\Item\CItemThreeState.cs" />
+    <Compile Include="Code\UI\Item\CItemToggle.cs" />
+    <Compile Include="Code\UI\UIBasicButton.cs" />
+    <Compile Include="Code\UI\UIDFPText.cs" />
+    <Compile Include="Code\UI\UIImage.cs" />
+    <Compile Include="Code\UI\UISelectable.cs" />
+    <Compile Include="Code\UI\UISelectList.cs" />
+    <Compile Include="Code\UI\UIDrawable.cs" />
+    <Compile Include="Code\UI\UIGroup.cs" />
+    <Compile Include="Code\UI\UIText.cs" />
+    <Compile Include="Code\UI\UITexture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -173,11 +191,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Code\Item\CItemBase.cs" />
-    <Compile Include="Code\Item\CItemInteger.cs" />
-    <Compile Include="Code\Item\CItemList.cs" />
-    <Compile Include="Code\Item\CItemThreeState.cs" />
-    <Compile Include="Code\Item\CItemToggle.cs" />
     <Compile Include="Code\Score,Song\CBoxDef.cs" />
     <Compile Include="Code\Score,Song\CDTX.cs" />
     <Compile Include="Code\Score,Song\CScoreIni.cs" />
@@ -189,7 +202,6 @@
     <Compile Include="Code\Stage\01.Startup\CStageStartup.cs" />
     <Compile Include="Code\Stage\02.Title\CActEnumSongs.cs" />
     <Compile Include="Code\Stage\02.Title\CStageTitle.cs" />
-    <Compile Include="Code\Stage\03.Option\CStageOption.cs" />
     <Compile Include="Code\Stage\04.Config\CActConfigKeyAssign.cs" />
     <Compile Include="Code\Stage\04.Config\CActConfigList.cs" />
     <Compile Include="Code\Stage\04.Config\CStageConfig.cs" />
@@ -266,22 +278,15 @@
     <Compile Include="Code\Stage\CStage.cs" />
     <Compile Include="Code\Stage\CActFIFOWhiteClear.cs" />
     <Compile Include="Code\Stage\CActFIFOBlackStart.cs" />
-    <Compile Include="Code\Plugin\CPluginHost.cs" />
-    <Compile Include="Code\Plugin\IPluginActivity.cs" />
-    <Compile Include="Code\Plugin\IPluginHost.cs" />
     <Compile Include="Code\App\CActFlushGPU.cs" />
     <Compile Include="Code\App\CConfigIni.cs" />
     <Compile Include="Code\App\CDTXMania.cs" />
-    <Compile Include="Code\App\CDTXVersion.cs" />
     <Compile Include="Code\App\CPad.cs" />
     <Compile Include="Code\App\CPrivateFastFont.cs" />
     <Compile Include="Code\App\CPrivateFont.cs" />
     <Compile Include="Code\App\CSkin.cs" />
     <Compile Include="Code\App\CConstants.cs" />
     <Compile Include="Code\App\CCharacterConsole.cs" />
-    <Compile Include="Code\App\Folder.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Code\App\Program.cs" />
   </ItemGroup>
   <ItemGroup>

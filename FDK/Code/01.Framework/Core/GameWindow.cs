@@ -673,15 +673,14 @@ namespace SampleFramework
 
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GameWindow));
+			//System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GameWindow));
 			this.SuspendLayout();
 			// 
 			// GameWindow
 			// 
-			resources.ApplyResources(this, "$this");
+			//resources.ApplyResources(this, "$this");
 			this.Name = "GameWindow";
 			this.ResumeLayout(false);
-
 		}
 	}
 }

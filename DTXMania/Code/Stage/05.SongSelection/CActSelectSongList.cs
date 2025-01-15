@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -15,7 +13,6 @@ using Color = System.Drawing.Color;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using System.Drawing.Drawing2D;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace DTXMania
 {
@@ -92,19 +89,20 @@ namespace DTXMania
 
             this.stパネルマップ = null;
             this.stパネルマップ = new STATUSPANEL[12];		// yyagi: 以下、手抜きの初期化でスマン
-            string[] labels = new string[12] {
-            "DTXMANIA",     //0
-            "DEBUT",        //1
-            "NOVICE",       //2
-            "REGULAR",      //3
-            "EXPERT",       //4
-            "MASTER",       //5
-            "BASIC",        //6
-            "ADVANCED",     //7
-            "EXTREME",      //8
-            "RAW",          //9
-            "RWS",          //10
-            "REAL"          //11
+            string[] labels = new string[12] 
+            {
+	            "DTXMANIA",     //0
+	            "DEBUT",        //1
+	            "NOVICE",       //2
+	            "REGULAR",      //3
+	            "EXPERT",       //4
+	            "MASTER",       //5
+	            "BASIC",        //6
+	            "ADVANCED",     //7
+	            "EXTREME",      //8
+	            "RAW",          //9
+	            "RWS",          //10
+	            "REAL"          //11
             };
             int[] status = new int[12] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
@@ -135,46 +133,36 @@ namespace DTXMania
 
 			// 現在のアンカレベルから、難易度上向きに検索開始。
 
-			int n最も近いレベル = this.n現在のアンカ難易度レベル;
+			int closestLevel = this.n現在のアンカ難易度レベル;
 
 			for( int i = 0; i < 5; i++ )
 			{
-				if( song.arScore[ n最も近いレベル ] != null )
+				if( song.arScore[ closestLevel ] != null )
 					break;	// 曲があった。
 
-				n最も近いレベル = ( n最も近いレベル + 1 ) % 5;	// 曲がなかったので次の難易度レベルへGo。（5以上になったら0に戻る。）
+				closestLevel = ( closestLevel + 1 ) % 5;	// 曲がなかったので次の難易度レベルへGo。（5以上になったら0に戻る。）
 			}
 
 
 			// 見つかった曲がアンカより下のレベルだった場合……
 			// アンカから下向きに検索すれば、もっとアンカに近い曲があるんじゃね？
 
-			if( n最も近いレベル < this.n現在のアンカ難易度レベル )
+			if( closestLevel < this.n現在のアンカ難易度レベル )
 			{
 				// 現在のアンカレベルから、難易度下向きに検索開始。
 
-				n最も近いレベル = this.n現在のアンカ難易度レベル;
+				closestLevel = this.n現在のアンカ難易度レベル;
 
 				for( int i = 0; i < 5; i++ )
 				{
-					if( song.arScore[ n最も近いレベル ] != null )
+					if( song.arScore[ closestLevel ] != null )
 						break;	// 曲があった。
 
-					n最も近いレベル = ( ( n最も近いレベル - 1 ) + 5 ) % 5;	// 曲がなかったので次の難易度レベルへGo。（0未満になったら4に戻る。）
+					closestLevel = ( ( closestLevel - 1 ) + 5 ) % 5;	// 曲がなかったので次の難易度レベルへGo。（0未満になったら4に戻る。）
 				}
 			}
 
-			return n最も近いレベル;
-		}
-		public CSongListNode r指定された曲が存在するリストの先頭の曲( CSongListNode song )
-		{
-			List<CSongListNode> songList = GetSongListWithinMe( song );
-			return ( songList == null ) ? null : songList[ 0 ];
-		}
-		public CSongListNode r指定された曲が存在するリストの末尾の曲( CSongListNode song )
-		{
-			List<CSongListNode> songList = GetSongListWithinMe( song );
-			return ( songList == null ) ? null : songList[ songList.Count - 1 ];
+			return closestLevel;
 		}
 
 		private List<CSongListNode> GetSongListWithinMe( CSongListNode song )
@@ -541,7 +529,7 @@ namespace DTXMania
 			if( this.bNotActivated )
 				return;
 
-			CDTXMania.t安全にDisposeする( ref this.ftSongListFont );
+			CDTXMania.tDisposeSafely( ref this.ftSongListFont );
 
 			for( int i = 0; i < 13; i++ )
 				this.ct登場アニメ用[ i ] = null;
@@ -576,7 +564,7 @@ namespace DTXMania
 
 			
 
-			int c = ( CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja" ) ? 0 : 1;
+			int c = CDTXMania.isJapanese ? 0 : 1;
 			#region [ Songs not found画像 ]
 			try
 			{
@@ -638,39 +626,39 @@ namespace DTXMania
 			if( this.bNotActivated )
 				return;
 
-			CDTXMania.t安全にDisposeする( ref this.txItemNumbers );
+			CDTXMania.tDisposeSafely( ref this.txItemNumbers );
 
 			for( int i = 0; i < 13; i++ )
             {
-				CDTXMania.t安全にDisposeする(ref this.stBarInformation[i].txTitleName);
-				CDTXMania.t安全にDisposeする(ref this.stBarInformation[i].txPreviewImage);
-				CDTXMania.t安全にDisposeする(ref this.stBarInformation[i].txClearLamp);
+				CDTXMania.tDisposeSafely(ref this.stBarInformation[i].txTitleName);
+				CDTXMania.tDisposeSafely(ref this.stBarInformation[i].txPreviewImage);
+				CDTXMania.tDisposeSafely(ref this.stBarInformation[i].txClearLamp);
 			}
-				
 
-			CDTXMania.t安全にDisposeする( ref this.txSkillNumbers );
-			CDTXMania.t安全にDisposeする( ref this.txEnumeratingSongs );
-			CDTXMania.t安全にDisposeする( ref this.txSongNotFound );
-			CDTXMania.t安全にDisposeする( ref this.txSongNameBar.Score );
-			CDTXMania.t安全にDisposeする( ref this.txSongNameBar.Box );
-			CDTXMania.t安全にDisposeする( ref this.txSongNameBar.Other );
-			CDTXMania.t安全にDisposeする( ref this.txSongSelectionBar.Score );
-			CDTXMania.t安全にDisposeする( ref this.txSongSelectionBar.Box );
-			CDTXMania.t安全にDisposeする( ref this.txSongSelectionBar.Other );
-            CDTXMania.t安全にDisposeする( ref this.txTopPanel );
-            CDTXMania.t安全にDisposeする( ref this.txBottomPanel );
+			CDTXMania.tDisposeSafely( ref this.txSkillNumbers );
+			CDTXMania.tDisposeSafely( ref this.txEnumeratingSongs );
+			CDTXMania.tDisposeSafely( ref this.txSongNotFound );
+			CDTXMania.tDisposeSafely( ref this.txSongNameBar.Score );
+			CDTXMania.tDisposeSafely( ref this.txSongNameBar.Box );
+			CDTXMania.tDisposeSafely( ref this.txSongNameBar.Other );
+			CDTXMania.tDisposeSafely( ref this.txSongSelectionBar.Score );
+			CDTXMania.tDisposeSafely( ref this.txSongSelectionBar.Box );
+			CDTXMania.tDisposeSafely( ref this.txSongSelectionBar.Other );
+            CDTXMania.tDisposeSafely( ref this.txTopPanel );
+            CDTXMania.tDisposeSafely( ref this.txBottomPanel );
 
-            CDTXMania.t安全にDisposeする( ref this.prvFont );
-            CDTXMania.t安全にDisposeする( ref this.prvFontSmall );
-            if( this.tx選択中の曲名テクスチャ != null )
+            CDTXMania.tDisposeSafely( ref this.prvFont );
+            CDTXMania.tDisposeSafely( ref this.prvFontSmall );
+            
+            if( this.txSelectedSongName != null )
             {
-                this.tx選択中の曲名テクスチャ.Dispose();
-                this.tx選択中の曲名テクスチャ = null;
+                this.txSelectedSongName.Dispose();
+                this.txSelectedSongName = null;
             }
-            if( this.tx選択中のアーティスト名テクスチャ != null )
+            if( this.txSelectedArtistName != null )
             {
-                this.tx選択中のアーティスト名テクスチャ.Dispose();
-                this.tx選択中のアーティスト名テクスチャ = null;
+                this.txSelectedArtistName.Dispose();
+                this.txSelectedArtistName = null;
             }
 
 			base.OnManagedReleaseResources();
@@ -725,7 +713,7 @@ namespace DTXMania
 				this.bAllAnimationsCompleted = true;
 				for( int i = 0; i < 13; i++ )	// パネルは全13枚。
 				{
-					if( this.ct登場アニメ用[ i ].b進行中 )
+					if( this.ct登場アニメ用[ i ].bInProgress )
 					{
 						this.bAllAnimationsCompleted = false;	// まだ進行中のアニメがあるなら false のまま。
 						break;
@@ -822,22 +810,9 @@ namespace DTXMania
 						this.tGeneratePreviewImageTexture(index, this.stBarInformation[index].strPreviewImageFullPath, this.stBarInformation[index].eBarType);
 						// stバー情報[] の内容を1行ずつずらす。
 						//Update Clear Lamp values
-						this.updateBarClearLampValue(index, song);
+						this.tUpdateBarClearLampValue(index, song);
 						//Draw Clear lamps for new song in list
 						this.tGenerateClearLampTexture(index, this.stBarInformation[index].nClearLamps);
-
-
-						//CSongListNode song2 = this.rSelectedSong;
-						//for( int i = 0; i < 5; i++ )
-						//	song2 = this.rPreviousSong( song2 );
-
-						//for( int i = 0; i < 13; i++ )
-						//{
-						//                      int n = (((this.nSelectedRow - 5) + i) + 13) % 13;
-						//                      this.stBarInformation[n].eBarType = this.eGetSongBarType(song2);
-						//                      song2 = this.rNextSong(song2);
-						//                  }
-
 
 						// 新しく最下部に表示されるパネル用のスキル値を取得。
 
@@ -851,15 +826,15 @@ namespace DTXMania
 						this.nTargetScrollCounter -= 100;
 
 						this.t選択曲が変更された( false );				// スクロールバー用に今何番目を選択しているかを更新
-                        if( this.tx選択中の曲名テクスチャ != null )
+                        if( this.txSelectedSongName != null )
                         {
-                            this.tx選択中の曲名テクスチャ.Dispose();
-                            this.tx選択中の曲名テクスチャ = null;
+                            this.txSelectedSongName.Dispose();
+                            this.txSelectedSongName = null;
                         }
-                        if( this.tx選択中のアーティスト名テクスチャ != null )
+                        if( this.txSelectedArtistName != null )
                         {
-                            this.tx選択中のアーティスト名テクスチャ.Dispose();
-                            this.tx選択中のアーティスト名テクスチャ = null;
+                            this.txSelectedArtistName.Dispose();
+                            this.txSelectedArtistName = null;
                         }
 
 						if( this.nTargetScrollCounter == 0 )
@@ -898,21 +873,9 @@ namespace DTXMania
 						this.tGeneratePreviewImageTexture(index, this.stBarInformation[index].strPreviewImageFullPath, this.stBarInformation[index].eBarType);
 						// stバー情報[] の内容を1行ずつずらす。
 						//Update Clear Lamp values
-						this.updateBarClearLampValue(index, song);
+						this.tUpdateBarClearLampValue(index, song);
 						//Draw Clear lamps for new song in list
 						this.tGenerateClearLampTexture(index, this.stBarInformation[index].nClearLamps);
-
-						//CSongListNode song2 = this.rSelectedSong;
-						//for( int i = 0; i < 5; i++ )
-						//	song2 = this.rPreviousSong( song2 );
-
-						//for( int i = 0; i < 13; i++ )
-						//{
-						//	int n = ( ( ( this.nSelectedRow - 5 ) + i ) + 13 ) % 13;
-						//	this.stBarInformation[ n ].eBarType = this.eGetSongBarType( song2 );
-						//	song2 = this.rNextSong( song2 );
-						//}
-
 
 						// 新しく最上部に表示されるパネル用のスキル値を取得。
 
@@ -926,15 +889,15 @@ namespace DTXMania
 						this.nTargetScrollCounter += 100;
 
 						this.t選択曲が変更された( false );				// スクロールバー用に今何番目を選択しているかを更新
-                        if( this.tx選択中の曲名テクスチャ != null )
+                        if( this.txSelectedSongName != null )
                         {
-                            this.tx選択中の曲名テクスチャ.Dispose();
-                            this.tx選択中の曲名テクスチャ = null;
+                            this.txSelectedSongName.Dispose();
+                            this.txSelectedSongName = null;
                         }
-                        if( this.tx選択中のアーティスト名テクスチャ != null )
+                        if( this.txSelectedArtistName != null )
                         {
-                            this.tx選択中のアーティスト名テクスチャ.Dispose();
-                            this.tx選択中のアーティスト名テクスチャ = null;
+                            this.txSelectedArtistName.Dispose();
+                            this.txSelectedArtistName = null;
                         }
 						
 						if( this.nTargetScrollCounter == 0 )
@@ -1003,7 +966,7 @@ namespace DTXMania
 							#endregion
 							#region [ タイトル名テクスチャを描画。]
 							//-----------------
-							Point titleOffsets = this.getTitleOffsetsForBarType(this.stBarInformation[nパネル番号].eBarType);
+							Point titleOffsets = new Point(0, 0);
 							if( this.stBarInformation[ nパネル番号 ].txTitleName != null )
                                 this.stBarInformation[ nパネル番号 ].txTitleName.tDraw2D(CDTXMania.app.Device, i選択曲バーX座標 + 55 + titleOffsets.X, y + titleOffsets.Y);
 							//-----------------
@@ -1015,12 +978,6 @@ namespace DTXMania
 							#region [Draw Clear Lamps]
 							if (this.stBarInformation[nパネル番号].txClearLamp != null)
 								this.stBarInformation[nパネル番号].txClearLamp.tDraw2D(CDTXMania.app.Device, i選択曲バーX座標, y + 1);
-							#endregion
-							#region [ スキル値を描画。]
-							//-----------------25
-							//if ( ( this.stBarInformation[ nパネル番号 ].eBarType == EBarType.Score ) && ( this.eInstrumentPart != EInstrumentPart.UNKNOWN ) )
-                            //    this.tDrawSkillValue( i選択曲バーX座標 + 6, y + 12, this.stBarInformation[nパネル番号].nSkillValue[(int)this.eInstrumentPart]);
-							//-----------------
 							#endregion
 						}
 						else
@@ -1038,7 +995,7 @@ namespace DTXMania
 							#endregion
 							#region [ タイトル名テクスチャを描画。]
 							//-----------------
-							Point titleOffsets = this.getTitleOffsetsForBarType(this.stBarInformation[nパネル番号].eBarType);
+							Point titleOffsets = new Point(0, 0);
 							if ( this.stBarInformation[ nパネル番号 ].txTitleName != null )
 								this.stBarInformation[ nパネル番号 ].txTitleName.tDraw2D( CDTXMania.app.Device, x + 78 + titleOffsets.X, y + 5 + titleOffsets.Y);
 							//-----------------
@@ -1051,17 +1008,11 @@ namespace DTXMania
 							if (this.stBarInformation[nパネル番号].txClearLamp != null)
 								this.stBarInformation[nパネル番号].txClearLamp.tDraw2D(CDTXMania.app.Device, x + 24, y + 6);
 							#endregion
-							#region [ スキル値を描画。]
-							//-----------------34
-							//if ( ( this.stBarInformation[ nパネル番号 ].eBarType == EBarType.Score ) && ( this.eInstrumentPart != EInstrumentPart.UNKNOWN ) )
-							//	this.tDrawSkillValue( x + 30, y + 18, this.stBarInformation[ nパネル番号 ].nSkillValue[ (int) this.eInstrumentPart ] );
-							//-----------------
-							#endregion
 						}
                         if (this.txTopPanel != null)
-                            this.txTopPanel.tDraw2D(CDTXMania.app.Device, 0f, ((float)(this.txTopPanel.szTextureSize.Height) * ((float)(this.ct登場アニメ用[0].nCurrentValue) / 100f)) - (float)(this.txTopPanel.szTextureSize.Height));
+                            this.txTopPanel.tDraw2DFloat(CDTXMania.app.Device, 0f, ((float)(this.txTopPanel.szTextureSize.Height) * ((float)(this.ct登場アニメ用[0].nCurrentValue) / 100f)) - (float)(this.txTopPanel.szTextureSize.Height));
                         if (this.txBottomPanel != null)
-                            this.txBottomPanel.tDraw2D(CDTXMania.app.Device, 0f, 720 - ((float)(this.txBottomPanel.szTextureSize.Height) * ((float)(this.ct登場アニメ用[0].nCurrentValue) / 100f)));
+                            this.txBottomPanel.tDraw2DFloat(CDTXMania.app.Device, 0f, 720 - ((float)(this.txBottomPanel.szTextureSize.Height) * ((float)(this.ct登場アニメ用[0].nCurrentValue) / 100f)));
                     }
 				}
 				//-----------------
@@ -1105,40 +1056,34 @@ namespace DTXMania
 						#endregion
 						#region [ タイトル名テクスチャを描画。]
 						//-----------------
-						Point titleOffsets = this.getTitleOffsetsForBarType(this.stBarInformation[nパネル番号].eBarType);
+						Point titleOffsets = new Point(0, 0);
 						if ( this.stBarInformation[ nパネル番号 ].txTitleName != null )
                             this.stBarInformation[ nパネル番号 ].txTitleName.tDraw2D( CDTXMania.app.Device, i選択曲バーX座標 + 55 + titleOffsets.X, y選曲 + titleOffsets.Y);
 
                         if (CDTXMania.stageSongSelection.r現在選択中の曲.eNodeType == CSongListNode.ENodeType.SCORE && this.actステータスパネル.txパネル本体 == null)
                         {
-                            if (this.tx選択中の曲名テクスチャ == null)
-                                this.tx選択中の曲名テクスチャ = this.tGenerateTextTexture(CDTXMania.stageSongSelection.rSelectedScore.SongInformation.Title);
-                            if (this.tx選択中の曲名テクスチャ != null)
+                            if (this.txSelectedSongName == null)
+                                this.txSelectedSongName = this.tGenerateTextTexture(CDTXMania.stageSongSelection.rSelectedScore.SongInformation.Title);
+                            if (this.txSelectedSongName != null)
                             {
-                                if (this.tx選択中の曲名テクスチャ.szImageSize.Width > 600)
-                                    this.tx選択中の曲名テクスチャ.vcScaleRatio.X = 600f / this.tx選択中の曲名テクスチャ.szImageSize.Width;
+                                if (this.txSelectedSongName.szImageSize.Width > 600)
+                                    this.txSelectedSongName.vcScaleRatio.X = 600f / this.txSelectedSongName.szImageSize.Width;
                                 
-                                this.tx選択中の曲名テクスチャ.tDraw2D(CDTXMania.app.Device, 60, 490);
+                                this.txSelectedSongName.tDraw2D(CDTXMania.app.Device, 60, 490);
                             }
 
-                            if ( this.tx選択中のアーティスト名テクスチャ == null )
-                                this.tx選択中のアーティスト名テクスチャ = this.tGenerateTextTexture_Small( CDTXMania.stageSongSelection.rSelectedScore.SongInformation.ArtistName );
-                            if ( this.tx選択中のアーティスト名テクスチャ != null )
+                            if ( this.txSelectedArtistName == null )
+                                this.txSelectedArtistName = this.tGenerateTextTexture_Small( CDTXMania.stageSongSelection.rSelectedScore.SongInformation.ArtistName );
+                            if ( this.txSelectedArtistName != null )
                             {
-                                if ( this.tx選択中のアーティスト名テクスチャ.szImageSize.Width > 600 )
-                                    this.tx選択中のアーティスト名テクスチャ.vcScaleRatio.X = 600f / this.tx選択中のアーティスト名テクスチャ.szImageSize.Width;
+                                if ( this.txSelectedArtistName.szImageSize.Width > 600 )
+                                    this.txSelectedArtistName.vcScaleRatio.X = 600f / this.txSelectedArtistName.szImageSize.Width;
 
-                                this.tx選択中のアーティスト名テクスチャ.tDraw2D( CDTXMania.app.Device, 60, 545 );
+                                this.txSelectedArtistName.tDraw2D( CDTXMania.app.Device, 60, 545 );
                             }
                         }
 
                         //-----------------
-						#endregion
-						#region [ スキル値を描画。]
-						//-----------------25
-						//if( ( this.stBarInformation[ nパネル番号 ].eBarType == EBarType.Score ) && ( this.eInstrumentPart != EInstrumentPart.UNKNOWN ) )
-                        //    this.tDrawSkillValue(i選択曲バーX座標 + 6, y選曲 + 12, this.stBarInformation[nパネル番号].nSkillValue[(int)this.eInstrumentPart]);
-						//-----------------
 						#endregion
 					}
 					else
@@ -1152,7 +1097,7 @@ namespace DTXMania
 						#endregion
 						#region [ タイトル名テクスチャを描画。]
 						//-----------------
-						Point titleOffsets = this.getTitleOffsetsForBarType(this.stBarInformation[nパネル番号].eBarType);
+						Point titleOffsets = new Point(0, 0);
 						if ( this.stBarInformation[ nパネル番号 ].txTitleName != null )
 							this.stBarInformation[ nパネル番号 ].txTitleName.tDraw2D( CDTXMania.app.Device, x + 78 + titleOffsets.X, y + 5 + titleOffsets.Y);
 						//-----------------
@@ -1164,12 +1109,6 @@ namespace DTXMania
 						#region [Draw Clear Lamps]
 						if (this.stBarInformation[nパネル番号].txClearLamp != null)
 							this.stBarInformation[nパネル番号].txClearLamp.tDraw2D(CDTXMania.app.Device, x + 24, y + 6);
-						#endregion
-						#region [ スキル値を描画。]
-						//-----------------34
-						//if ( ( this.stBarInformation[ nパネル番号 ].eBarType == EBarType.Score ) && ( this.eInstrumentPart != EInstrumentPart.UNKNOWN ) )
-						//	this.tDrawSkillValue( x + 30, y + 18, this.stBarInformation[ nパネル番号 ].nSkillValue[ (int) this.eInstrumentPart ] );
-						//-----------------
 						#endregion
 					}
 				}
@@ -1336,8 +1275,8 @@ namespace DTXMania
 		private CTexture txSongNotFound, txEnumeratingSongs;
 		private CTexture txSkillNumbers;       // txスキル数字
 		private CTexture txItemNumbers;        // txアイテム数数字
-		private CTexture tx選択中の曲名テクスチャ;
-        private CTexture tx選択中のアーティスト名テクスチャ;
+		private CTexture txSelectedSongName;
+        private CTexture txSelectedArtistName;
         private CTexture txTopPanel;           // tx上部パネル
 		private CTexture txBottomPanel;        // tx下部パネル
 		private CActSelectStatusPanel actステータスパネル;
@@ -1425,62 +1364,6 @@ namespace DTXMania
 
 			return list[ index - 1 ];
 		}
-		private void tDrawSkillValue( int x, int y, int nスキル値)  // tスキル値の描画
-		{
-			if( nスキル値 <= 0 || nスキル値 > 100 )		// スキル値 0 ＝ 未プレイ なので表示しない。
-				return;
-
-			int color = ( nスキル値 == 100 ) ? 3 : ( nスキル値 / 25 );
-
-			int n百の位 = nスキル値 / 100;
-			int n十の位 = ( nスキル値 % 100 ) / 10;
-			int n一の位 = ( nスキル値 % 100 ) % 10;
-
-
-			// 百の位の描画。
-
-			if( n百の位 > 0 )
-				this.tDrawSkillValue_１DrawDigit( x, y, n百の位, color );
-
-
-			// 十の位の描画。
-
-			if( n百の位 != 0 || n十の位 != 0 )//14
-				this.tDrawSkillValue_１DrawDigit( x + 10, y, n十の位, color );
-
-
-			// 一の位の描画。//28
-
-			this.tDrawSkillValue_１DrawDigit( x + 20, y, n一の位, color );
-		}
-		private void tDrawSkillValue_１DrawDigit( int x, int y, int n数値, int color)  // tスキル値の描画_１桁描画
-		{
-			int dx = ( n数値 % 5 ) * 9;
-			int dy = ( n数値 / 5 ) * 12;
-			
-			switch( color )
-			{
-				case 0:
-					if( this.txSkillNumbers != null )
-						this.txSkillNumbers.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( 45 + dx, 24 + dy, 9, 12 ) );
-					break;
-
-				case 1:
-					if( this.txSkillNumbers != null )
-						this.txSkillNumbers.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( 45 + dx, dy, 9, 12 ) );
-					break;
-
-				case 2:
-					if( this.txSkillNumbers != null )
-						this.txSkillNumbers.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( dx, 24 + dy, 9, 12 ) );
-					break;
-
-				case 3:
-					if( this.txSkillNumbers != null )
-						this.txSkillNumbers.tDraw2D( CDTXMania.app.Device, x, y, new Rectangle( dx, dy, 9, 12 ) );
-					break;
-			}
-		}
 		private void tInitializeBar()  // tバーの初期化
 		{
 			CSongListNode song = this.rSelectedSong;
@@ -1505,7 +1388,7 @@ namespace DTXMania
 				//
 				this.stBarInformation[i].strPreviewImageFullPath = this.sGetPreviewImagePath(song.arScore[nNearestScoreIndex]);
 				//
-				this.updateBarClearLampValue(i, song);			
+				this.tUpdateBarClearLampValue(i, song);			
 
 				song = this.rNextSong( song );
 			}			
@@ -1513,7 +1396,7 @@ namespace DTXMania
 			this.nSelectedRow = 5;
 		}
 
-		private void updateBarClearLampValue(int index, CSongListNode cSong)
+		private void tUpdateBarClearLampValue(int index, CSongListNode cSong)
         {
 			for (int j = 0; j < 3; j++)
 			{
@@ -1546,24 +1429,24 @@ namespace DTXMania
 			if( x >= SampleFramework.GameWindowSize.Width || y >= SampleFramework.GameWindowSize.Height )
 				return;
 
-                if (b選択曲)
-                {
-                    #region [ (A) 選択曲の場合 ]
-                    //-----------------
-                    if (this.txSongSelectionBar[(int)type] != null)
-                        this.txSongSelectionBar[(int)type].tDraw2D(CDTXMania.app.Device, x, y);	// ヘサキ
-                    //-----------------
-                    #endregion
-                }
-                else
-                {
-                    #region [ (B) その他の場合 ]
-                    //-----------------
-                    if (this.txSongNameBar[(int)type] != null)
-                        this.txSongNameBar[(int)type].tDraw2D(CDTXMania.app.Device, x, y);		// ヘサキ
-                    //-----------------
-                    #endregion
-                }
+            if (b選択曲)
+            {
+                #region [ (A) 選択曲の場合 ]
+                //-----------------
+                if (this.txSongSelectionBar[(int)type] != null)
+                    this.txSongSelectionBar[(int)type].tDraw2D(CDTXMania.app.Device, x, y);	// ヘサキ
+                //-----------------
+                #endregion
+            }
+            else
+            {
+                #region [ (B) その他の場合 ]
+                //-----------------
+                if (this.txSongNameBar[(int)type] != null)
+                    this.txSongNameBar[(int)type].tDraw2D(CDTXMania.app.Device, x, y);		// ヘサキ
+                //-----------------
+                #endregion
+            }
         }
         private CTexture tGenerateTextTexture( string str文字)  // t指定された文字テクスチャを生成する
 		{
@@ -1590,7 +1473,7 @@ namespace DTXMania
 
             return tx文字テクスチャ;
         }
-		private void tGenerateSongNameBar( int nバー番号, string str曲名, Color color)  // t曲名バーの生成
+		private void tGenerateSongNameBar( int nバー番号, string strSongName, Color color)  // t曲名バーの生成
 		{
 			if( nバー番号 < 0 || nバー番号 > 12 )
 				return;
@@ -1605,10 +1488,9 @@ namespace DTXMania
 				{
 					var g = Graphics.FromImage( bmpDummy );
 					g.PageUnit = GraphicsUnit.Pixel;
-					sz曲名 = g.MeasureString( str曲名, this.ftSongListFont );
+					sz曲名 = g.MeasureString( strSongName, this.ftSongListFont );
 
                     g.Dispose();
-                    bmpDummy.Dispose();
 				}
 				//-----------------
 				#endregion
@@ -1626,10 +1508,10 @@ namespace DTXMania
 				{
 					g.TextRenderingHint = TextRenderingHint.AntiAlias;
 					float y = ( ( ( float ) bmp.Height ) / 2f ) - ( ( CDTXMania.ConfigIni.n選曲リストフォントのサイズdot * 2f ) / 2f );
-					g.DrawString( str曲名, this.ftSongListFont, new SolidBrush( this.color文字影 ), (float) 2f, (float) ( y + 2f ) );
-					g.DrawString( str曲名, this.ftSongListFont, new SolidBrush( color ), 0f, y );
+					g.DrawString( strSongName, this.ftSongListFont, new SolidBrush( this.color文字影 ), (float) 2f, (float) ( y + 2f ) );
+					g.DrawString( strSongName, this.ftSongListFont, new SolidBrush( color ), 0f, y );
 
-					CDTXMania.t安全にDisposeする( ref this.stBarInformation[ nバー番号 ].txTitleName );
+					CDTXMania.tDisposeSafely( ref this.stBarInformation[ nバー番号 ].txTitleName );
 
 					this.stBarInformation[ nバー番号 ].txTitleName = new CTexture( CDTXMania.app.Device, bmp, CDTXMania.TextureFormat );
 					this.stBarInformation[ nバー番号 ].txTitleName.vcScaleRatio = new Vector3( f拡大率X, 0.5f, 1f );
@@ -1639,20 +1521,10 @@ namespace DTXMania
 			}
 			catch( CTextureCreateFailedException )
 			{
-				Trace.TraceError( "曲名テクスチャの作成に失敗しました。[{0}]", str曲名 );
+				Trace.TraceError( "曲名テクスチャの作成に失敗しました。[{0}]", strSongName );
 				this.stBarInformation[ nバー番号 ].txTitleName = null;
 			}
 		}
-
-		private Point getTitleOffsetsForBarType(EBarType eBarType)
-        {
-			if(eBarType == EBarType.Box)
-            {
-				return new Point(0, 0);
-			}
-
-			return new Point(0, 0);
-        }
 
 		private void tGeneratePreviewImageTexture(int nBarIndex, string strPreviewImagePath, EBarType eBarType)
         {
@@ -1661,7 +1533,7 @@ namespace DTXMania
 
 			try
 			{
-				CDTXMania.t安全にDisposeする(ref this.stBarInformation[nBarIndex].txPreviewImage);
+				CDTXMania.tDisposeSafely(ref this.stBarInformation[nBarIndex].txPreviewImage);
 				string strSelectedPreviewImagePath = strPreviewImagePath;
 				if(!File.Exists(strSelectedPreviewImagePath))
                 {
@@ -1730,16 +1602,16 @@ namespace DTXMania
             {
 				try
 				{
-					CDTXMania.t安全にDisposeする(ref this.stBarInformation[nBarIndex].txClearLamp);
+					CDTXMania.tDisposeSafely(ref this.stBarInformation[nBarIndex].txClearLamp);
 
 					Bitmap bitmap = new Bitmap(7, 41);
 					SolidBrush[] lampBrushes = {
-					new SolidBrush(Color.FromArgb(255, 148, 215, 255)),
-					new SolidBrush(Color.FromArgb(255, 255, 239, 65)),
-					new SolidBrush(Color.FromArgb(255, 255, 65, 116)),
-					new SolidBrush(Color.FromArgb(255, 255, 66, 255)),
-					new SolidBrush(Color.FromArgb(255, 255, 255, 255))
-				};
+						new SolidBrush(Color.FromArgb(255, 148, 215, 255)),
+						new SolidBrush(Color.FromArgb(255, 255, 239, 65)),
+						new SolidBrush(Color.FromArgb(255, 255, 65, 116)),
+						new SolidBrush(Color.FromArgb(255, 255, 66, 255)),
+						new SolidBrush(Color.FromArgb(255, 255, 255, 255))
+					};
 					using (Graphics graphics = Graphics.FromImage(bitmap))
 					{
 						for (int i = 0; i < 5; i++)
@@ -1772,7 +1644,7 @@ namespace DTXMania
 
         private void tアイテム数の描画()
         {
-            string s = nCurrentPosition.ToString() + "/" + nNumOfItems.ToString();
+            string s = nCurrentPosition + "/" + nNumOfItems;
             int x = 1260;
             int y = 620;
 
@@ -1792,7 +1664,7 @@ namespace DTXMania
             }
             else
             {
-                int n = (int)s数値 - (int)'0';
+                int n = s数値 - '0';
                 dx = (n % 6) * 16;
                 dy = (n / 6) * 16;
             }

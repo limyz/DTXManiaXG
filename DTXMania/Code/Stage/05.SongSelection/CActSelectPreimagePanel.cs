@@ -99,7 +99,7 @@ namespace DTXMania
 					base.bJustStartedUpdate = false;
 				}
 				this.ct登場アニメ用.tUpdate();
-				if( ( !CDTXMania.stageSongSelection.bScrolling && ( this.ct遅延表示 != null ) ) && this.ct遅延表示.b進行中 )
+				if( ( !CDTXMania.stageSongSelection.bScrolling && ( this.ct遅延表示 != null ) ) && this.ct遅延表示.bInProgress )
 				{
 					this.ct遅延表示.tUpdate();
 					if( this.ct遅延表示.bReachedEndValue )

@@ -327,11 +327,7 @@ namespace DTXMania
 				}
 
 				// キー入力
-
-				if ( CDTXMania.actPluginOccupyingInput == null )
-				{
-					this.tHandleKeyInput();
-				}
+				this.tHandleKeyInput();
 			}
             base.sw.Stop();
 			return 0;

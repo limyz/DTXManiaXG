@@ -154,20 +154,20 @@ namespace DTXMania
         {
 			if (!base.bNotActivated)
 			{
-				CDTXMania.t安全にDisposeする(ref txパネル用);
-				CDTXMania.t安全にDisposeする(ref tx背景);
-				CDTXMania.t安全にDisposeする(ref tx縦線);
-				CDTXMania.t安全にDisposeする(ref tx進捗);
-				CDTXMania.t安全にDisposeする(ref tx灰);
-				CDTXMania.t安全にDisposeする(ref tx黄);
-				CDTXMania.t安全にDisposeする(ref tx青);
+				CDTXMania.tDisposeSafely(ref txパネル用);
+				CDTXMania.tDisposeSafely(ref tx背景);
+				CDTXMania.tDisposeSafely(ref tx縦線);
+				CDTXMania.tDisposeSafely(ref tx進捗);
+				CDTXMania.tDisposeSafely(ref tx灰);
+				CDTXMania.tDisposeSafely(ref tx黄);
+				CDTXMania.tDisposeSafely(ref tx青);
 
-				CDTXMania.t安全にDisposeする(ref this.txBestProgressBarRecord.Drums);
-				CDTXMania.t安全にDisposeする(ref this.txBestProgressBarRecord.Guitar);
-				CDTXMania.t安全にDisposeする(ref this.txBestProgressBarRecord.Bass);
+				CDTXMania.tDisposeSafely(ref this.txBestProgressBarRecord.Drums);
+				CDTXMania.tDisposeSafely(ref this.txBestProgressBarRecord.Guitar);
+				CDTXMania.tDisposeSafely(ref this.txBestProgressBarRecord.Bass);
 
-				CDTXMania.t安全にDisposeする(ref this.txProgressBarBackgroundDrums);
-				CDTXMania.t安全にDisposeする(ref this.txProgressBarBackgroundGuitar);
+				CDTXMania.tDisposeSafely(ref this.txProgressBarBackgroundDrums);
+				CDTXMania.tDisposeSafely(ref this.txProgressBarBackgroundGuitar);
 
 				base.OnManagedReleaseResources();
 			}				
@@ -430,7 +430,7 @@ namespace DTXMania
 
 		private void tサイズが絡むテクスチャの生成()
 		{
-			CDTXMania.t安全にDisposeする(ref txパネル用);
+			CDTXMania.tDisposeSafely(ref txパネル用);
 			if (b演奏画面以外からの呼び出し)
 			{
 				using (Bitmap bitmap = new Bitmap(nWidth + 40, nHeight + 40)) 
@@ -442,7 +442,7 @@ namespace DTXMania
 					txパネル用 = CDTXMania.tGenerateTexture(bitmap);
 				} 				
 			}
-			CDTXMania.t安全にDisposeする(ref tx背景);
+			CDTXMania.tDisposeSafely(ref tx背景);
 			int num = 255; // (b演奏画面以外からの呼び出し ? 128 : ((int)CDTXMania.Instance.ConfigIni.nBGAlpha));
 			using (Bitmap bitmap3 = new Bitmap(nWidth + ((!b演奏画面以外からの呼び出し) ? 2 : 0), nHeight))
 			{
@@ -468,7 +468,7 @@ namespace DTXMania
 				}
 				tx背景 = CDTXMania.tGenerateTexture(bitmap3);
 			}
-			CDTXMania.t安全にDisposeする(ref tx縦線);
+			CDTXMania.tDisposeSafely(ref tx縦線);
 			using (Bitmap bitmap4 = new Bitmap(2, nHeight))
 			{
 				using (Graphics graphics3 = Graphics.FromImage(bitmap4))
@@ -478,7 +478,7 @@ namespace DTXMania
 				}
 				tx縦線 = CDTXMania.tGenerateTexture(bitmap4);
 			}
-			CDTXMania.t安全にDisposeする(ref tx進捗);
+			CDTXMania.tDisposeSafely(ref tx進捗);
 			using (Bitmap bitmap5 = new Bitmap(nWidth, nHeight)) 
 			{
 				using (Graphics graphics4 = Graphics.FromImage(bitmap5))

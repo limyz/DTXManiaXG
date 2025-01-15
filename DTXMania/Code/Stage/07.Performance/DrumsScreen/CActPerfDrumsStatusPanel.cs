@@ -311,8 +311,8 @@ namespace DTXMania
         {
             if( !base.bNotActivated )
             {
-                CDTXMania.t安全にDisposeする(ref this.prv表示用フォント);
-                CDTXMania.t安全にDisposeする(ref this.prv称号フォント);
+                CDTXMania.tDisposeSafely(ref this.prv表示用フォント);
+                CDTXMania.tDisposeSafely(ref this.prv称号フォント);
                 CDTXMania.tReleaseTexture(ref this.txスキルパネル);
                 CDTXMania.tReleaseTexture(ref this.txパネル文字[0]);
                 CDTXMania.tReleaseTexture(ref this.txパネル文字[1]);

@@ -4,7 +4,6 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Diagnostics;
-using System.Web;
 using FDK;
 
 using SlimDXKey = SlimDX.DirectInput.Key;
@@ -2561,7 +2560,6 @@ namespace DTXMania
 				StreamReader reader = new StreamReader( this.ConfigIniファイル名, Encoding.GetEncoding( "Shift_JIS" ) );
 				str = reader.ReadToEnd();
 				tReadFromString( str );
-				CDTXVersion version = new CDTXVersion( this.strDTXManiaのバージョン );
 			}
 		}
 

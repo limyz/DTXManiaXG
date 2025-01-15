@@ -24,7 +24,7 @@ namespace DTXMania
 
 		public void tアニメを完了させる()
 		{
-			this.ct登場用.nCurrentValue = this.ct登場用.n終了値;
+			this.ct登場用.nCurrentValue = this.ct登場用.nEndValue;
 		}
 
 
@@ -97,7 +97,7 @@ namespace DTXMania
 			this.ct登場用.tUpdate();
 			int num = 0x1d4;
 			int num2 = num - 0x40;
-			if( this.ct登場用.b進行中 )
+			if( this.ct登場用.bInProgress )
 			{
 				if( this.ct登場用.nCurrentValue <= 100 )
 				{

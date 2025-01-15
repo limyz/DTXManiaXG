@@ -589,7 +589,7 @@ namespace DTXMania
 						this.ctPlayNewRecord = new CCounter(0, 150, 10, CDTXMania.Timer);
 					}
 						
-                    this.actFI.tフェードイン開始(false);
+                    this.actFI.tStartFadeIn(false);
 					base.ePhaseID = CStage.EPhase.Common_FadeIn;
 					base.bJustStartedUpdate = false;
 				}
@@ -617,7 +617,7 @@ namespace DTXMania
     //            }
 
 				this.bAnimationComplete = true;
-				if( this.ct登場用.b進行中 )
+				if( this.ct登場用.bInProgress )
 				{
 					this.ct登場用.tUpdate();
 					if( this.ct登場用.bReachedEndValue )
@@ -631,7 +631,7 @@ namespace DTXMania
 				}
 
 				//Play new record if available
-				if(this.ctPlayNewRecord != null && this.ctPlayNewRecord.b進行中)
+				if(this.ctPlayNewRecord != null && this.ctPlayNewRecord.bInProgress)
                 {
 					this.ctPlayNewRecord.tUpdate();
 					if (this.ctPlayNewRecord.bReachedEndValue)
@@ -648,7 +648,7 @@ namespace DTXMania
                     this.txBackground.tDraw2D( CDTXMania.app.Device, 0, 0 );
 				}
 
-				if( this.ct登場用.b進行中 && ( this.txTopPanel != null ) )
+				if( this.ct登場用.bInProgress && ( this.txTopPanel != null ) )
 				{
 					double num2 = ( (double) this.ct登場用.nCurrentValue ) / 100.0;
 					double num3 = Math.Sin( Math.PI / 2 * num2 );
@@ -700,110 +700,106 @@ namespace DTXMania
 				#endregion
 
 				// キー入力
-
-				if( CDTXMania.actPluginOccupyingInput == null )
+				if( CDTXMania.ConfigIni.bドラム打音を発声する && CDTXMania.ConfigIni.bDrumsEnabled )
 				{
-					if( CDTXMania.ConfigIni.bドラム打音を発声する && CDTXMania.ConfigIni.bDrumsEnabled )
+					for( int i = 0; i < 11; i++ )
 					{
-						for( int i = 0; i < 11; i++ )
+						List<STInputEvent> events = CDTXMania.Pad.GetEvents( EInstrumentPart.DRUMS, (EPad) i );
+						if( ( events != null ) && ( events.Count > 0 ) )
 						{
-							List<STInputEvent> events = CDTXMania.Pad.GetEvents( EInstrumentPart.DRUMS, (EPad) i );
-							if( ( events != null ) && ( events.Count > 0 ) )
+							foreach( STInputEvent event2 in events )
 							{
-								foreach( STInputEvent event2 in events )
+								if( !event2.b押された )
 								{
-									if( !event2.b押された )
+									continue;
+								}
+								CChip rChip = this.rEmptyDrumChip[ i ];
+								if( rChip == null )
+								{
+									switch( ( (EPad) i ) )
 									{
-										continue;
-									}
-									CChip rChip = this.rEmptyDrumChip[ i ];
-									if( rChip == null )
-									{
-										switch( ( (EPad) i ) )
-										{
-											case EPad.HH:
+										case EPad.HH:
+											rChip = this.rEmptyDrumChip[ 7 ];
+											if( rChip == null )
+											{
+												rChip = this.rEmptyDrumChip[ 9 ];
+											}
+											break;
+
+										case EPad.FT:
+											rChip = this.rEmptyDrumChip[ 4 ];
+											break;
+
+										case EPad.CY:
+											rChip = this.rEmptyDrumChip[ 8 ];
+											break;
+
+										case EPad.HHO:
+											rChip = this.rEmptyDrumChip[ 0 ];
+											if( rChip == null )
+											{
+												rChip = this.rEmptyDrumChip[ 9 ];
+											}
+											break;
+
+										case EPad.RD:
+											rChip = this.rEmptyDrumChip[ 6 ];
+											break;
+
+										case EPad.LC:
+											rChip = this.rEmptyDrumChip[ 0 ];
+											if( rChip == null )
+											{
 												rChip = this.rEmptyDrumChip[ 7 ];
-												if( rChip == null )
-												{
-													rChip = this.rEmptyDrumChip[ 9 ];
-												}
-												break;
-
-											case EPad.FT:
-												rChip = this.rEmptyDrumChip[ 4 ];
-												break;
-
-											case EPad.CY:
-												rChip = this.rEmptyDrumChip[ 8 ];
-												break;
-
-											case EPad.HHO:
-												rChip = this.rEmptyDrumChip[ 0 ];
-												if( rChip == null )
-												{
-													rChip = this.rEmptyDrumChip[ 9 ];
-												}
-												break;
-
-											case EPad.RD:
-												rChip = this.rEmptyDrumChip[ 6 ];
-												break;
-
-											case EPad.LC:
-												rChip = this.rEmptyDrumChip[ 0 ];
-												if( rChip == null )
-												{
-													rChip = this.rEmptyDrumChip[ 7 ];
-												}
-												break;
-										}
+											}
+											break;
 									}
-									if( ( ( rChip != null ) && ( rChip.nChannelNumber >= EChannel.HiHatClose ) ) && ( rChip.nChannelNumber <= EChannel.LeftPedal ) )
+								}
+								if( ( ( rChip != null ) && ( rChip.nChannelNumber >= EChannel.HiHatClose ) ) && ( rChip.nChannelNumber <= EChannel.LeftPedal ) )
+								{
+									int nLane = this.nチャンネル0Atoレーン07[ rChip.nChannelNumber - EChannel.HiHatClose ];
+									if( ( nLane == 1 ) && ( ( rChip.nChannelNumber == EChannel.HiHatClose ) || ( ( rChip.nChannelNumber == EChannel.HiHatOpen ) && ( this.n最後に再生したHHのチャンネル番号 != EChannel.HiHatOpen ) ) ) )
 									{
-										int nLane = this.nチャンネル0Atoレーン07[ rChip.nChannelNumber - EChannel.HiHatClose ];
-										if( ( nLane == 1 ) && ( ( rChip.nChannelNumber == EChannel.HiHatClose ) || ( ( rChip.nChannelNumber == EChannel.HiHatOpen ) && ( this.n最後に再生したHHのチャンネル番号 != EChannel.HiHatOpen ) ) ) )
-										{
-											CDTXMania.DTX.tStopPlayingWav( this.n最後に再生したHHのWAV番号 );
-											this.n最後に再生したHHのWAV番号 = rChip.nIntegerValue_InternalNumber;
-											this.n最後に再生したHHのチャンネル番号 = rChip.nChannelNumber;
-										}
-										CDTXMania.DTX.tPlayChip( rChip, CDTXMania.Timer.nシステム時刻, nLane, CDTXMania.ConfigIni.n手動再生音量, CDTXMania.ConfigIni.b演奏音を強調する.Drums );
+										CDTXMania.DTX.tStopPlayingWav( this.n最後に再生したHHのWAV番号 );
+										this.n最後に再生したHHのWAV番号 = rChip.nIntegerValue_InternalNumber;
+										this.n最後に再生したHHのチャンネル番号 = rChip.nChannelNumber;
 									}
+									CDTXMania.DTX.tPlayChip( rChip, CDTXMania.Timer.nシステム時刻, nLane, CDTXMania.ConfigIni.n手動再生音量, CDTXMania.ConfigIni.b演奏音を強調する.Drums );
 								}
 							}
 						}
 					}
-					if( ( ( CDTXMania.Pad.bPressedDGB( EPad.CY ) || CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.RD ) ) || ( CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.LC ) || CDTXMania.InputManager.Keyboard.bKeyPressed( (int)SlimDXKey.Return ) ) ) && !this.bAnimationComplete )
-					{
-						this.actFI.tフェードイン完了();					// #25406 2011.6.9 yyagi
-						this.actResultImage.tアニメを完了させる();
-						this.actParameterPanel.tアニメを完了させる();
-						this.actRank.tアニメを完了させる();
-						this.ct登場用.tStop();
-					}
-					#region [ #24609 2011.4.7 yyagi リザルト画面で[F12]を押下すると、リザルト画像をpngで保存する機能は、CDTXManiaに移管。 ]
+				}
+				if( ( ( CDTXMania.Pad.bPressedDGB( EPad.CY ) || CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.RD ) ) || ( CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.LC ) || CDTXMania.InputManager.Keyboard.bKeyPressed( (int)SlimDXKey.Return ) ) ) && !this.bAnimationComplete )
+				{
+					this.actFI.tフェードイン完了();					// #25406 2011.6.9 yyagi
+					this.actResultImage.tアニメを完了させる();
+					this.actParameterPanel.tアニメを完了させる();
+					this.actRank.tアニメを完了させる();
+					this.ct登場用.tStop();
+				}
+				#region [ #24609 2011.4.7 yyagi リザルト画面で[F12]を押下すると、リザルト画像をpngで保存する機能は、CDTXManiaに移管。 ]
 //					if ( CDTXMania.InputManager.Keyboard.bKeyPressed( (int) SlimDXKey.F12 ) &&
 //						CDTXMania.ConfigIni.bScoreIniを出力する )
 //					{
 //						CheckAndSaveResultScreen(false);
 //						this.bIsCheckedWhetherResultScreenShouldSaveOrNot = true;
 //					}
-					#endregion
-					if ( base.ePhaseID == CStage.EPhase.Common_DefaultState )
+				#endregion
+				if ( base.ePhaseID == CStage.EPhase.Common_DefaultState )
+				{
+					if ( CDTXMania.InputManager.Keyboard.bKeyPressed( (int)SlimDXKey.Escape ) )
 					{
-						if ( CDTXMania.InputManager.Keyboard.bKeyPressed( (int)SlimDXKey.Escape ) )
-						{
-							CDTXMania.Skin.soundCancel.tPlay();
-							this.actFO.tStartFadeOut();
-							base.ePhaseID = CStage.EPhase.Common_FadeOut;
-							this.eReturnValueWhenFadeOutCompleted = EReturnValue.Complete;
-						}
-						if ( ( ( CDTXMania.Pad.bPressedDGB( EPad.CY ) || CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.RD ) ) || ( CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.LC ) || CDTXMania.InputManager.Keyboard.bKeyPressed( (int) SlimDXKey.Return ) ) ) && this.bAnimationComplete )
-						{
-							CDTXMania.Skin.soundCancel.tPlay();
-							base.ePhaseID = CStage.EPhase.Common_FadeOut;
-							this.eReturnValueWhenFadeOutCompleted = EReturnValue.Complete;
-						}
+						CDTXMania.Skin.soundCancel.tPlay();
+						this.actFO.tStartFadeOut();
+						base.ePhaseID = CStage.EPhase.Common_FadeOut;
+						this.eReturnValueWhenFadeOutCompleted = EReturnValue.Complete;
+					}
+					if ( ( ( CDTXMania.Pad.bPressedDGB( EPad.CY ) || CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.RD ) ) || ( CDTXMania.Pad.bPressed( EInstrumentPart.DRUMS, EPad.LC ) || CDTXMania.InputManager.Keyboard.bKeyPressed( (int) SlimDXKey.Return ) ) ) && this.bAnimationComplete )
+					{
+						CDTXMania.Skin.soundCancel.tPlay();
+						base.ePhaseID = CStage.EPhase.Common_FadeOut;
+						this.eReturnValueWhenFadeOutCompleted = EReturnValue.Complete;
 					}
 				}
 			}

@@ -1635,7 +1635,7 @@ namespace DTXMania
             {
                 if (this.ctTimer[i] != null)
                 {
-                    if (!this.ctTimer[i].b停止中)
+                    if (!this.ctTimer[i].bStopped)
                     {
                         if (this.ctTimer[i].bReachedEndValue)
                         {
@@ -5564,7 +5564,7 @@ namespace DTXMania
             for (int i = 0; i < 1; i++)
             {
 
-                if (this.ctTimer[i].b進行中)
+                if (this.ctTimer[i].bInProgress)
                 {
                     this.ctTimer[i].tStop();
                 }
@@ -5573,7 +5573,7 @@ namespace DTXMania
 
             for (int i = 0; i < 1; i++)
             {
-                if (!this.ctTimer[i].b進行中)
+                if (!this.ctTimer[i].bInProgress)
                 {
                     this.bブーストボーナス = true;
                     this.ctTimer[i].tUpdate();

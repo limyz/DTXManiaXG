@@ -126,8 +126,8 @@ namespace DTXMania
                 CDTXMania.tReleaseTexture( ref this.txArtistName );
                 CDTXMania.tReleaseTexture( ref this.txジャケットパネル );
                 CDTXMania.tReleaseTexture( ref this.txジャケット画像 );
-                CDTXMania.t安全にDisposeする( ref this.pfタイトル );
-                CDTXMania.t安全にDisposeする( ref this.pfアーティスト );
+                CDTXMania.tDisposeSafely( ref this.pfタイトル );
+                CDTXMania.tDisposeSafely( ref this.pfアーティスト );
                 base.OnManagedReleaseResources();
             }
         }

@@ -16,13 +16,13 @@ namespace DTXMania
             this.bテクスチャを描画する = true;
 			this.counter = new CCounter( 0, 100, 5, CDTXMania.Timer );
 		}
-		public void tフェードイン開始()
+		public void tStartFadeIn()
 		{
 			this.mode = EFIFOMode.FadeIn;
             this.bテクスチャを描画する = true;
 			this.counter = new CCounter( 0, 100, 5, CDTXMania.Timer );
 		}
-        public void tフェードイン開始(bool bテクスチャの描画)
+        public void tStartFadeIn(bool bテクスチャの描画)
         {
             this.mode = EFIFOMode.FadeIn;
             this.bテクスチャを描画する = bテクスチャの描画;
@@ -30,7 +30,7 @@ namespace DTXMania
         }
 		public void tフェードイン完了()		// #25406 2011.6.9 yyagi
 		{
-			this.counter.nCurrentValue = this.counter.n終了値;
+			this.counter.nCurrentValue = this.counter.nEndValue;
 		}
 
 		// CActivity 実装

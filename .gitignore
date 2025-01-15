@@ -192,7 +192,14 @@ ModelManifest.xml
 実行時フォルダ/Songs/*
 
 # DTX specific files
-実行時フォルダ/config.ini
-実行時フォルダ/dtxmanialog.txt
-実行時フォルダ/songlist.db
-実行時フォルダ/songs.db
+Runtime/config.ini
+Runtime/dtxmanialog.txt
+Runtime/songlist.db
+Runtime/songs.db
+Runtime/System/*
+Runtime/DTXFiles/*
+!Runtime/System/Sounds
+!Runtime/System/Graphics
+
+# IDE files
+.idea/*

@@ -1,23 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.IO;
 using System.Threading;
 using System.Runtime;
-using System.Runtime.Serialization.Formatters.Binary;
 using SharpDX;
 using SharpDX.Direct3D9;
 using FDK;
 using SampleFramework;
-using DTXMania.Properties;
 using System.Reflection;
-using DirectShowLib;
-
+using DTXMania.Code.UI;
 using Point = System.Drawing.Point;
 
 namespace DTXMania
@@ -25,21 +20,19 @@ namespace DTXMania
     internal class CDTXMania : Game
     {
         // プロパティ
-        public static readonly string VERSION_DISPLAY = "DTX:NX:A:A:2024051900";
-        public static readonly string VERSION = "v1.4.2 20240519";
-        public static readonly string D3DXDLL = "d3dx9_43.dll";		// June 2010
+        //these get set when initializing the game
+        public static string VERSION_DISPLAY;// = "DTX:NX:A:A:2024051900";
+        public static string VERSION;// = "v1.4.2 20240519";
+        
+        public static string D3DXDLL = "d3dx9_43.dll";		// June 2010
         //public static readonly string D3DXDLL = "d3dx9_42.dll";	// February 2010
         //public static readonly string D3DXDLL = "d3dx9_41.dll";	// March 2009
+        
 
         public static CDTXMania app
         {
             get;
             private set;
-        }
-        public static Folder Folder
-        {
-            get;
-            protected set;
         }
         public static CCharacterConsole actDisplayString  // act文字コンソール
         {
@@ -61,6 +54,20 @@ namespace DTXMania
         /// The shared Rich Presence integration instance, or <see langword="null"/> if it is disabled.
         /// </summary>
         public static CDiscordRichPresence DiscordRichPresence { get; private set; }
+        
+        //current language
+        public static bool isJapanese
+        {
+            get;
+            private set;
+        }
+        
+        public static void SetLanguage(bool jp)
+        {
+            isJapanese = jp;
+            
+            //todo: implement handling to switch language at runtime
+        }
 
         public static CDTX DTX
         {
@@ -93,12 +100,6 @@ namespace DTXMania
             private set;
         }
         public static int nSongDifficulty
-        {
-            get;
-            set;
-        }
-
-        public static string strSongDifficulyName
         {
             get;
             set;
@@ -214,11 +215,6 @@ namespace DTXMania
             get;
             private set;
         }
-        public static CStageOption stageOption
-        {
-            get;
-            private set;
-        }
         public static CStageConfig stageConfig
         {
             get;
@@ -283,18 +279,17 @@ namespace DTXMania
             private set;
         }
         public static Format TextureFormat = Format.A8R8G8B8;
-        internal static IPluginActivity actPluginOccupyingInput = null;  // act現在入力を占有中のプラグイン
         public bool bApplicationActive
         {
             get;
             private set;
         }
-        public bool b次のタイミングで垂直帰線同期切り替えを行う
+        public bool changeVSyncModeOnNextFrame
         {
             get;
             set;
         }
-        public bool b次のタイミングで全画面_ウィンドウ切り替えを行う
+        public bool changeFullscreenModeOnNextFrame
         {
             get;
             set;
@@ -303,19 +298,6 @@ namespace DTXMania
         public Device Device
         {
             get { return base.GraphicsDeviceManager.Direct3D9.Device; }
-        }
-        public CPluginHost PluginHost
-        {
-            get;
-            private set;
-        }
-        public List<STPlugin> listPlugins = new List<STPlugin>();
-        public struct STPlugin
-        {
-            public IPluginActivity plugin;
-            public string strプラグインフォルダ;
-            public string strアセンブリ簡易名;
-            public Version Version;
         }
         private static Size currentClientSize		// #23510 2010.10.27 add yyagi to keep current window size
         {
@@ -452,12 +434,6 @@ namespace DTXMania
                 }
             }
 
-            foreach (STPlugin st in this.listPlugins)
-            {
-                Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                st.plugin.OnManagedリソースの作成();
-                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-            }
 #if GPUFlushAfterPresent
         FrameEnd += dtxmania_FrameEnd;
 #endif
@@ -510,26 +486,16 @@ namespace DTXMania
                     activity.OnUnmanagedCreateResources();
             }
 
-            foreach (STPlugin st in this.listPlugins)
-            {
-                Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                st.plugin.OnUnmanagedリソースの作成();
-                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-            }
+            //load fallback texture
+            UITexture.LoadFallbackTexture();
         }
+        
         protected override void UnloadContent()
         {
             if (this.listTopLevelActivities != null)
             {
                 foreach (CActivity activity in this.listTopLevelActivities)
                     activity.OnUnmanagedReleaseResources();
-            }
-
-            foreach (STPlugin st in this.listPlugins)
-            {
-                Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                st.plugin.OnUnmanagedリソースの解放();
-                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
             }
         }
         protected override void OnExiting(EventArgs e)
@@ -562,9 +528,6 @@ namespace DTXMania
 
             if (FPS != null)
                 FPS.tカウンタ更新();
-
-            //if( Pad != null )					ポーリング時にクリアしたらダメ！曲の開始時に1回だけクリアする。(2010.9.11)
-            //	Pad.stDetectedDevice.Clear();
 
             if (this.Device == null)
                 return;
@@ -611,45 +574,13 @@ namespace DTXMania
 
                         bCompactMode = true;
                         strCompactModeFile = DTXVmode.filename;
-                        /*if (DTXVmode.Command == CDTXVmode.ECommand.Preview)
-                        {
-                            // preview soundの再生
-                            string strPreviewFilename = DTXVmode.previewFilename;
-                            //Trace.TraceInformation( "Preview Filename=" + DTXVmode.previewFilename );
-                            try
-                            {
-                                if (this.previewSound != null)
-                                {
-                                    this.previewSound.tサウンドを停止する();
-                                    this.previewSound.Dispose();
-                                    this.previewSound = null;
-                                }
-                                this.previewSound = CDTXMania.Instance.Sound管理.tサウンドを生成する(strPreviewFilename);
-                                this.previewSound.n音量 = DTXVmode.previewVolume;
-                                this.previewSound.n位置 = DTXVmode.previewPan;
-                                this.previewSound.t再生を開始する();
-                                Trace.TraceInformation("DTXCからの指示で、サウンドを生成しました。({0})", strPreviewFilename);
-                            }
-                            catch
-                            {
-                                Trace.TraceError("DTXCからの指示での、サウンドの生成に失敗しました。({0})", strPreviewFilename);
-                                if (this.previewSound != null)
-                                {
-                                    this.previewSound.Dispose();
-                                }
-                                this.previewSound = null;
-                            }
-                        }*/
                     }
                     if (DTX2WAVmode.Enabled)
                     {
                         if (DTX2WAVmode.Command == CDTX2WAVmode.ECommand.Cancel)
                         {
                             Trace.TraceInformation("録音のCancelコマンドをDTXMania本体が受信しました。");
-                            //Microsoft.VisualBasic.Interaction.AppActivate("メモ帳");
-                            //SendKeys.Send("{ESC}");
-                            //SendKeys.SendWait("%{F4}");
-                            //Application.Exit();
+                     
                             if (DTX != null)    // 曲読み込みの前に録音Cancelされると、DTXがnullのままここにきてでGPFとなる→nullチェック追加
                             {
                                 DTX.tStopPlayingAllChips();
@@ -657,8 +588,6 @@ namespace DTXMania
                             }
                             rCurrentStage.OnDeactivate();
 
-                            //Environment.ExitCode = 10010;		// この組み合わせではダメ、返り値が反映されない
-                            //base.Window.Close();
                             Environment.Exit(10010);            // このやり方ならばOK
                         }
                     }
@@ -672,33 +601,10 @@ namespace DTXMania
             if (rCurrentStage != null)
             {
                 this.nUpdateAndDrawReturnValue = (rCurrentStage != null) ? rCurrentStage.OnUpdateAndDraw() : 0;
-
-                #region [ プラグインの進行描画 ]
-                //---------------------
-                foreach (STPlugin sp in this.listPlugins)
-                {
-                    Directory.SetCurrentDirectory(sp.strプラグインフォルダ);
-
-                    if (CDTXMania.actPluginOccupyingInput == null || CDTXMania.actPluginOccupyingInput == sp.plugin)
-                        sp.plugin.On進行描画(CDTXMania.Pad, CDTXMania.InputManager.Keyboard);
-                    else
-                        sp.plugin.On進行描画(null, null);
-
-                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                }
-                //---------------------
-                #endregion
-
-
+                
                 CScoreIni scoreIni = null;
-
-                //if (Control.IsKeyLocked(Keys.CapsLock)) // #30925 2013.3.11 yyagi; capslock=ON時は、EnumSongsしないようにして、起動負荷とASIOの音切れの関係を確認する
-                //{                                       // → songs.db等の書き込み時だと音切れするっぽい
-                //    CDTXMania.stageSongSelection.bIsEnumeratingSongs = false;
-                //    actEnumSongs.OnDeactivate();
-                //    EnumSongs.SongListEnumCompletelyDone();
-                //}
-                #region [ 曲検索スレッドの起動/終了 ]					// ここに"Enumerating Songs..."表示を集約
+                
+                #region [ Handle enumerating songs ]					// ここに"Enumerating Songs..."表示を集約
                 if (!CDTXMania.bCompactMode)
                 {
                     actEnumSongs.OnUpdateAndDraw();							// "Enumerating Songs..."アイコンの描画
@@ -707,7 +613,6 @@ namespace DTXMania
                 {
                     case CStage.EStage.Title:
                     case CStage.EStage.Config:
-                    case CStage.EStage.Option:
                     case CStage.EStage.SongSelection:
                     case CStage.EStage.SongLoading:
                         if (EnumSongs != null)
@@ -782,6 +687,7 @@ namespace DTXMania
                 }
                 #endregion
 
+                //handle stage changes
                 switch (rCurrentStage.eStageID)
                 {
                     case CStage.EStage.DoNothing:
@@ -794,31 +700,12 @@ namespace DTXMania
                         {
                             if (!bCompactMode)
                             {
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Title");
-                                stageTitle.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageTitle;
+                                tChangeStage(stageTitle);
                             }
                             else
                             {
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ SongLoading");
-                                stageSongLoading.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageSongLoading;
-
+                                tChangeStage(stageSongLoading);
                             }
-                            foreach (STPlugin pg in this.listPlugins)
-                            {
-                                Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                pg.plugin.OnChangeStage();
-                                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                            }
-
-                            this.tRunGarbageCollector();
                         }
                         //-----------------------------
                         #endregion
@@ -832,133 +719,22 @@ namespace DTXMania
                             switch (this.nUpdateAndDrawReturnValue)
                             {
                                 case (int)CStageTitle.E戻り値.GAMESTART:
-                                    #region [ 選曲処理へ ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-                                    //-----------------------------
-                                    #endregion
+                                    tChangeStage(stageSongSelection);
                                     break;
 
-                                #region [ OPTION: 廃止済 ]
-                                /*
-							    case 2:									// #24525 OPTIONとCONFIGの統合に伴い、OPTIONは廃止
-								    #region [ *** ]
-								    //-----------------------------
-								    rCurrentStage.OnDeactivate();
-								    Trace.TraceInformation( "----------------------" );
-								    Trace.TraceInformation( "■ Option" );
-								    stageOption.OnActivate();
-								    rPreviousStage = rCurrentStage;
-								    rCurrentStage = stageOption;
-								    //-----------------------------
-								    #endregion
-								    break;
-                                    */
-                                #endregion
-
                                 case (int)CStageTitle.E戻り値.CONFIG:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ Config");
-                                    stageConfig.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageConfig;
-                                    //-----------------------------
-                                    #endregion
+                                    tChangeStage(stageConfig);
                                     break;
 
                                 case (int)CStageTitle.E戻り値.EXIT:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ End");
-                                    stageEnd.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageEnd;
-                                    //-----------------------------
-                                    #endregion
+                                    tChangeStage(stageEnd);
                                     break;
                             }
-
-                            foreach (STPlugin pg in this.listPlugins)
-                            {
-                                Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                pg.plugin.OnChangeStage();
-                                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                            }
-
-                            this.tRunGarbageCollector();       // #31980 2013.9.3 yyagi タイトル画面でだけ、毎フレームGCを実行して重くなっていた問題の修正
                         }
 
                         //-----------------------------
                         #endregion
                         break;
-
-
-                    case CStage.EStage.Option:
-                        #region [ *** ]
-                        //-----------------------------
-                        if (this.nUpdateAndDrawReturnValue != 0)
-                        {
-                            switch (rPreviousStage.eStageID)
-                            {
-                                case CStage.EStage.Title:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ Title");
-                                    stageTitle.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageTitle;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-
-                                    this.tRunGarbageCollector();
-                                    break;
-                                //-----------------------------
-                                    #endregion
-
-                                case CStage.EStage.SongSelection:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-
-                                    this.tRunGarbageCollector();
-                                    break;
-                                //-----------------------------
-                                    #endregion
-                            }
-                        }
-                        //-----------------------------
-                        #endregion
-                        break;
-
 
                     case CStage.EStage.Config:
                         #region [ *** ]
@@ -968,48 +744,12 @@ namespace DTXMania
                             switch (rPreviousStage.eStageID)
                             {
                                 case CStage.EStage.Title:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ Title");
-                                    stageTitle.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageTitle;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageTitle);
                                     break;
-                                //-----------------------------
-                                    #endregion
 
                                 case CStage.EStage.SongSelection:
-                                    #region [ *** ]
-                                    //-----------------------------
-                                    rCurrentStage.OnDeactivate();
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageSongSelection);
                                     break;
-                                //-----------------------------
-                                    #endregion
                             }
                         }
                         //-----------------------------
@@ -1022,108 +762,20 @@ namespace DTXMania
                         switch (this.nUpdateAndDrawReturnValue)
                         {
                             case (int)CStageSongSelection.EReturnValue.ReturnToTitle:
-                                #region [ *** ]
-                                //-----------------------------
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Title");
-                                stageTitle.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageTitle;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-
-                                this.tRunGarbageCollector();
+                                tChangeStage(stageTitle);
                                 break;
-                            //-----------------------------
-                                #endregion
 
                             case (int)CStageSongSelection.EReturnValue.Selected:
-                                #region [ *** ]
-                                //-----------------------------
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ SongLoading");
-                                stageSongLoading.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageSongLoading;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-
-                                this.tRunGarbageCollector();
+                                tChangeStage(stageSongLoading);
                                 break;
-                            //-----------------------------
-                                #endregion
-
-
-                            case (int)CStageSongSelection.EReturnValue.CallOptions:
-                                #region [ *** ]
-                                //-----------------------------
-
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Option");
-                                stageOption.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageOption;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-
-                                this.tRunGarbageCollector();
-                                break;
-                            //-----------------------------
-                                #endregion
 
                             case (int)CStageSongSelection.EReturnValue.CallConfig:
-                                #region [ *** ]
-                                //-----------------------------
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Config");
-                                stageConfig.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageConfig;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-
-                                this.tRunGarbageCollector();
+                                tChangeStage(stageConfig);
                                 break;
-                            //-----------------------------
-                                #endregion
 
                             case (int)CStageSongSelection.EReturnValue.ChangeSking:
-
-                                #region [ *** ]
-                                //-----------------------------
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ スキン切り替え");
-                                stageChangeSkin.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageChangeSkin;
+                                tChangeStage(stageChangeSkin);
                                 break;
-                            //-----------------------------
-                                #endregion
                         }
                         //-----------------------------
                         #endregion
@@ -1135,9 +787,7 @@ namespace DTXMania
                         if (this.nUpdateAndDrawReturnValue != 0)
                         {
                             CDTXMania.Pad.stDetectedDevice.Clear();	// 入力デバイスフラグクリア(2010.9.11)
-
-                            rCurrentStage.OnDeactivate();
-
+                            
                             #region [ ESC押下時は、曲の読み込みを中止して選曲画面に戻る ]
                             if (this.nUpdateAndDrawReturnValue == (int)ESongLoadingScreenReturnValue.LoadingStopped)
                             {
@@ -1145,69 +795,21 @@ namespace DTXMania
                                 DTX.OnDeactivate();
                                 Trace.TraceInformation("曲の読み込みを中止しました。");
                                 this.tRunGarbageCollector();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ SongSelection");
-                                stageSongSelection.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageSongSelection;
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
+                                
+                                tChangeStage(stageSongSelection);
                                 break;
                             }
                             #endregion
 
 
                             if (!ConfigIni.bGuitarRevolutionMode)
-                            {
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Playing（ドラム画面）");
-#if false		// #23625 2011.1.11 Config.iniからダメージ/回復値の定数変更を行う場合はここを有効にする 087リリースに合わせ機能無効化
-for (int i = 0; i < 5; i++)
-{
-	for (int j = 0; j < 2; j++)
-	{
-		stage演奏ドラム画面.fDamageGaugeDelta[i, j] = ConfigIni.fGaugeFactor[i, j];
-	}
-}
-for (int i = 0; i < 3; i++) {
-	stage演奏ドラム画面.fDamageLevelFactor[i] = ConfigIni.fDamageLevelFactor[i];
-}		
-#endif
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stagePerfDrumsScreen;
+                            { 
+                                tChangeStage(stagePerfDrumsScreen, false);
                             }
                             else
                             {
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Playing（ギター画面）");
-#if false		// #23625 2011.1.11 Config.iniからダメージ/回復値の定数変更を行う場合はここを有効にする 087リリースに合わせ機能無効化
-for (int i = 0; i < 5; i++)
-{
-	for (int j = 0; j < 2; j++)
-	{
-		stage演奏ギター画面.fDamageGaugeDelta[i, j] = ConfigIni.fGaugeFactor[i, j];
-	}
-}
-for (int i = 0; i < 3; i++) {
-	stage演奏ギター画面.fDamageLevelFactor[i] = ConfigIni.fDamageLevelFactor[i];
-}		
-#endif
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stagePerfGuitarScreen;
+                                tChangeStage(stagePerfGuitarScreen, false);
                             }
-
-                            foreach (STPlugin pg in this.listPlugins)
-                            {
-                                Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                pg.plugin.OnChangeStage();
-                                Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                            }
-
-                            this.tRunGarbageCollector();
                         }
                         //-----------------------------
                         #endregion
@@ -1278,17 +880,6 @@ for (int i = 0; i < 3; i++) {
                                     scoreIni = this.tScoreIniへBGMAdjustとHistoryとPlayCountを更新("Play cancelled");
                                 }
 
-                                #region [ プラグイン On演奏キャンセル() の呼び出し ]
-                                //---------------------
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.On演奏キャンセル(scoreIni);
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-                                //---------------------
-                                #endregion
-
                                 DTX.tStopPlayingAllChips();
                                 DTX.OnDeactivate();
                                 rCurrentStage.OnDeactivate();
@@ -1298,41 +889,11 @@ for (int i = 0; i < 3; i++) {
                                 }
                                 else if (this.nUpdateAndDrawReturnValue == (int)EPerfScreenReturnValue.Restart)
                                 {
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongLoading");
-                                    stageSongLoading.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongLoading;
-
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageSongLoading, true, false);
                                 }
                                 else
                                 {
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-
-                                    #region [ プラグイン Onステージ変更() の呼び出し ]
-                                    //---------------------
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-                                    //---------------------
-                                    #endregion
-
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageSongSelection, true, false);
                                 }
                                 break;
                             //-----------------------------
@@ -1477,19 +1038,7 @@ for (int i = 0; i < 3; i++) {
                                             }
                                         }
                                     }
-                                    
                                 }
-
-                                #region [ プラグイン On演奏失敗() の呼び出し ]
-                                //---------------------
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.On演奏失敗(scoreIni);
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-                                //---------------------
-                                #endregion
 
                                 DTX.tStopPlayingAllChips();
                                 DTX.OnDeactivate();
@@ -1500,24 +1049,7 @@ for (int i = 0; i < 3; i++) {
                                 }
                                 else
                                 {
-                                    Trace.TraceInformation("----------------------");
-                                    Trace.TraceInformation("■ SongSelection");
-                                    stageSongSelection.OnActivate();
-                                    rPreviousStage = rCurrentStage;
-                                    rCurrentStage = stageSongSelection;
-
-                                    #region [ プラグイン Onステージ変更() の呼び出し ]
-                                    //---------------------
-                                    foreach (STPlugin pg in this.listPlugins)
-                                    {
-                                        Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                        pg.plugin.OnChangeStage();
-                                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                    }
-                                    //---------------------
-                                    #endregion
-
-                                    this.tRunGarbageCollector();
+                                    tChangeStage(stageSongSelection);
                                 }
                                 break;
                             //-----------------------------
@@ -1612,41 +1144,14 @@ for (int i = 0; i < 3; i++) {
                                     
                                     scoreIni = this.tScoreIniへBGMAdjustとHistoryとPlayCountを更新(str);
                                 }
-
-                                #region [ プラグイン On演奏クリア() の呼び出し ]
-                                //---------------------
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.On演奏クリア(scoreIni);
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-                                //---------------------
-                                #endregion
-
-                                rCurrentStage.OnDeactivate();
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ Result");
+                                
                                 stageResult.stPerformanceEntry.Drums = cPerfEntry_Drums;
                                 stageResult.stPerformanceEntry.Guitar = cPerfEntry_Guitar;
                                 stageResult.stPerformanceEntry.Bass = cPerfEntry_Bass;
                                 stageResult.rEmptyDrumChip = chipArray;
                                 stageResult.bIsTrainingMode = bIsTrainingMode;
-                                stageResult.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageResult;
 
-                                #region [ プラグイン Onステージ変更() の呼び出し ]
-                                //---------------------
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-                                //---------------------
-                                #endregion
-
+                                tChangeStage(stageResult);
                                 break;
                             //-----------------------------
                                 #endregion
@@ -1670,20 +1175,7 @@ for (int i = 0; i < 3; i++) {
                             rCurrentStage.OnDeactivate();
                             if (!bCompactMode)
                             {
-                                Trace.TraceInformation("----------------------");
-                                Trace.TraceInformation("■ SongSelection");
-                                stageSongSelection.OnActivate();
-                                rPreviousStage = rCurrentStage;
-                                rCurrentStage = stageSongSelection;
-
-                                foreach (STPlugin pg in this.listPlugins)
-                                {
-                                    Directory.SetCurrentDirectory(pg.strプラグインフォルダ);
-                                    pg.plugin.OnChangeStage();
-                                    Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                                }
-
-                                this.tRunGarbageCollector();
+                                tChangeStage(stageSongSelection);
                             }
                             else
                             {
@@ -1699,13 +1191,7 @@ for (int i = 0; i < 3; i++) {
                         //-----------------------------
                         if (this.nUpdateAndDrawReturnValue != 0)
                         {
-                            rCurrentStage.OnDeactivate();
-                            Trace.TraceInformation("----------------------");
-                            Trace.TraceInformation("■ SongSelection");
-                            stageSongSelection.OnActivate();
-                            rPreviousStage = rCurrentStage;
-                            rCurrentStage = stageSongSelection;
-                            this.tRunGarbageCollector();
+                            tChangeStage(stageSongSelection);
                         }
                         //-----------------------------
                         #endregion
@@ -1728,23 +1214,23 @@ for (int i = 0; i < 3; i++) {
 #if !GPUFlushAfterPresent
             actFlushGPU.OnUpdateAndDraw();		// Flush GPU	// EndScene()～Present()間 (つまりVSync前) でFlush実行
 #endif
-            #region [ 全画面_ウインドウ切り替え ]
-            if (this.b次のタイミングで全画面_ウィンドウ切り替えを行う)
+            #region [ Fullscreen mode switching ]
+            if (this.changeFullscreenModeOnNextFrame)
             {
                 ConfigIni.bFullScreenMode = !ConfigIni.bFullScreenMode;
                 app.tSwitchFullScreenMode();
-                this.b次のタイミングで全画面_ウィンドウ切り替えを行う = false;
+                this.changeFullscreenModeOnNextFrame = false;
             }
             #endregion
-            #region [ 垂直基線同期切り替え ]
-            if (this.b次のタイミングで垂直帰線同期切り替えを行う)
+            #region [ VSync switching ]
+            if (this.changeVSyncModeOnNextFrame)
             {
                 bool bIsMaximized = this.Window.IsMaximized;											// #23510 2010.11.3 yyagi: to backup current window mode before changing VSyncWait
                 currentClientSize = this.Window.ClientSize;												// #23510 2010.11.3 yyagi: to backup current window size before changing VSyncWait
                 DeviceSettings currentSettings = app.GraphicsDeviceManager.CurrentSettings;
                 currentSettings.EnableVSync = ConfigIni.bVerticalSyncWait;
                 app.GraphicsDeviceManager.ChangeDevice(currentSettings);
-                this.b次のタイミングで垂直帰線同期切り替えを行う = false;
+                this.changeVSyncModeOnNextFrame = false;
                 base.Window.ClientSize = new Size(currentClientSize.Width, currentClientSize.Height);	// #23510 2010.11.3 yyagi: to resume window size after changing VSyncWait
                 if (bIsMaximized)
                 {
@@ -1752,6 +1238,27 @@ for (int i = 0; i < 3; i++) {
                 }
             }
             #endregion
+        }
+
+        public void tChangeStage(CStage newStage, bool activateNewStage = true, bool deactivateOldStage = true)
+        {
+            if (deactivateOldStage)
+            {
+                rCurrentStage.OnDeactivate();
+            }
+
+            Trace.TraceInformation("----------------------");
+            Trace.TraceInformation($"■ {newStage.eStageID}");
+            
+            if (activateNewStage)
+            {
+                newStage.OnActivate();
+            }
+
+            rPreviousStage = rCurrentStage;
+            rCurrentStage = newStage;
+            
+            this.tRunGarbageCollector();
         }
 
 
@@ -1789,12 +1296,12 @@ for (int i = 0; i < 3; i++) {
 		{
             if (tx != null) {
                 //Trace.WriteLine( "CTextureを解放 Size W:" + tx.szImageSize.Width + " H:" + tx.szImageSize.Height );
-			    CDTXMania.t安全にDisposeする( ref tx );
+			    CDTXMania.tDisposeSafely( ref tx );
             }
 		}
         public static void tReleaseTexture( ref CTextureAf tx )
 		{
-			CDTXMania.t安全にDisposeする( ref tx );
+			CDTXMania.tDisposeSafely( ref tx );
 		}
 		public static CTexture tGenerateTexture( byte[] txData )
 		{
@@ -1865,48 +1372,41 @@ for (int i = 0; i < 3; i++) {
 			}
 		}
 
-        public static CDirectShow t失敗してもスキップ可能なDirectShowを生成する(string fileName, IntPtr hWnd, bool bオーディオレンダラなし)
-        {
-            CDirectShow ds = null;
-            if( File.Exists( fileName ) )
-            {
-                try
-                {
-                    ds = new CDirectShow(fileName, hWnd, bオーディオレンダラなし);
-                }
-                catch (FileNotFoundException)
-                {
-                    Trace.TraceError("動画ファイルが見つかりませんでした。({0})", fileName);
-                    ds = null;      // Dispose はコンストラクタ内で実施済み
-                }
-                catch
-                {
-                    Trace.TraceError("DirectShow の生成に失敗しました。[{0}]", fileName);
-                    ds = null;      // Dispose はコンストラクタ内で実施済み
-                }
-            }
-            else
-            {
-                Trace.TraceError("動画ファイルが見つかりませんでした。({0})", fileName);
-                return null;
-            }
-
-            return ds;
-        }
-
 		/// <summary>プロパティ、インデクサには ref は使用できないので注意。</summary>
-		public static void t安全にDisposeする<T>( ref T obj )
+		public static void tDisposeSafely<T>( ref T obj )
 		{
 			if ( obj == null )
 				return;
 
-			var d = obj as IDisposable;
-
-			if ( d != null )
+            if ( obj is IDisposable d )
 				d.Dispose();
 
 			obj = default( T );
 		}
+        
+        //https://stackoverflow.com/questions/1600962/displaying-the-build-date
+        public static DateTime GetLinkerTime(Assembly assembly, TimeZoneInfo target = null)
+        {
+            string filePath = assembly.Location;
+            const int cPeHeaderOffset = 60;
+            const int cLinkerTimestampOffset = 8;
+
+            byte[] buffer = new byte[2048];
+
+            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                stream.Read(buffer, 0, 2048);
+
+            int offset = BitConverter.ToInt32(buffer, cPeHeaderOffset);
+            int secondsSince1970 = BitConverter.ToInt32(buffer, offset + cLinkerTimestampOffset);
+            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            DateTime linkTimeUtc = epoch.AddSeconds(secondsSince1970);
+
+            TimeZoneInfo tz = target ?? TimeZoneInfo.Local;
+            DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(linkTimeUtc, tz);
+
+            return localTime;
+        }
 		//-----------------
 		#endregion
         #region [ private ]
@@ -1927,6 +1427,12 @@ for (int i = 0; i < 3; i++) {
 
         private void tStartProcess()
         {
+            //Update version information
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            DateTime buildDate = GetLinkerTime(assembly);
+            VERSION = $"v{assembly.GetName().Version.ToString().Substring(0, 5)} ({buildDate:yyyyMMdd})";
+            VERSION_DISPLAY = $"DTX:NX:A:A:{buildDate:yyyyMMdd}00";
+            
             #region [ Determine strEXE folder ]
             //-----------------
             // BEGIN #23629 2010.11.13 from: デバッグ時は Application.ExecutablePath が ($SolutionDir)/bin/x86/Debug/ などになり System/ の読み込みに失敗するので、カレントディレクトリを採用する。（プロジェクトのプロパティ→デバッグ→作業ディレクトリが有効になる）
@@ -1966,11 +1472,11 @@ for (int i = 0; i < 3; i++) {
             {
                 try
                 {
-                    Trace.Listeners.Add(new CTraceLogListener(new StreamWriter("DTXManiaLog.txt", false, Encoding.GetEncoding("shift-jis"))));
+                    Trace.Listeners.Add(new CTraceLogListener(new StreamWriter("DTXManiaLog.txt", false, Encoding.Unicode)));
                 }
                 catch (System.UnauthorizedAccessException)			// #24481 2011.2.20 yyagi
                 {
-                    int c = (CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ja") ? 0 : 1;
+                    int c = isJapanese ? 0 : 1;
                     string[] mes_writeErr = {
                         "DTXManiaLog.txtへの書き込みができませんでした。書き込みできるようにしてから、再度起動してください。",
                         "Failed to write DTXManiaLog.txt. Please set it writable and try again."
@@ -2596,7 +2102,6 @@ for (int i = 0; i < 3; i++) {
             rPreviousStage = null;
             stageStartup = new CStageStartup();
             stageTitle = new CStageTitle();
-            stageOption = new CStageOption();
             stageConfig = new CStageConfig();
             stageSongSelection = new CStageSongSelection();
             stageSongLoading = new CStageSongLoading();
@@ -2610,7 +2115,6 @@ for (int i = 0; i < 3; i++) {
             this.listTopLevelActivities.Add(actDisplayString);
             this.listTopLevelActivities.Add(stageStartup);
             this.listTopLevelActivities.Add(stageTitle);
-            this.listTopLevelActivities.Add(stageOption);
             this.listTopLevelActivities.Add(stageConfig);
             this.listTopLevelActivities.Add(stageSongSelection);
             this.listTopLevelActivities.Add(stageSongLoading);
@@ -2620,54 +2124,6 @@ for (int i = 0; i < 3; i++) {
             this.listTopLevelActivities.Add(stageChangeSkin);
             this.listTopLevelActivities.Add(stageEnd);
             this.listTopLevelActivities.Add(actFlushGPU);
-            //---------------------
-            #endregion
-            #region [ Search and generate Plugin ]
-            //---------------------
-            PluginHost = new CPluginHost();
-
-            Trace.TraceInformation("プラグインの検索と生成を行います。");
-            Trace.Indent();
-            try
-            {
-                this.tプラグイン検索と生成();
-                Trace.TraceInformation("プラグインの検索と生成を完了しました。");
-            }
-            finally
-            {
-                Trace.Unindent();
-            }
-            //---------------------
-            #endregion
-            #region [ Initialize Plugin ]
-            //---------------------
-            if (this.listPlugins != null && this.listPlugins.Count > 0)
-            {
-                Trace.TraceInformation("プラグインの初期化を行います。");
-                Trace.Indent();
-                try
-                {
-                    foreach (STPlugin st in this.listPlugins)
-                    {
-                        Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                        st.plugin.On初期化(this.PluginHost);
-                        st.plugin.OnManagedリソースの作成();
-                        st.plugin.OnUnmanagedリソースの作成();
-                        Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                    }
-                    Trace.TraceInformation("すべてのプラグインの初期化を完了しました。");
-                }
-                catch
-                {
-                    Trace.TraceError("プラグインのどれかの初期化に失敗しました。");
-                    throw;
-                }
-                finally
-                {
-                    Trace.Unindent();
-                }
-            }
-
             //---------------------
             #endregion
 
@@ -2745,32 +2201,6 @@ for (int i = 0; i < 3; i++) {
                     {
                         rCurrentStage.OnDeactivate();
                         Trace.TraceInformation("現在のステージの終了処理を完了しました。");
-                    }
-                    finally
-                    {
-                        Trace.Unindent();
-                    }
-                }
-                //---------------------
-                #endregion
-                #region [ プラグインの終了処理 ]
-                //---------------------
-                if (this.listPlugins != null && this.listPlugins.Count > 0)
-                {
-                    Trace.TraceInformation("すべてのプラグインを終了します。");
-                    Trace.Indent();
-                    try
-                    {
-                        foreach (STPlugin st in this.listPlugins)
-                        {
-                            Directory.SetCurrentDirectory(st.strプラグインフォルダ);
-                            st.plugin.OnUnmanagedリソースの解放();
-                            st.plugin.OnManagedリソースの解放();
-                            st.plugin.On終了();
-                            Directory.SetCurrentDirectory(CDTXMania.strEXEのあるフォルダ);
-                        }
-                        PluginHost = null;
-                        Trace.TraceInformation("すべてのプラグインの終了処理を完了しました。");
                     }
                     finally
                     {
@@ -3104,69 +2534,7 @@ for (int i = 0; i < 3; i++) {
             //通常通り、LOHへのGCを抑制
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.Default;
         }
-        private void tプラグイン検索と生成()
-        {
-            this.listPlugins = new List<STPlugin>();
-
-            string strIPluginActivityの名前 = typeof(IPluginActivity).FullName;
-            string strプラグインフォルダパス = strEXEのあるフォルダ + "Plugins\\";
-
-            this.t指定フォルダ内でのプラグイン検索と生成(strプラグインフォルダパス, strIPluginActivityの名前);
-
-            if (this.listPlugins.Count > 0)
-                Trace.TraceInformation(this.listPlugins.Count + " 個のプラグインを読み込みました。");
-        }
         #region [ Windowイベント処理 ]
-        private void t指定フォルダ内でのプラグイン検索と生成(string strプラグインフォルダパス, string strプラグイン型名)
-        {
-            // 指定されたパスが存在しないとエラー
-            if (!Directory.Exists(strプラグインフォルダパス))
-            {
-                Trace.TraceWarning("プラグインフォルダが存在しません。(" + strプラグインフォルダパス + ")");
-                return;
-            }
-
-            // (1) すべての *.dll について…
-            string[] strDLLs = System.IO.Directory.GetFiles(strプラグインフォルダパス, "*.dll");
-            foreach (string dllName in strDLLs)
-            {
-                try
-                {
-                    // (1-1) dll をアセンブリとして読み込む。
-                    System.Reflection.Assembly asm = System.Reflection.Assembly.LoadFrom(dllName);
-
-                    // (1-2) アセンブリ内のすべての型について、プラグインとして有効か調べる
-                    foreach (Type t in asm.GetTypes())
-                    {
-                        //  (1-3) ↓クラスであり↓Publicであり↓抽象クラスでなく↓IPlugin型のインスタンスが作れる　型を持っていれば有効
-                        if (t.IsClass && t.IsPublic && !t.IsAbstract && t.GetInterface(strプラグイン型名) != null)
-                        {
-                            // (1-4) クラス名からインスタンスを作成する
-                            var st = new STPlugin()
-                            {
-                                plugin = (IPluginActivity)asm.CreateInstance(t.FullName),
-                                strプラグインフォルダ = Path.GetDirectoryName(dllName),
-                                strアセンブリ簡易名 = asm.GetName().Name,
-                                Version = asm.GetName().Version,
-                            };
-
-                            // (1-5) プラグインリストへ登録
-                            this.listPlugins.Add(st);
-                            Trace.TraceInformation("プラグイン {0} ({1}, {2}, {3}) を読み込みました。", t.FullName, Path.GetFileName(dllName), st.strアセンブリ簡易名, st.Version.ToString());
-                        }
-                    }
-                }
-                catch
-                {
-                    Trace.TraceInformation(dllName + " からプラグインを生成することに失敗しました。スキップします。");
-                }
-            }
-
-            // (2) サブフォルダがあれば再帰する
-            string[] strDirs = Directory.GetDirectories(strプラグインフォルダパス, "*");
-            foreach (string dir in strDirs)
-                this.t指定フォルダ内でのプラグイン検索と生成(dir + "\\", strプラグイン型名);
-        }
         //-----------------
         private void Window_ApplicationActivated(object sender, EventArgs e)
         {

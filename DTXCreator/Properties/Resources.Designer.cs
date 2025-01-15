@@ -448,7 +448,7 @@ namespace DTXCreator.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ﾁｯﾌﾟﾊﾟﾚｯﾄ {
+        internal static System.Drawing.Bitmap チップパレット {
             get {
                 object obj = ResourceManager.GetObject("ﾁｯﾌﾟﾊﾟﾚｯﾄ", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));

@@ -32,7 +32,7 @@ namespace DTXMania
 			{
 				for( int i = 0; i < 4; i++ )
 				{
-					if( ( this.ct進行用[ (int) part, i ] == null ) || this.ct進行用[ (int) part, i ].b停止中 )
+					if( ( this.ct進行用[ (int) part, i ] == null ) || this.ct進行用[ (int) part, i ].bStopped )
 					{
 						this.ct進行用[ (int) part, i ] = new CCounter( 0, 300, 2, CDTXMania.Timer );
                         this.ctWailing炎[ (int) part, i ] = new CCounter( 0, this.frames, this.interval, CDTXMania.Timer );
@@ -77,7 +77,7 @@ namespace DTXMania
 					EInstrumentPart e楽器パート = ( i == 0 ) ? EInstrumentPart.GUITAR : EInstrumentPart.BASS;
 					for( int k = 0; k < 4; k++ )
 					{
-						if( ( this.ct進行用[ (int) e楽器パート, k ] != null ) && !this.ct進行用[ (int) e楽器パート, k ].b停止中 )
+						if( ( this.ct進行用[ (int) e楽器パート, k ] != null ) && !this.ct進行用[ (int) e楽器パート, k ].bStopped )
 						{
 							if( this.ct進行用[ (int) e楽器パート, k ].bReachedEndValue )
 							{
@@ -89,7 +89,7 @@ namespace DTXMania
 							}
 						}
 
-                        if( ( this.ctWailing炎[ (int) e楽器パート, k ] != null ) && ( !this.ctWailing炎[ (int) e楽器パート, k ].b停止中 ) )
+                        if( ( this.ctWailing炎[ (int) e楽器パート, k ] != null ) && ( !this.ctWailing炎[ (int) e楽器パート, k ].bStopped ) )
                         {
                             if( this.ctWailing炎[ (int) e楽器パート, k ].bReachedEndValue )
                             {
@@ -108,7 +108,7 @@ namespace DTXMania
 					EInstrumentPart e楽器パート2 = ( j == 0 ) ? EInstrumentPart.GUITAR : EInstrumentPart.BASS;
 					for( int m = 0; m < 4; m++ )
 					{
-						if( ( this.ct進行用[ (int) e楽器パート2, m ] != null ) && !this.ct進行用[ (int) e楽器パート2, m ].b停止中 )
+						if( ( this.ct進行用[ (int) e楽器パート2, m ] != null ) && !this.ct進行用[ (int) e楽器パート2, m ].bStopped )
 						{
                             //XGではWailingレーンの幅が42px
 							int x = ( ( e楽器パート2 == EInstrumentPart.GUITAR ) ? 160 : 1030 ) + 133;
@@ -179,7 +179,7 @@ namespace DTXMania
                             }
 						}
 
-                        if( ( this.ctWailing炎[ (int) e楽器パート2, m ] != null ) && !this.ctWailing炎[ (int) e楽器パート2, m ].b停止中 )
+                        if( ( this.ctWailing炎[ (int) e楽器パート2, m ] != null ) && !this.ctWailing炎[ (int) e楽器パート2, m ].bStopped )
                         {
                             if( this.txWailingFire != null )
                             {

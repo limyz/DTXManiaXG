@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using FDK;
 
@@ -252,7 +250,7 @@ namespace DTXMania
 			}
 			return false;
 		}
-		public bool b押されているGB( EPad pad )
+		public bool bPressingGB( EPad pad )
 		{
 			if( !this.bPressing( EInstrumentPart.GUITAR, pad ) )
 			{

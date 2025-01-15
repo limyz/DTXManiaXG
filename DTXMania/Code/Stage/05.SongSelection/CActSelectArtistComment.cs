@@ -181,7 +181,7 @@ namespace DTXMania
                 if (this.txコメントバー != null)
                     this.txコメントバー.tDraw2D(CDTXMania.app.Device, 560, 257);
 
-                if (this.ctComment.b進行中)
+                if (this.ctComment.bInProgress)
 				{
 					this.ctComment.tUpdateLoop();
 				}

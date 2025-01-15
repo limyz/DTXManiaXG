@@ -23,7 +23,7 @@ namespace DTXMania
 
         public void tアニメを完了させる()
         {
-            this.ctランク表示.nCurrentValue = this.ctランク表示.n終了値;
+            this.ctランク表示.nCurrentValue = this.ctランク表示.nEndValue;
         }
 
 
@@ -158,7 +158,7 @@ namespace DTXMania
                 CDTXMania.tReleaseTexture(ref this.txStageCleared);
                 CDTXMania.tReleaseTexture(ref this.txFullCombo);
                 CDTXMania.tReleaseTexture(ref this.txExcellent);
-                CDTXMania.t安全にDisposeする(ref this.txランク文字);
+                CDTXMania.tDisposeSafely(ref this.txランク文字);
                 base.OnManagedReleaseResources();
             }
         }
